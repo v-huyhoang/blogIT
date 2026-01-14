@@ -20,33 +20,34 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
 
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-progress --no-interaction
 
       - name: Run Laravel Pint (Test Mode)
         run: ./vendor/bin/pint --test
-  # eslint:
-  #   name: Frontend ESLint Check
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
-  #       with:
-  #         ref: ${{ github.head_ref }}
-  #         fetch-depth: 0
 
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: 20
+  eslint:
+    name: Frontend ESLint Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          fetch-depth: 0
 
-  #     - name: Install Node.js dependencies
-  #       run: npm ci
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-  #     - name: Run ESLint
-  #       run: npm run lint:check
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint:check
 
   prettier:
     name: Frontend Prettier Check
