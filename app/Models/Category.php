@@ -2,30 +2,30 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Cviebrock\EloquentSluggable\Sluggable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-	use HasFactory, Sluggable;
+    use HasFactory, Sluggable;
 
-	protected $table = 'categories';
+    protected $table = 'categories';
 
-	/**
-	 * The attributes that are mass assignable.
-	 *
-	 * @var list<string>
-	 */
-	protected $fillable = [
-		'name',
-		'parent_id',
-		'slug',
-		'description',
-		'is_active'
-	];
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'name',
+        'parent_id',
+        'slug',
+        'description',
+        'is_active',
+    ];
 
-	/**
+    /**
      * Auto generate slug
      */
     public function sluggable(): array
@@ -34,22 +34,22 @@ class Category extends Model
             'slug' => [
                 'source' => 'name',
                 'onUpdate' => true,
-            ]
+            ],
         ];
     }
 
-	public function children()
-	{
-		return $this->hasMany(Category::class, 'parent_id');
-	}
+    public function children()
+    {
+        return $this->hasMany(Category::class, 'parent_id');
+    }
 
-	public function parent()
-	{
-		return $this->belongsTo(Category::class, 'parent_id');
-	}
+    public function parent()
+    {
+        return $this->belongsTo(Category::class, 'parent_id');
+    }
 
-	public function childrenRecursive()
-	{
-		return $this->children()->with('childrenRecursive');
-	}
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
 }

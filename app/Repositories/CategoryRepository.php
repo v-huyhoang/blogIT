@@ -3,91 +3,78 @@
 namespace App\Repositories;
 
 use App\Models\Category;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryRepository
 {
-	/**
-	 * The Category model instance.
-	 *
-	 * @var Category
-	 */
-	protected Category $model;
+    /**
+     * The Category model instance.
+     */
+    protected Category $model;
 
-	/**
-	 * CategoryRepository constructor.
-	 *
-	 * @param Category $model
-	 */
-	public function __construct(Category $model)
-	{
-		$this->model = $model;
-	}
+    /**
+     * CategoryRepository constructor.
+     */
+    public function __construct(Category $model)
+    {
+        $this->model = $model;
+    }
 
-	/**
-	 * Get all category by params
-	 *
-	 * @param $onlyRoot
-	 * @return LengthAwarePaginator
-	 */
-	public function getAll($onlyRoot = false): LengthAwarePaginator
-	{
-		$query = $this->model->with('childrenRecursive');
+    /**
+     * Get all category by params
+     */
+    public function getAll($onlyRoot = false): LengthAwarePaginator
+    {
+        $query = $this->model->with('childrenRecursive');
 
-		if ($onlyRoot) {
-			$query->whereNull('parent_id');
-		}
-		return $query->orderBy('id', 'desc')->paginate(10);
-	}
+        if ($onlyRoot) {
+            $query->whereNull('parent_id');
+        }
 
-	/**
-	 * Find Category by ID
-	 *
-	 * @param int $id
-	 * @return Category|null
-	 */
-	public function find(int $id): ?Category
-	{
-		return $this->model->find($id);
-	}
+        return $query->orderBy('id', 'desc')->paginate(10);
+    }
 
-	/**
-	 * Create new Category
-	 *
-	 * @param array<string, mixed> $data
-	 * @return Category
-	 */
-	public function create(array $data): Category
-	{
-		return $this->model->create($data);
-	}
+    /**
+     * Find Category by ID
+     */
+    public function find(int $id): ?Category
+    {
+        return $this->model->find($id);
+    }
 
-	/**
-	 * Update category by ID
-	 *
-	 * @param int   $id
-	 * @param array<string, mixed> $data
-	 * @return bool
-	 */
-	public function update(int $id, array $data): bool
-	{
-		$category = $this->model->findOrFail($id);
-		return $category->update($data);
-	}
+    /**
+     * Create new Category
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function create(array $data): Category
+    {
+        return $this->model->create($data);
+    }
 
-	/**
-	 * Delete category by ID
-	 *
-	 * @param int $id
-	 * @return bool|null
-	 *
-	 * @throws \Exception
-	 */
-	public function delete(int $id): ?bool
-	{
-		$category = $this->model->findOrFail($id);
-		$category->children()->delete();
-		return $category->delete();
-	}
+    /**
+     * Update category by ID
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function update(int $id, array $data): bool
+    {
+        $category = $this->model->findOrFail($id);
+
+        return $category->update($data);
+    }
+
+    /**
+     * Delete category by ID
+     *
+     *
+     * @throws \Exception
+     */
+    public function delete(int $id): ?bool
+    {
+        $category = $this->model->findOrFail($id);
+        $category->children()->delete();
+
+        return $category->delete();
+    }
 }

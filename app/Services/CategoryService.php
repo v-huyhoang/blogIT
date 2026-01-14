@@ -3,65 +3,53 @@
 namespace App\Services;
 
 use App\Repositories\CategoryRepository;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryService
 {
-	protected $categoryRepository;
+    protected $categoryRepository;
 
-	/**
-	 * Inject Category repository
-	 *
-	 * @param CategoryRepository
-	 */
-	public function __construct(CategoryRepository $categoryRepository)
-	{
-		$this->categoryRepository = $categoryRepository;
-	}
+    /**
+     * Inject Category repository
+     *
+     * @param CategoryRepository
+     */
+    public function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
 
-	/**
-	 * Get all category with params
-	 *
-	 * @param bool $onlyRoot
-	 * @return LengthAwarePaginator
-	 */
-	public function getAll($onlyRoot = false): LengthAwarePaginator
-	{
-		return $this->categoryRepository->getAll($onlyRoot);
-	}
+    /**
+     * Get all category with params
+     *
+     * @param  bool  $onlyRoot
+     */
+    public function getAll($onlyRoot = false): LengthAwarePaginator
+    {
+        return $this->categoryRepository->getAll($onlyRoot);
+    }
 
-	/**
-	 * Store a new category
-	 *
-	 * @param array $data
-	 * @return void
-	 */
-	public function store(array $data): void
-	{
-		$this->categoryRepository->create($data);
-	}
+    /**
+     * Store a new category
+     */
+    public function store(array $data): void
+    {
+        $this->categoryRepository->create($data);
+    }
 
-	/**
-	 * Update an existing category
-	 *
-	 * @param int $id
-	 * @param array $data
-	 * @return void
-	 */
-	public function update(int $id, array $data): void
-	{
-		$this->categoryRepository->update($id, $data);
-	}
+    /**
+     * Update an existing category
+     */
+    public function update(int $id, array $data): void
+    {
+        $this->categoryRepository->update($id, $data);
+    }
 
-	/**
-	 * Delete an existing category
-	 *
-	 * @param int $id
-	 * @return void
-	 */
-	public function delete(int $id): void
-	{
-		$this->categoryRepository->delete($id);
-	}
+    /**
+     * Delete an existing category
+     */
+    public function delete(int $id): void
+    {
+        $this->categoryRepository->delete($id);
+    }
 }
