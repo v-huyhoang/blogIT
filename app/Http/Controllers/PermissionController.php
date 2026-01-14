@@ -33,7 +33,7 @@ class PermissionController extends Controller
             'name' => 'required|string|max:255|unique:permissions,name',
         ]);
 
-        // Create the permission
+        // Store the permission
         Permission::create(['name' => $request->name, 'description' => $request->description]);
 
         return to_route('permissions.index')->with('message', 'Permission created successfully.');
