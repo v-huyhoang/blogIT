@@ -3,9 +3,7 @@ name: CI - Pull Request
 on:
   pull_request:
     branches:
-      - staging
-      - main
-      - feat/new-ui-erp
+      - test-ghaction
     types: [opened, synchronize, reopened]
 
 jobs:
