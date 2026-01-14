@@ -25,6 +25,13 @@ class Category extends Model
         'is_active',
     ];
 
+    protected function casts()
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
+
     /**
      * Auto generate slug
      */

@@ -19,6 +19,8 @@ return new class extends Migration
             $table->text('description')->nullable()->comment('description for category');
             $table->boolean('is_active')->default(true)->comment('show or hide category');
             $table->timestamps();
+
+            $table->index('parent_id');
         });
     }
 
