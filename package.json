@@ -8,6 +8,9 @@
         "format": "prettier --write resources/",
         "format:check": "prettier --check resources/",
         "lint": "eslint . --fix",
+		"lint:check": "eslint .",
+        "test": "vitest --coverage",
+        "watch": "vite watch",
         "types": "tsc --noEmit"
     },
     "devDependencies": {
