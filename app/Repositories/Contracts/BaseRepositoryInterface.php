@@ -14,19 +14,19 @@ interface BaseRepositoryInterface
 
     public function query(): Builder;
 
-    public function find(int|string $id, array $columns = ['*']): ?Model;
+    public function find(int|string $id, array $columns = ['*'], array $relations = []): ?Model;
 
-    public function findOrFail(int|string $id, array $columns = ['*']): Model;
+    public function findOrFail(int|string $id, array $columns = ['*'], array $relations = []): Model;
 
-    public function getByIds(array $ids, array $columns = ['*']): Collection;
+    public function getByIds(array $ids, array $columns = ['*'], array $relations = []): Collection;
 
-    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator;
 
     public function create(array $attributes): Model;
 
-    public function update(Model $model, array $attributes): Model;
+    public function update(int|string $id, array $attributes): Model;
 
-    public function delete(Model $model): bool;
+    public function delete(int|string $id): bool;
 
     /** @return int affected rows */
     public function deleteMany(array $ids): int;

@@ -27,40 +27,40 @@ class CachedRepository implements BaseRepositoryInterface
         return $this->inner->query();
     }
 
-    public function find(int|string $id, array $columns = ['*']): ?Model
+    public function find(int|string $id, array $columns = ['*'], array $relations = []): ?Model
     {
         /** @var ?Model */
         return $this->remember(
             'find',
-            [$id, $columns],
-            fn (): ?Model => $this->inner->find($id, $columns)
+            [$id, $columns, $relations],
+            fn (): ?Model => $this->inner->find($id, $columns, $relations)
         );
     }
 
-    public function findOrFail(int|string $id, array $columns = ['*']): Model
+    public function findOrFail(int|string $id, array $columns = ['*'], array $relations = []): Model
     {
-        return $this->inner->findOrFail($id, $columns);
+        return $this->inner->findOrFail($id, $columns, $relations);
     }
 
-    public function getByIds(array $ids, array $columns = ['*']): Collection
+    public function getByIds(array $ids, array $columns = ['*'], array $relations = []): Collection
     {
         /** @var Collection */
         return $this->remember(
             'getByIds',
-            [$ids, $columns],
-            fn (): Collection => $this->inner->getByIds($ids, $columns)
+            [$ids, $columns, $relations],
+            fn (): Collection => $this->inner->getByIds($ids, $columns, $relations)
         );
     }
 
-    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator
+    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator
     {
         $page = (int) request()->integer('page', 1);
 
         /** @var LengthAwarePaginator */
         return $this->remember(
             'paginate',
-            [$perPage, $columns, $page],
-            fn (): LengthAwarePaginator => $this->inner->paginate($perPage, $columns)
+            [$perPage, $columns, $filters, $relations, $orderBy, $page],
+            fn (): LengthAwarePaginator => $this->inner->paginate($perPage, $columns, $filters, $relations, $orderBy)
         );
     }
 
@@ -70,14 +70,14 @@ class CachedRepository implements BaseRepositoryInterface
         return $this->inner->create($attributes);
     }
 
-    public function update(Model $model, array $attributes): Model
+    public function update(int|string $id, array $attributes): Model
     {
-        return $this->inner->update($model, $attributes);
+        return $this->inner->update($id, $attributes);
     }
 
-    public function delete(Model $model): bool
+    public function delete(int|string $id): bool
     {
-        return $this->inner->delete($model);
+        return $this->inner->delete($id);
     }
 
     public function deleteMany(array $ids): int

@@ -31,29 +31,53 @@ abstract class BaseRepository implements BaseRepositoryInterface
         return $this->model->newQuery();
     }
 
-    public function find(int|string $id, array $columns = ['*']): ?Model
+    public function find(int|string $id, array $columns = ['*'], array $relations = []): ?Model
     {
-        return $this->query()->select($columns)->find($id);
+        return $this->query()->with($relations)->select($columns)->find($id);
     }
 
-    public function findOrFail(int|string $id, array $columns = ['*']): Model
+    public function findOrFail(int|string $id, array $columns = ['*'], array $relations = []): Model
     {
-        return $this->query()->select($columns)->findOrFail($id);
+        return $this->query()->with($relations)->select($columns)->findOrFail($id);
     }
 
-    public function getByIds(array $ids, array $columns = ['*']): Collection
+    public function getByIds(array $ids, array $columns = ['*'], array $relations = []): Collection
     {
         $ids = array_values(array_unique(array_filter($ids, fn ($v) => $v !== null && $v !== '')));
         if ($ids === []) {
             return $this->model->newCollection();
         }
 
-        return $this->query()->select($columns)->whereKey($ids)->get();
+        return $this->query()->with($relations)->select($columns)->whereKey($ids)->get();
     }
 
-    public function paginate(int $perPage = 15, array $columns = ['*']): LengthAwarePaginator
+    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator
     {
-        return $this->query()->select($columns)->paginate($perPage);
+        $query = $this->query()->with($relations)->select($columns);
+
+        // Handle Search
+        if (isset($filters['q']) && method_exists($this->model, 'scopeSearch')) {
+            $query->search($filters['q']);
+        }
+
+        $filterData = $filters;
+        unset($filterData['q']); // Handled by scopeSearch or ignored if not supported
+
+        if (method_exists($this->model, 'scopeFilter')) {
+            $query->filter($filterData);
+        } else {
+            foreach ($filterData as $column => $value) {
+                if ($value !== null && $value !== '') {
+                    $query->where($column, $value);
+                }
+            }
+        }
+
+        foreach ($orderBy as $column => $direction) {
+            $query->orderBy($column, $direction);
+        }
+
+        return $query->paginate($perPage);
     }
 
     public function create(array $attributes): Model
@@ -65,9 +89,10 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }
     }
 
-    public function update(Model $model, array $attributes): Model
+    public function update(int|string $id, array $attributes): Model
     {
         try {
+            $model = $this->findOrFail($id);
             $model->fill($attributes);
             $model->save();
 
@@ -77,9 +102,11 @@ abstract class BaseRepository implements BaseRepositoryInterface
         }
     }
 
-    public function delete(Model $model): bool
+    public function delete(int|string $id): bool
     {
         try {
+            $model = $this->findOrFail($id);
+
             return (bool) $model->delete();
         } catch (Throwable $e) {
             throw new RepositoryException("Delete failed: {$this->model()}", 0, $e);
