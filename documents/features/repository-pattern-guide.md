@@ -1,28 +1,55 @@
-# Repository Pattern with Caching & Events
+# 📘 Repository Pattern with Caching & Events
 
-This project implements a robust **Repository Pattern** enhanced with **Decorator Pattern** to handle Caching and Event dispatching transparently. This ensures that business logic (Controllers/Services) interacts with a clean interface while performance (caching) and side-effects (events) are handled automatically in the background.
+> **Status**: Active
+> **Pattern**: Decorator + Repository
+> **Example Model**: `Post`
+
+This guide details our robust **Repository Pattern** implementation, enhanced with the **Decorator Pattern** to handle Caching and Event dispatching transparently.
+
+---
+
+## 📑 Table of Contents
+
+<details close>
+<summary>Click to expand/collapse</summary>
+
+- [📘 Repository Pattern with Caching \& Events](#-repository-pattern-with-caching--events)
+	- [📑 Table of Contents](#-table-of-contents)
+	- [1. Architecture Overview](#1-architecture-overview)
+		- [Visual Flow](#visual-flow)
+	- [2. Why This Architecture?](#2-why-this-architecture)
+	- [3. Component Breakdown](#3-component-breakdown)
+		- [3.1 The Interface](#31-the-interface)
+			- [❓ Why do that?](#-why-do-that)
+			- [🛠 How to do that?](#-how-to-do-that)
+			- [📝 Sample](#-sample)
+		- [3.2 The Eloquent Implementation](#32-the-eloquent-implementation)
+			- [❓ Why do that?](#-why-do-that-1)
+			- [🛠 How to do that?](#-how-to-do-that-1)
+			- [📝 Sample](#-sample-1)
+		- [3.3 The Cache Decorator](#33-the-cache-decorator)
+			- [❓ Why do that?](#-why-do-that-2)
+			- [🛠 How to do that?](#-how-to-do-that-2)
+			- [📝 Sample](#-sample-2)
+		- [3.4 The Event Decorator](#34-the-event-decorator)
+			- [❓ Why do that?](#-why-do-that-3)
+			- [🛠 How to do that?](#-how-to-do-that-3)
+			- [📝 Sample](#-sample-3)
+	- [4. Binding It All Together](#4-binding-it-all-together)
+	- [5. Usage Example](#5-usage-example)
+	- [6. How to Create a New Repository](#6-how-to-create-a-new-repository)
+		- [🚀 The Easy Way (Command)](#-the-easy-way-command)
+		- [🛠 The Manual Way (Checklist)](#-the-manual-way-checklist)
+	- [7. Directory Structure](#7-directory-structure)
+	- [8. Pros and Cons](#8-pros-and-cons)
+
+</details>
+
+---
 
 ## 1. Architecture Overview
 
-We use a **Layered Decorator Stack** to wrap the actual Eloquent Repository.
-
-### The Stack (Outer to Inner)
-
-1. **Eventful Repository (Outer Layer)**:
-    * Intercepts "Write" operations (`create`, `update`, `delete`).
-    * Delegates the action to the inner layer.
-    * Dispatches a `RepositoryChanged` event upon success.
-    * *Read operations are passed through.*
-
-2. **Cached Repository (Middle Layer)**:
-    * Intercepts "Read" operations (`find`, `getByIds`, `paginate`).
-    * Checks the Cache Store (Redis/File) using a unique key.
-    * **Hit**: Returns cached data.
-    * **Miss**: Calls the inner layer, caches the result, and returns it.
-    * *Write operations are passed through.*
-
-3. **Eloquent Repository (Core Layer)**:
-    * The actual implementation interacting with the Database via Eloquent Models.
+We use a **Layered Decorator Stack** to wrap the actual Eloquent Repository. This allows us to "**`decorate`**" the basic database operations with additional behavior (caching, events) without modifying the core logic.
 
 ### Visual Flow
 
@@ -51,136 +78,257 @@ graph TD
     end
 ```
 
-## 2. Key Components
+---
 
-### Interfaces (`app/Repositories/Contracts/`)
+## 2. Why This Architecture?
 
-* `BaseRepositoryInterface`: Standard CRUD methods (`find`, `create`, `update`, `delete`, `paginate`).
-* `SoftDeletesRepository`: Adds `restoreMany` and `forceDeleteMany`.
-* *Example*: `PostRepositoryInterface` extends both.
-
-### Core Implementation (`app/Repositories/Eloquent/`)
-
-* `BaseRepository`: Abstract class implementing standard Eloquent logic.
-* `SoftDeleteRepository`: Trait/Base for soft-deletable models.
-* *Example*: `PostRepository` extends `SoftDeleteRepository`.
-
-### Decorators
-
-* **Cache**: `CachedRepository`, `SoftDeleteCachedRepository`.
-* **Events**: `EventfulRepository`, `SoftDeleteEventfulRepository`.
-
-## 3. Caching Strategy & Invalidation
-
-We use a **Smart Invalidation Strategy** to avoid clearing the entire cache while ensuring data consistency.
-
-### Cache Keys
-
-Keys are generated using `CacheKeys` helper:
-
-* Format: `{prefix}:{namespace}:{method}:{hash_of_args}:v{version}`
-* Example: `repo:PostRepository:find:123:v1`
-
-### Invalidation Logic
-
-When a write operation occurs (`RepositoryChanged` event):
-
-1. **Tag-based (Redis)**: If supported, we flush all keys with the tag `repo:PostRepository`. This is precise and fast.
-2. **Version-based (File/Database)**: If tags aren't supported, we increment a "Version Key" (`repo:PostRepository:v`).
-    * Old keys become invalid because the generator will now look for `...:v2` instead of `...:v1`.
-
-## 4. How to Add a New Repository
-
-### Option A: Using Artisan Command (Recommended)
-
-The project provides a dedicated command to scaffold all necessary files and register the binding automatically.
-
-```bash
-# Standard repository
-php artisan make:repo Product
-
-# Repository with Soft Delete capability
-php artisan make:repo Product --soft
-```
-
-**What this command does:**
-
-1. Creates `ProductRepositoryInterface` in `app/Repositories/Contracts/`.
-2. Creates `ProductRepository` in `app/Repositories/Eloquent/`.
-3. Creates `CachedProductRepository` in `app/Repositories/Cache/`.
-4. Creates `EventfulProductRepository` in `app/Repositories/Decorators/`.
-5. Automatically inserts the binding in `app/Providers/RepositoryServiceProvider.php`.
+- **Separation of Concerns**: Your Controller doesn't care about Caching. Your Eloquent model doesn't care about Events. Each layer does exactly one thing.
+- **Performance by Default**: Read operations are cached automatically.
+- **Consistency**: Every model follows the exact same flow.
+- **Testability**: You can easily mock the `PostRepositoryInterface` in your unit tests, ignoring the database entirely.
 
 ---
 
-### Option B: Manual Creation (Under the Hood)
+## 3. Component Breakdown
 
-If you prefer to do it manually or need a very custom setup, follow these steps:
+We will use the **`Post`** model as our primary example.
 
-#### Step 1: Create Interface
+### 3.1 The Interface
 
-Create `app/Repositories/Contracts/ProductRepositoryInterface.php`:
+The contract that defines *what* can be done, not *how*.
+
+#### ❓ Why do that?
+
+To decouple the application code (Services/Controllers) from the specific implementation (Database/Eloquent). This makes swapping implementations or mocking for tests trivial.
+
+#### 🛠 How to do that?
+
+Create an interface extending `BaseRepositoryInterface`. Add method signatures for any custom logic specific to Posts.
+
+#### 📝 Sample
+
+**File:** `app/Repositories/Contracts/PostRepositoryInterface.php`
 
 ```php
-namespace App\Repositories\Contracts;
-
-interface ProductRepositoryInterface extends BaseRepositoryInterface
+interface PostRepositoryInterface extends BaseRepositoryInterface
 {
-    // Add custom methods if needed
+    // Custom method specific to Posts
+    public function getPublishedPosts(int $limit = 10): LengthAwarePaginator;
 }
 ```
 
-### Step 2: Create Implementation
+---
 
-Create `app/Repositories/Eloquent/ProductRepository.php`:
+### 3.2 The Eloquent Implementation
+
+The actual worker that talks to the database.
+
+#### ❓ Why do that?
+
+We need a concrete class to execute SQL queries using Eloquent models.
+
+#### 🛠 How to do that?
+
+Extend `BaseRepository` and implement your interface. Define the `model()` method.
+
+#### 📝 Sample
+
+**File:** `app/Repositories/Eloquent/PostRepository.php`
 
 ```php
-namespace App\Repositories\Eloquent;
-
-use App\Models\Product;
-use App\Repositories\Contracts\ProductRepositoryInterface;
-
-class ProductRepository extends BaseRepository implements ProductRepositoryInterface
+class PostRepository extends BaseRepository implements PostRepositoryInterface
 {
     public function model(): string
     {
-        return Product::class;
+        return Post::class;
+    }
+
+    public function getPublishedPosts(int $limit = 10): LengthAwarePaginator
+    {
+        // Pure Eloquent Logic
+        return $this->query()
+            ->where('status', 'published')
+            ->orderByDesc('published_at')
+            ->paginate($limit);
     }
 }
 ```
 
-### Step 3: Bind in Service Provider
+---
 
-Open `app/Providers/RepositoryServiceProvider.php` and register the binding in the `register` method:
+### 3.3 The Cache Decorator
+
+The layer responsible for remembering results.
+
+#### ❓ Why do that?
+
+To reduce database load and speed up read operations. By wrapping the repository, we can cache specific methods without polluting the Eloquent repository code.
+
+#### 🛠 How to do that?
+
+Extend `CachedRepository`. Override read methods (like `getPublishedPosts`) to use `remember()`.
+
+#### 📝 Sample
+
+**File:** `app/Repositories/Cache/CachedPostRepository.php`
+
+```php
+class CachedPostRepository extends CachedRepository implements PostRepositoryInterface
+{
+    public function getPublishedPosts(int $limit = 10): LengthAwarePaginator
+    {
+        // Cache Key is generated automatically based on method name + args
+        return $this->remember(
+            'getPublishedPosts', 
+            [$limit, request('page')], // Arguments that affect the result
+            fn() => $this->inner->getPublishedPosts($limit) // Fallback if cache miss
+        );
+    }
+}
+```
+
+---
+
+### 3.4 The Event Decorator
+
+The layer responsible for announcing changes.
+
+#### ❓ Why do that?
+
+When a Post is created, updated, or deleted, we need to clear the cache. We might also want to trigger other actions (emails, logs). This decorator handles that automatically.
+
+#### 🛠 How to do that?
+
+Extend `EventfulRepository`. Usually, you don't need to add anything here unless you have custom *write* methods. Standard write methods (`create`, `update`, `delete`) are already handled by the parent class.
+
+#### 📝 Sample
+
+**File:** `app/Repositories/Decorators/EventfulPostRepository.php`
+
+```php
+class EventfulPostRepository extends EventfulRepository implements PostRepositoryInterface
+{
+    // Pass-through custom read methods
+    public function getPublishedPosts(int $limit = 10): LengthAwarePaginator
+    {
+        return $this->inner->getPublishedPosts($limit);
+    }
+    
+    // If you had a custom write method, you would wrap it here:
+    // public function publish(int $id) {
+    //     $this->inner->publish($id);
+    //     Event::dispatch(new RepositoryChanged($this->namespace));
+    // }
+}
+```
+
+---
+
+## 4. Binding It All Together
+
+We must tell Laravel: *"When someone asks for `PostRepositoryInterface`, give them the `EventfulPostRepository` (which wraps `CachedPostRepository`, which wraps `PostRepository`)."*
+
+**File:** `app/Providers/RepositoryServiceProvider.php`
 
 ```php
 public function register(): void
 {
-    // ... other bindings
-    $this->bindRepo(ProductRepositoryInterface::class, ProductRepository::class);
+    // ...
+    // The bindRepo helper handles the wrapping automatically!
+    $this->bindRepo(PostRepositoryInterface::class, PostRepository::class);
 }
 ```
 
-**That's it!** The `bindRepo` method automatically wraps your `ProductRepository` with the `CachedRepository` and `EventfulRepository` decorators.
+---
 
-## 5. Configuration (`config/repository.php`)
+## 5. Usage Example
 
-| Key | Environment Variable | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `cache.enabled` | `REPOSITORY_CACHE` | `true` | Master switch for repository caching. |
-| `cache.ttl` | `REPOSITORY_CACHE_TTL` | `300` | Cache duration in seconds (5 mins). |
-| `cache.prefix` | `REPOSITORY_CACHE_PREFIX` | `repo` | Prefix for cache keys to avoid collisions. |
-| `cache.use_tags` | `REPOSITORY_CACHE_TAGS` | `true` | Use Cache Tags if the store supports it (Redis). |
+In your Service or Controller, you simply inject the interface. You don't need to know about the complex caching/event logic happening behind the scenes.
 
-## 6. Advanced: Custom Decorators
+```php
+class PostController extends Controller
+{
+    public function __construct(
+        protected PostRepositoryInterface $postRepo
+    ) {}
 
-If `ProductRepository` needs specific caching logic (e.g., specific keys) or event logic, you can extend the decorators:
+    public function index()
+    {
+        // 1. Calls EventfulPostRepository (Pass through)
+        // 2. Calls CachedPostRepository (Checks Redis...)
+        // 3. Returns cached data OR calls DB
+        $posts = $this->postRepo->getPublishedPosts();
+        
+        return Inertia::render('Posts/Index', ['posts' => $posts]);
+    }
+    
+    public function store(Request $request)
+    {
+        // 1. Calls EventfulPostRepository
+        // 2. Delegates to DB
+        // 3. On success, Dispatches 'RepositoryChanged' event
+        // 4. Listener hears event -> Clears Cache for Posts
+        $this->postRepo->create($request->validated());
+    }
+}
+```
 
-1. Create `App\Repositories\Cache\CachedProductRepository` extending `CachedRepository`.
-2. Create `App\Repositories\Decorators\EventfulProductRepository` extending `EventfulRepository`.
-3. Update `RepositoryServiceProvider` logic to use these specific classes when binding `ProductRepositoryInterface`.
+---
 
-## 7. Troubleshooting
+## 6. How to Create a New Repository
 
-* **Data not updating?** Check if the Queue Listener is running (if events are queued) or if `REPOSITORY_CACHE` is causing sticky data. Try running `php artisan cache:clear`.
-* **Cache Tags not working?** Ensure your cache driver is `redis` or `memcached`. `file` and `database` drivers do not support tags (system falls back to versioning).
+We have a dedicated Artisan command to generate all 4 files and register the binding for you.
+
+### 🚀 The Easy Way (Command)
+
+```bash
+# Standard Repository
+php artisan make:repo Post
+
+# With Soft Deletes support
+php artisan make:repo Post --soft
+```
+
+### 🛠 The Manual Way (Checklist)
+
+1. Create **`Contracts/PostRepositoryInterface.php`**
+2. Create **`Eloquent/PostRepository.php`**
+3. Create **`Cache/CachedPostRepository.php`**
+4. Create **`Decorators/EventfulPostRepository.php`**
+5. Register in **`RepositoryServiceProvider.php`**
+
+---
+
+## 7. Directory Structure
+
+Your `app/Repositories` folder will look like this:
+
+```
+app/Repositories/
+├── Contracts/                  # 1. Interfaces
+│   ├── BaseRepositoryInterface.php
+│   └── PostRepositoryInterface.php
+│
+├── Eloquent/                   # 2. Database Logic
+│   ├── BaseRepository.php
+│   └── PostRepository.php
+│
+├── Cache/                      # 3. Cache Logic
+│   ├── CachedRepository.php
+│   └── CachedPostRepository.php
+│
+└── Decorators/                 # 4. Event Logic
+    ├── EventfulRepository.php
+    └── EventfulPostRepository.php
+```
+
+---
+
+## 8. Pros and Cons
+
+| Feature | Pros | Cons |
+| :--- | :--- | :--- |
+| **Separation** | Code is clean, focused, and follows SOLID principles. | More files to manage (4 files per model). |
+| **Caching** | Automatic, robust, and centralized. | Developers must remember to add cache wrappers for custom methods. |
+| **Performance** | Significant speedup for read-heavy apps. | Slight overhead in function calls (negligible). |
+| **Maintenance** | Easy to change implementation details without breaking the app. | Higher learning curve for junior developers. |
