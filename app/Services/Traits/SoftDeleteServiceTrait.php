@@ -4,6 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services\Traits;
 
+use App\Repositories\Contracts\SoftDeletesRepository;
+
+/**
+ * Trait SoftDeleteServiceTrait
+ *
+ * @property SoftDeletesRepository $repository
+ */
 trait SoftDeleteServiceTrait
 {
     /**
@@ -11,10 +18,7 @@ trait SoftDeleteServiceTrait
      */
     public function restore(int|string $id): bool
     {
-        /** @var \App\Repositories\Interfaces\SoftDeleteRepositoryInterface $repository */
-        $repository = $this->repository;
-
-        return $repository->restore($id);
+        return $this->repository->restore($id);
     }
 
     /**
@@ -22,35 +26,26 @@ trait SoftDeleteServiceTrait
      */
     public function forceDelete(int|string $id): bool
     {
-        /** @var \App\Repositories\Interfaces\SoftDeleteRepositoryInterface $repository */
-        $repository = $this->repository;
-
-        return $repository->forceDelete($id);
+        return $this->repository->forceDelete($id);
     }
 
     /**
      * Restore multiple soft-deleted models by IDs.
      *
-     * @param  array<int|string>  $ids
+     * @param  array<int, int|string>  $ids
      */
-    public function bulkRestore(array $ids): bool
+    public function bulkRestore(array $ids): int
     {
-        /** @var \App\Repositories\Interfaces\SoftDeleteRepositoryInterface $repository */
-        $repository = $this->repository;
-
-        return $repository->bulkRestore($ids);
+        return $this->repository->restoreMany($ids);
     }
 
     /**
      * Permanently remove multiple models by IDs.
      *
-     * @param  array<int|string>  $ids
+     * @param  array<int, int|string>  $ids
      */
-    public function bulkForceDelete(array $ids): bool
+    public function bulkForceDelete(array $ids): int
     {
-        /** @var \App\Repositories\Interfaces\SoftDeleteRepositoryInterface $repository */
-        $repository = $this->repository;
-
-        return $repository->bulkForceDelete($ids);
+        return $this->repository->forceDeleteMany($ids);
     }
 }
