@@ -85,6 +85,7 @@ class RolesAndPermissionsSeeder extends Seeder
         // Roles
         $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
         $admin = Role::firstOrCreate(['name' => 'Admin']);
+        $editor = Role::firstOrCreate(['name' => 'Editor']);
         $author = Role::firstOrCreate(['name' => 'Author']);
         $subscriber = Role::firstOrCreate(['name' => 'Subscriber']);
 
@@ -122,6 +123,15 @@ class RolesAndPermissionsSeeder extends Seeder
             'moderate_comments',
         ]);
 
+        $editor->givePermissionTo([
+            'view_posts',
+            'edit_posts',
+            'approve_posts',
+            'reject_posts',
+            'view_comments',
+            'moderate_comments',
+        ]);
+
         $author->givePermissionTo([
             'view_posts',
             'create_posts',
@@ -138,7 +148,7 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Admin user
         $adminUser = User::firstOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'admin@gmail.com'],
             [
                 'name' => 'Admin',
                 'password' => Hash::make('password'),
@@ -148,4 +158,5 @@ class RolesAndPermissionsSeeder extends Seeder
 
         $adminUser->assignRole($superAdmin);
     }
+
 }

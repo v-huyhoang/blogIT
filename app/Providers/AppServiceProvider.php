@@ -8,6 +8,8 @@ use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Support\Facades\Gate;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,7 +27,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Eloquent strict mode
-        if (! app()->isProduction()) {
+        if (!app()->isProduction()) {
             Model::shouldBeStrict();
         }
 
@@ -43,6 +45,10 @@ class AppServiceProvider extends ServiceProvider
                 'job' => $event->job->resolveName(),
                 'exception' => $event->exception->getMessage(),
             ]);
+        });
+
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('Super Admin') ? true : null;
         });
     }
 }
