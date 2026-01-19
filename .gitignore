@@ -32,3 +32,4 @@ GEMINI.md
 .gemini/
 gha-creds-*.json
 _ide_helper_models.php
+/.agent

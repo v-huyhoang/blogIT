@@ -16,7 +16,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { usePermissions } from '@/hooks/user-permissions';
+import { usePermissions } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Role } from '@/types/role_permissions';
@@ -66,32 +66,19 @@ export default function Roles({ roles }: { roles: Role }) {
 					</CardHeader>
 					<hr />
 					<CardContent>
-						<Table>
-							<TableHeader className="bg-slate-500 dark:bg-slate-700">
+						<Table className="table-striped table">
+							<TableHeader className="bg-gray-50">
 								<TableRow>
-									<TableHead className="font-bold text-white">
-										ID
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Name
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Description
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Permissions
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Actions
-									</TableHead>
+									<TableHead>ID</TableHead>
+									<TableHead>Name</TableHead>
+									<TableHead>Description</TableHead>
+									<TableHead>Permissions</TableHead>
+									<TableHead>Actions</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{roles.data.map((role, index) => (
-									<TableRow
-										key={index + 1}
-										className="odd:bg-slate-100 dark:odd:bg-slate-800"
-									>
+									<TableRow key={index + 1}>
 										<TableCell>{role.id}</TableCell>
 										<TableCell>{role.name}</TableCell>
 										<TableCell>
@@ -125,9 +112,9 @@ export default function Roles({ roles }: { roles: Role }) {
 											)}
 											{can('delete_roles') && (
 												<Button
-													className="ms-2"
-													variant={'destructive'}
-													size={'sm'}
+													variant="outline"
+													size="sm"
+													className="ms-2 text-red-600 hover:bg-red-50"
 													onClick={() =>
 														deleteRole(role.id)
 													}

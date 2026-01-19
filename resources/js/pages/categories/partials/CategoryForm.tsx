@@ -10,12 +10,14 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ActiveStatus, statusMap } from '@/enums/ActiveEnum';
 import { CategoryFormProps } from '@/types/category';
 import { CornerDownRight } from 'lucide-react';
 
 export default function CategoryForm({
 	form: { data, setData, errors },
 	flatCategories,
+	isEdit = false,
 }: CategoryFormProps) {
 	return (
 		<div className="space-y-4 py-4">
@@ -107,6 +109,42 @@ export default function CategoryForm({
 					<p className="text-sm text-red-500">{errors.description}</p>
 				)}
 			</div>
+
+			{/* ACTIVE */}
+			{isEdit && (
+				<div className="grid gap-3">
+					<Label htmlFor="is_active">Active</Label>
+					<Select
+						value={
+							data.is_active
+								? String(ActiveStatus.ACTIVE)
+								: String(ActiveStatus.INACTIVE)
+						}
+						onValueChange={(val) =>
+							setData(
+								'is_active',
+								Number(val) === ActiveStatus.ACTIVE,
+							)
+						}
+					>
+						<SelectTrigger className="w-[180px]">
+							<SelectValue placeholder="Select status" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectGroup>
+								<SelectLabel>Status</SelectLabel>
+								{Object.entries(statusMap).map(
+									([value, { label }]) => (
+										<SelectItem key={value} value={value}>
+											{label}
+										</SelectItem>
+									),
+								)}
+							</SelectGroup>
+						</SelectContent>
+					</Select>
+				</div>
+			)}
 		</div>
 	);
 }

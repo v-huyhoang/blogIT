@@ -26,7 +26,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { usePermissions } from '@/hooks/user-permissions';
+import { usePermissions } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Permission, SinglePermission } from '@/types/role_permissions';
@@ -133,35 +133,20 @@ export default function Permissions({
 					</CardHeader>
 					<hr />
 					<CardContent>
-						<Table>
-							<TableHeader className="bg-slate-500 dark:bg-slate-700">
+						<Table className="table-striped table">
+							<TableHeader className="bg-gray-50">
 								<TableRow>
-									<TableHead className="font-bold text-white">
-										ID
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Name
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Description
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Created at
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Updated at
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Actions
-									</TableHead>
+									<TableHead>ID</TableHead>
+									<TableHead>Name</TableHead>
+									<TableHead>Description</TableHead>
+									<TableHead>Created at</TableHead>
+									<TableHead>Updated at</TableHead>
+									<TableHead>Actions</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{permissions.data.map((permission, index) => (
-									<TableRow
-										key={index + 1}
-										className="odd:bg-slate-100 dark:odd:bg-slate-800"
-									>
+									<TableRow key={index + 1}>
 										<TableCell>{permission.id}</TableCell>
 										<TableCell>{permission.name}</TableCell>
 										<TableCell>
@@ -187,9 +172,9 @@ export default function Permissions({
 											)}
 											{can('delete_permissions') && (
 												<Button
-													className="ms-2"
-													variant={'destructive'}
-													size={'sm'}
+													variant="outline"
+													size="sm"
+													className="ms-2 text-red-600 hover:bg-red-50"
 													onClick={() => {
 														deletePermission(
 															permission.id,

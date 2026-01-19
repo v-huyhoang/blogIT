@@ -16,11 +16,10 @@ class RolesAndPermissionsSeeder extends Seeder
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-        // Define Permissions from web.php
         $permissions = [
+            // Permission & Role
             'view_permissions',
             'create_permissions',
             'edit_permissions',
@@ -31,30 +30,113 @@ class RolesAndPermissionsSeeder extends Seeder
             'edit_roles',
             'delete_roles',
 
+            // User
             'view_users',
             'create_users',
             'edit_users',
             'delete_users',
+            'assign_roles',
 
-            // Category Permissions
+            // Post
+            'view_posts',
+            'create_posts',
+            'edit_posts',
+            'delete_posts',
+
+            'publish_posts',
+            'unpublish_posts',
+            'approve_posts',
+            'reject_posts',
+
+            'view_own_posts',
+            'edit_own_posts',
+            'delete_own_posts',
+
+            // Category
             'view_categories',
             'create_categories',
             'edit_categories',
             'delete_categories',
+
+            // Tag
+            'view_tags',
+            'create_tags',
+            'edit_tags',
+            'delete_tags',
+
+            // Comment
+            'view_comments',
+            'delete_comments',
+            'moderate_comments',
+
+            // Interaction
+            'like_posts',
+            'bookmark_posts',
+
+            // System
+            'view_settings',
+            'edit_settings',
         ];
 
-        // Create Permissions
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
         }
 
-        // Create Admin Role
-        $adminRole = Role::firstOrCreate(['name' => 'Admin']);
+        // Roles
+        $superAdmin = Role::firstOrCreate(['name' => 'Super Admin']);
+        $admin = Role::firstOrCreate(['name' => 'Admin']);
+        $author = Role::firstOrCreate(['name' => 'Author']);
+        $subscriber = Role::firstOrCreate(['name' => 'Subscriber']);
 
-        // Grant all permissions to Admin role
-        $adminRole->givePermissionTo(Permission::all());
+        // Assign permissions
+        $superAdmin->givePermissionTo(Permission::all());
 
-        // Create Admin User
+        $admin->givePermissionTo([
+            'view_users',
+            'create_users',
+            'edit_users',
+            'delete_users',
+            'assign_roles',
+
+            'view_posts',
+            'create_posts',
+            'edit_posts',
+            'delete_posts',
+            'publish_posts',
+            'unpublish_posts',
+            'approve_posts',
+            'reject_posts',
+
+            'view_categories',
+            'create_categories',
+            'edit_categories',
+            'delete_categories',
+
+            'view_tags',
+            'create_tags',
+            'edit_tags',
+            'delete_tags',
+
+            'view_comments',
+            'delete_comments',
+            'moderate_comments',
+        ]);
+
+        $author->givePermissionTo([
+            'view_posts',
+            'create_posts',
+            'view_own_posts',
+            'edit_own_posts',
+            'delete_own_posts',
+        ]);
+
+        $subscriber->givePermissionTo([
+            'view_posts',
+            'like_posts',
+            'bookmark_posts',
+        ]);
+
+        // Admin user
         $adminUser = User::firstOrCreate(
             ['email' => 'admin@example.com'],
             [
@@ -64,17 +146,6 @@ class RolesAndPermissionsSeeder extends Seeder
             ]
         );
 
-        // Assign Admin role to the user
-        $adminUser->assignRole($adminRole);
-
-        // Create a regular user for testing (if needed, otherwise remove)
-        $user = User::firstOrCreate(
-            ['email' => 'user@example.com'],
-            [
-                'name' => 'Test User',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
+        $adminUser->assignRole($superAdmin);
     }
 }

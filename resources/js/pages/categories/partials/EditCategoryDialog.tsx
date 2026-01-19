@@ -14,6 +14,7 @@ export default function EditCategoryDialog({
 		name: '',
 		description: '',
 		parent_id: null,
+		is_active: true,
 	});
 	const { setData, put, processing, reset } = form;
 
@@ -23,6 +24,7 @@ export default function EditCategoryDialog({
 				name: category.name,
 				description: category.description,
 				parent_id: category.parent_id,
+				is_active: category.is_active,
 			});
 		} else {
 			reset();
@@ -56,6 +58,7 @@ export default function EditCategoryDialog({
 				flatCategories={flatCategories.filter(
 					(c) => c.id !== category?.id,
 				)}
+				isEdit={true}
 			/>
 		</FormDialog>
 	);
