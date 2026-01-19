@@ -6,6 +6,7 @@ use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Queue\Events\JobFailed;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\ServiceProvider;
 
@@ -43,6 +44,10 @@ class AppServiceProvider extends ServiceProvider
                 'job' => $event->job->resolveName(),
                 'exception' => $event->exception->getMessage(),
             ]);
+        });
+
+        Gate::before(function ($user, $ability) {
+            return $user->hasRole('Super Admin') ? true : null;
         });
     }
 }
