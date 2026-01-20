@@ -6,6 +6,7 @@ export interface SingleCategory {
 	slug: string;
 	description: string;
 	parent_id: number | null;
+	is_active: boolean;
 	created_at: string;
 	updated_at: string;
 	children_recursive?: SingleCategory[];
@@ -23,6 +24,7 @@ export interface CategoryFormData {
 	name: string;
 	description: string;
 	parent_id: number | null;
+	is_active: boolean;
 }
 
 export interface CategoryFormProps {
@@ -30,11 +32,12 @@ export interface CategoryFormProps {
 		data: CategoryFormData;
 		setData: (
 			key: keyof CategoryFormData,
-			value: string | number | null,
+			value: string | number | null | boolean,
 		) => void;
 		errors: Partial<Record<keyof CategoryFormData, string>>;
 	};
 	flatCategories: FlatCategory[];
+	isEdit?: boolean;
 }
 
 export interface EditCategoryDialogProps {

@@ -26,7 +26,7 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { usePermissions } from '@/hooks/user-permissions';
+import { usePermissions } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import type { PageProps } from '@/types/page';
@@ -137,35 +137,20 @@ export default function Users({ users }: { users: User }) {
 								</TableBody>
 							</Table>
 						</div>
-						<Table>
-							<TableHeader className="bg-slate-500 dark:bg-slate-700">
+						<Table className="table-striped table">
+							<TableHeader className="bg-gray-50">
 								<TableRow>
-									<TableHead className="font-bold text-white">
-										ID
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Name
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Email
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Roles
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Created At
-									</TableHead>
-									<TableHead className="font-bold text-white">
-										Actions
-									</TableHead>
+									<TableHead>ID</TableHead>
+									<TableHead>Name</TableHead>
+									<TableHead>Email</TableHead>
+									<TableHead>Roles</TableHead>
+									<TableHead>Created At</TableHead>
+									<TableHead>Actions</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{users.data.map((user, index) => (
-									<TableRow
-										key={index + 1}
-										className="odd:bg-slate-100 dark:odd:bg-slate-800"
-									>
+									<TableRow key={index + 1}>
 										<TableCell>{user.id}</TableCell>
 										<TableCell>{user.name}</TableCell>
 										<TableCell>{user.email}</TableCell>
@@ -196,9 +181,9 @@ export default function Users({ users }: { users: User }) {
 											)}
 											{can('delete_users') && (
 												<Button
-													className="ms-2"
-													variant={'destructive'}
-													size={'sm'}
+													variant="outline"
+													size="sm"
+													className="ms-2 text-red-600 hover:bg-red-50"
 													onClick={() =>
 														deleteUser(user.id)
 													}

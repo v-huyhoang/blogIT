@@ -25,7 +25,7 @@ class CategoryRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
             'parent_id' => 'nullable|exists:categories,id',
-            'is_active' => 'nullable|boolean|default:true',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -33,6 +33,7 @@ class CategoryRequest extends FormRequest
     {
         $this->merge([
             'parent_id' => $this->parent_id === 'root' ? null : $this->parent_id,
+            'is_active' => $this->boolean('is_active'),
         ]);
     }
 }

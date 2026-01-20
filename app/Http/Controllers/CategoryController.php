@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Category;
+use App\DTOs\Category\CreateCategoryDTO;
+use App\DTOs\Category\UpdateCategoryDTO;
 use App\Http\Requests\CategoryRequest;
 use App\Services\CategoryService;
 use Illuminate\Http\RedirectResponse;
@@ -39,7 +41,8 @@ class CategoryController extends Controller
     public function store(CategoryRequest $request): RedirectResponse
     {
         try {
-            $this->categoryService->store($request->validated());
+            $dto = CreateCategoryDTO::fromRequest($request->validated());
+            $this->categoryService->store($dto);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }
@@ -53,7 +56,8 @@ class CategoryController extends Controller
     public function update(CategoryRequest $request, int $id): RedirectResponse
     {
         try {
-            $this->categoryService->update($id, $request->validated());
+            $dto = UpdateCategoryDTO::fromRequest($request->validated());
+            $this->categoryService->update($id, $dto);
         } catch (\Exception $e) {
             return redirect()->back()->withErrors(['error' => $e->getMessage()]);
         }

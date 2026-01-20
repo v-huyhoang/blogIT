@@ -1,3 +1,4 @@
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
 	Table,
@@ -7,11 +8,11 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { usePermissions } from '@/hooks/user-permissions';
+import { ActiveStatus, statusMap } from '@/enums/ActiveEnum';
+import { usePermissions } from '@/hooks/use-permissions';
 import { confirm } from '@/lib/dialog';
 import { SingleCategory } from '@/types/category';
 import { router } from '@inertiajs/react';
-import { format } from 'date-fns';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
 
@@ -93,11 +94,22 @@ export default function CategoriesTable({
 					<TableCell className="w-[350px] break-words">
 						{cat.description}
 					</TableCell>
-
 					<TableCell>
-						{format(cat.created_at, 'dd-MM-yyyy')}
+						{(() => {
+							const status = cat.is_active
+								? ActiveStatus.ACTIVE
+								: ActiveStatus.INACTIVE;
+							const config = statusMap[status];
+							return (
+								<Badge
+									variant={config.variant}
+									className={config.className}
+								>
+									{config.label}
+								</Badge>
+							);
+						})()}
 					</TableCell>
-
 					<TableCell className="flex gap-1">
 						<Button
 							variant="outline"
@@ -128,13 +140,13 @@ export default function CategoriesTable({
 
 	return (
 		<Table className="table-striped table">
-			<TableHeader>
+			<TableHeader className="bg-gray-50">
 				<TableRow>
 					{/* <TableHead>Id</TableHead> */}
 					<TableHead>Name</TableHead>
 					<TableHead>Slug</TableHead>
 					<TableHead>Description</TableHead>
-					<TableHead>Created At</TableHead>
+					<TableHead>Active</TableHead>
 					<TableHead>Actions</TableHead>
 				</TableRow>
 			</TableHeader>

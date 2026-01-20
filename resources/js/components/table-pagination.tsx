@@ -9,8 +9,8 @@ export default function TablePagination({
 	from,
 }: Pagination) {
 	return (
-		<div className="item-center dark:bg-gray-808 flex flex-col justify-between gap-4 border-t bg-white px-8 pt-5 sm:flex-row">
-			<div className="item-center flex justify-between">
+		<div className="dark:bg-gray-808 flex flex-col items-center justify-between gap-4 border-t bg-white px-8 pt-5 sm:flex-row">
+			<div className="flex items-center justify-between">
 				<span className="text-sm text-muted-foreground">
 					Showing {from} to {to} of {total} entries
 				</span>

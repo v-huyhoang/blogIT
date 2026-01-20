@@ -44,12 +44,10 @@ class CategoryRepository
 
     /**
      * Create new Category
-     *
-     * @param  array<string, mixed>  $data
      */
-    public function create(array $data): Category
+    public function create(array $attributes): Category
     {
-        return $this->model->create($data);
+        return $this->model->create($attributes);
     }
 
     /**
