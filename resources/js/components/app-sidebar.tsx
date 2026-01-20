@@ -15,6 +15,7 @@ import { Link } from '@inertiajs/react';
 import {
 	BoxesIcon,
 	ContainerIcon,
+	FileText,
 	Key,
 	LayoutGrid,
 	LockKeyholeIcon,
@@ -58,6 +59,12 @@ const mainNavItems: NavItem[] = [
 		href: '/products',
 		icon: BoxesIcon,
 		permission: 'view_products',
+	},
+	{
+		title: 'Posts',
+		href: '/admin/posts',
+		icon: FileText,
+		permission: 'view_categories',
 	},
 ];
 

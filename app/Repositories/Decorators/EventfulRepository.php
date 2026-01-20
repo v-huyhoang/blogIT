@@ -5,7 +5,6 @@ namespace App\Repositories\Decorators;
 use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Events\RepositoryChanged;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Event;
@@ -30,37 +29,17 @@ class EventfulRepository implements BaseRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function model(): string
+    public function findForUpdate(int|string $id): Model
     {
-        return $this->inner->model();
+        return $this->inner->findForUpdate($id);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function query(): Builder
+    public function findWithSharedLock(int|string $id): Model
     {
-        return $this->inner->query();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function lockForUpdate(): static
-    {
-        $this->inner->lockForUpdate();
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function sharedLock(): static
-    {
-        $this->inner->sharedLock();
-
-        return $this;
+        return $this->inner->findWithSharedLock($id);
     }
 
     /**
@@ -98,9 +77,9 @@ class EventfulRepository implements BaseRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator
+    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = []): LengthAwarePaginator
     {
-        return $this->inner->paginate($perPage, $columns, $filters, $relations, $orderBy);
+        return $this->inner->paginate($perPage, $columns, $filters, $relations);
     }
 
     /**

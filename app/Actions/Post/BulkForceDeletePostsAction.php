@@ -1,0 +1,16 @@
+<?php
+
+namespace App\Actions\Post;
+
+use App\Repositories\Contracts\PostRepositoryInterface;
+
+class BulkForceDeletePostsAction
+{
+    public function __construct(private readonly PostRepositoryInterface $repository) {}
+
+    /** @param array<int,int> $ids */
+    public function handle(array $ids): int
+    {
+        return $this->repository->forceDeleteMany($ids);
+    }
+}

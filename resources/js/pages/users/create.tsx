@@ -13,11 +13,12 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
+import UserController from '@/actions/App/Http/Controllers/UserController';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
 		title: 'Create Users',
-		href: '/users/create',
+		href: UserController.create.url(),
 	},
 ];
 
@@ -31,7 +32,7 @@ export default function CreateUsers({ roles }: { roles: string[] }) {
 
 	function submit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		post('/users');
+		post(UserController.store.url());
 	}
 
 	return (
@@ -42,7 +43,7 @@ export default function CreateUsers({ roles }: { roles: string[] }) {
 					<CardHeader className="flex items-center justify-between">
 						<CardTitle>Create User</CardTitle>
 						<CardAction>
-							<Link href={'/users'}>
+							<Link href={UserController.index.url()}>
 								<Button variant="default">Go back</Button>
 							</Link>
 						</CardAction>

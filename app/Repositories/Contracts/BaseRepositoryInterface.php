@@ -3,7 +3,6 @@
 namespace App\Repositories\Contracts;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -15,20 +14,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
  */
 interface BaseRepositoryInterface
 {
-    /**
-     * Get the model class name.
-     *
-     * @return class-string<TModel>
-     */
-    public function model(): string;
-
-    /**
-     * Get a new query builder instance.
-     *
-     * @return Builder<TModel>
-     */
-    public function query(): Builder;
-
     /**
      * Find a model by its primary key.
      *
@@ -71,13 +56,13 @@ interface BaseRepositoryInterface
     /**
      * Paginate the models.
      *
+	 * @param  int  $perPage
      * @param  array<int, string>  $columns
      * @param  array<string, mixed>  $filters
      * @param  array<int, string>  $relations
-     * @param  array<string, string>  $orderBy
      * @return LengthAwarePaginator<TModel>
      */
-    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = []): LengthAwarePaginator;
 
     /**
      * Create a new model instance.
@@ -114,12 +99,16 @@ interface BaseRepositoryInterface
     public function deleteMany(array $ids): int;
 
     /**
-     * Lock the selected rows for update.
+     * Find a record and lock it FOR UPDATE.
+     *
+     * @return TModel
      */
-    public function lockForUpdate(): static;
+    public function findForUpdate(int|string $id): Model;
 
     /**
-     * Share lock the selected rows.
+     * Find a record with SHARED LOCK.
+     *
+     * @return TModel
      */
-    public function sharedLock(): static;
+    public function findWithSharedLock(int|string $id): Model;
 }

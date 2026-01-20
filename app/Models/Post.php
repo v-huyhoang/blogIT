@@ -3,16 +3,32 @@
 namespace App\Models;
 
 use App\Enums\PostStatus;
+use App\Traits\Filterable;
+use App\Traits\HasSlug;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
+    use Filterable;
+
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use HasFactory;
+
+    use HasSlug;
+    use SoftDeletes;
+
+    protected static string $slugFrom = 'title';
+
+    protected array $searchable = [
+        'title',
+        'excerpt',
+    ];
 
     protected $fillable = [
         'user_id',
@@ -21,11 +37,19 @@ class Post extends Model
         'slug',
         'excerpt',
         'content',
+        'image',
+        'meta_title',
+        'meta_description',
         'status',
         'published_at',
     ];
 
-    protected function casts()
+    protected $appends = [
+        'status_metadata',
+        'image_url',
+    ];
+
+    protected function casts(): array
     {
         return [
             'status' => PostStatus::class,
@@ -33,7 +57,20 @@ class Post extends Model
         ];
     }
 
-    public function author(): BelongsTo
+    public function getStatusMetadataAttribute(): array
+    {
+        return [
+            'label' => $this->status->label(),
+            'color' => $this->status->color(),
+        ];
+    }
+
+    public function getImageUrlAttribute(): ?string
+    {
+        return $this->image ? Storage::url($this->image) : null;
+    }
+
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_id');
     }

@@ -6,9 +6,11 @@ use App\Repositories\Cache\CachedRepository;
 use App\Repositories\Cache\RepositoryCache;
 use App\Repositories\Cache\RepositoryCacheInvalidator;
 use App\Repositories\Cache\SoftDeleteCachedRepository;
+use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Repositories\Contracts\SoftDeletesRepository;
 use App\Repositories\Decorators\EventfulRepository;
 use App\Repositories\Decorators\SoftDeleteEventfulRepository;
+use App\Repositories\Eloquent\PostRepository;
 use App\Repositories\Events\RepositoryChanged;
 use App\Repositories\Listeners\InvalidateRepositoryCache;
 use Illuminate\Support\ServiceProvider;
@@ -21,6 +23,7 @@ final class RepositoryServiceProvider extends ServiceProvider
         $this->app->singleton(RepositoryCacheInvalidator::class);
 
         // REPO_BINDINGS:START
+        $this->bindRepo(PostRepositoryInterface::class, PostRepository::class);
         // REPO_BINDINGS:END
     }
 

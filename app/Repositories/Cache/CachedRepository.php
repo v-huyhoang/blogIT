@@ -5,7 +5,6 @@ namespace App\Repositories\Cache;
 use App\Repositories\Contracts\BaseRepositoryInterface;
 use Closure;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
@@ -32,39 +31,17 @@ class CachedRepository implements BaseRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function model(): string
+    public function findForUpdate(int|string $id): Model
     {
-        return $this->inner->model();
+        return $this->inner->findForUpdate($id);
     }
 
     /**
      * {@inheritDoc}
      */
-    public function query(): Builder
+    public function findWithSharedLock(int|string $id): Model
     {
-        return $this->inner->query();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function lockForUpdate(): static
-    {
-        $this->skipCache = true;
-        $this->inner->lockForUpdate();
-
-        return $this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function sharedLock(): static
-    {
-        $this->skipCache = true;
-        $this->inner->sharedLock();
-
-        return $this;
+        return $this->inner->findWithSharedLock($id);
     }
 
     /**
@@ -114,14 +91,14 @@ class CachedRepository implements BaseRepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator
+    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = []): LengthAwarePaginator
     {
         $page = (int) request()->integer('page', 1);
 
         return $this->remember(
             'paginate',
-            [$perPage, $columns, $filters, $relations, $orderBy, $page],
-            fn (): LengthAwarePaginator => $this->inner->paginate($perPage, $columns, $filters, $relations, $orderBy)
+            [$perPage, $columns, $filters, $relations, $page],
+            fn (): LengthAwarePaginator => $this->inner->paginate($perPage, $columns, $filters, $relations)
         );
     }
 

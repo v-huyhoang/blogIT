@@ -16,11 +16,12 @@ import { RolePermission, SinglePermission } from '@/types/role_permissions';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
 		title: 'Edit Roles',
-		href: '/roles',
+		href: RoleController.index.url(),
 	},
 ];
 
@@ -53,7 +54,7 @@ export default function EditRoles({
 
 	function submit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		put(`/roles/${role.id}`, {
+		put(RoleController.update.url({ role: role.id }), {
 			onSuccess: () => {
 				toast.success('Role updated successfully');
 			},
@@ -72,7 +73,7 @@ export default function EditRoles({
 					<CardHeader className="flex items-center justify-between">
 						<CardTitle>Edit Role</CardTitle>
 						<CardAction>
-							<Link href={'/roles'}>
+							<Link href={RoleController.index.url()}>
 								<Button variant="default">Go back</Button>
 							</Link>
 						</CardAction>

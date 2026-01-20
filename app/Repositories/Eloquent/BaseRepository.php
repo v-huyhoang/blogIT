@@ -2,6 +2,11 @@
 
 namespace App\Repositories\Eloquent;
 
+use App\Filters\FilterPipeline;
+use App\Filters\Pipes\ColumnFilter;
+use App\Filters\Pipes\SearchFilter;
+use App\Filters\Pipes\SortFilter;
+use App\Filters\Pipes\TrashedFilter;
 use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Exceptions\RepositoryException;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -19,192 +24,168 @@ use Throwable;
  */
 abstract class BaseRepository implements BaseRepositoryInterface
 {
-    /**
-     * @var TModel
-     */
-    protected Model $model;
+	/**
+	 * @var TModel
+	 */
+	protected Model $model;
 
-    protected ?string $lockMode = null;
+	/**
+	 * BaseRepository constructor.
+	 *
+	 * @throws RepositoryException
+	 */
+	public function __construct()
+	{
+		$class = $this->model();
+		if (! is_subclass_of($class, Model::class)) {
+			throw new RepositoryException("Invalid model for repository: {$class}");
+		}
+		$this->model = new $class;
+	}
 
-    /**
-     * BaseRepository constructor.
-     *
-     * @throws RepositoryException
-     */
-    public function __construct()
-    {
-        $class = $this->model();
-        if (! is_subclass_of($class, Model::class)) {
-            throw new RepositoryException("Invalid model for repository: {$class}");
-        }
-        $this->model = new $class;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	abstract public function model(): string;
 
-    /**
-     * {@inheritDoc}
-     */
-    abstract public function model(): string;
+	public function findForUpdate(int|string $id): Model
+	{
+		return $this->query()->lockForUpdate()->findOrFail($id);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public function lockForUpdate(): static
-    {
-        $this->lockMode = 'lockForUpdate';
+	public function findWithSharedLock(int|string $id): Model
+	{
+		return $this->query()->sharedLock()->findOrFail($id);
+	}
 
-        return $this;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	protected function query(): Builder
+	{
+		return $this->model->newQuery();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public function sharedLock(): static
-    {
-        $this->lockMode = 'sharedLock';
+	/**
+	 * {@inheritDoc}
+	 */
+	public function find(int|string $id, array $columns = ['*'], array $relations = []): ?Model
+	{
+		return $this->query()->with($relations)->select($columns)->find($id);
+	}
 
-        return $this;
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findOrFail(int|string $id, array $columns = ['*'], array $relations = []): Model
+	{
+		return $this->query()->with($relations)->select($columns)->findOrFail($id);
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public function query(): Builder
-    {
-        $query = $this->model->newQuery();
+	/**
+	 * {@inheritDoc}
+	 */
+	public function findBy(string $attribute, mixed $value, array $columns = ['*'], array $relations = []): ?Model
+	{
+		return $this->query()->with($relations)->select($columns)->where($attribute, $value)->first();
+	}
 
-        if ($this->lockMode) {
-            $query->{$this->lockMode}();
-            $this->lockMode = null;
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getByIds(array $ids, array $columns = ['*'], array $relations = []): Collection
+	{
+		$ids = array_values(array_unique(array_filter($ids, fn($v) => $v !== null && $v !== '')));
+		if ($ids === []) {
+			return $this->model->newCollection();
+		}
 
-        return $query;
-    }
+		return $this->query()->with($relations)->select($columns)->whereKey($ids)->get();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public function find(int|string $id, array $columns = ['*'], array $relations = []): ?Model
-    {
-        return $this->query()->with($relations)->select($columns)->find($id);
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = []): LengthAwarePaginator
+	{
+		$query = $this->query()->with($relations)->select($columns);
 
-    /**
-     * {@inheritDoc}
-     */
-    public function findOrFail(int|string $id, array $columns = ['*'], array $relations = []): Model
-    {
-        return $this->query()->with($relations)->select($columns)->findOrFail($id);
-    }
+		$this->applyFilters($query, $filters);
+		return $query
+			->paginate($perPage)
+			->withQueryString();
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public function findBy(string $attribute, mixed $value, array $columns = ['*'], array $relations = []): ?Model
-    {
-        return $this->query()->with($relations)->select($columns)->where($attribute, $value)->first();
-    }
+	/**
+	 * Apply filter pipeline.
+	 */
+	protected function applyFilters(Builder $query, array $filters): void
+	{
+		$pipeline = new FilterPipeline([
+			TrashedFilter::class,
+			SearchFilter::class,
+			ColumnFilter::class,
+			SortFilter::class,
+		]);
 
-    /**
-     * {@inheritDoc}
-     */
-    public function getByIds(array $ids, array $columns = ['*'], array $relations = []): Collection
-    {
-        $ids = array_values(array_unique(array_filter($ids, fn ($v) => $v !== null && $v !== '')));
-        if ($ids === []) {
-            return $this->model->newCollection();
-        }
+		$pipeline->apply($query, $filters);
+	}
 
-        return $this->query()->with($relations)->select($columns)->whereKey($ids)->get();
-    }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function create(array $attributes): Model
+	{
+		try {
+			return $this->query()->create($attributes);
+		} catch (Throwable $e) {
+			throw new RepositoryException("Create failed: {$this->model()}", 0, $e);
+		}
+	}
 
-    /**
-     * {@inheritDoc}
-     */
-    public function paginate(int $perPage = 15, array $columns = ['*'], array $filters = [], array $relations = [], array $orderBy = []): LengthAwarePaginator
-    {
-        $query = $this->query()->with($relations)->select($columns);
+	/**
+	 * {@inheritDoc}
+	 */
+	public function update(int|string $id, array $attributes): Model
+	{
+		try {
+			$model = $this->findOrFail($id);
+			$model->fill($attributes);
+			$model->save();
 
-        // Handle Search
-        if (isset($filters['q']) && method_exists($this->model, 'scopeSearch')) {
-            $query->search($filters['q']);
-        }
+			return $model;
+		} catch (Throwable $e) {
+			throw new RepositoryException("Update failed: {$this->model()}", 0, $e);
+		}
+	}
 
-        $filterData = $filters;
-        unset($filterData['q']);
+	/**
+	 * {@inheritDoc}
+	 */
+	public function delete(int|string $id): bool
+	{
+		try {
+			$model = $this->findOrFail($id);
 
-        if (method_exists($this->model, 'scopeFilter')) {
-            $query->filter($filterData);
-        } else {
-            foreach ($filterData as $column => $value) {
-                if ($value !== null && $value !== '') {
-                    $query->where($column, $value);
-                }
-            }
-        }
+			return (bool) $model->delete();
+		} catch (Throwable $e) {
+			throw new RepositoryException("Delete failed: {$this->model()}", 0, $e);
+		}
+	}
 
-        foreach ($orderBy as $column => $direction) {
-            $query->orderBy($column, $direction);
-        }
+	/**
+	 * {@inheritDoc}
+	 */
+	public function deleteMany(array $ids): int
+	{
+		if ($ids === []) {
+			return 0;
+		}
 
-        return $query->paginate($perPage);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function create(array $attributes): Model
-    {
-        try {
-            return $this->query()->create($attributes);
-        } catch (Throwable $e) {
-            throw new RepositoryException("Create failed: {$this->model()}", 0, $e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function update(int|string $id, array $attributes): Model
-    {
-        try {
-            $model = $this->findOrFail($id);
-            $model->fill($attributes);
-            $model->save();
-
-            return $model;
-        } catch (Throwable $e) {
-            throw new RepositoryException("Update failed: {$this->model()}", 0, $e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function delete(int|string $id): bool
-    {
-        try {
-            $model = $this->findOrFail($id);
-
-            return (bool) $model->delete();
-        } catch (Throwable $e) {
-            throw new RepositoryException("Delete failed: {$this->model()}", 0, $e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function deleteMany(array $ids): int
-    {
-        $ids = array_values(array_unique(array_filter($ids, fn ($v) => $v !== null && $v !== '')));
-        if ($ids === []) {
-            return 0;
-        }
-
-        try {
-            return (int) $this->query()->whereKey($ids)->delete();
-        } catch (Throwable $e) {
-            throw new RepositoryException("DeleteMany failed: {$this->model()}", 0, $e);
-        }
-    }
+		try {
+			return (int) $this->query()->whereKey($ids)->delete();
+		} catch (Throwable $e) {
+			throw new RepositoryException("DeleteMany failed: {$this->model()}", 0, $e);
+		}
+	}
 }
