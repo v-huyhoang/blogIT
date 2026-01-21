@@ -12,11 +12,11 @@ import { SearchBox } from '@/components/search-box';
 import { cleanFilters } from '@/lib/clean-filters';
 import { PostFilters } from '@/types/post';
 import { ChevronDown, Filter } from 'lucide-react';
-import { AuthorSection } from './filters/author';
-import { DateSection } from './filters/date';
-import { SortSection } from './filters/sort';
-import { StatusSection } from './filters/status';
-import { TaxonomySection } from './filters/taxonomy';
+import { AuthorSection } from '../../../../components/filters/author';
+import { DateSection } from '../../../../components/filters/date';
+import { SortSection } from '../../../../components/filters/sort';
+import { StatusSection } from '../../../../components/filters/status';
+import { TaxonomySection } from '../../../../components/filters/taxonomy';
 
 export function PostFilterAdvance({
 	filters,

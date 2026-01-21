@@ -10,9 +10,4 @@ final class SortDTO extends BaseDTO
         public readonly string $field = 'created_at',
         public readonly string $direction = 'desc',
     ) {}
-
-    public function toOrderBy(): array
-    {
-        return [$this->field => $this->direction];
-    }
 }

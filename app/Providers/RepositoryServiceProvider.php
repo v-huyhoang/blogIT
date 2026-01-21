@@ -33,27 +33,30 @@ final class RepositoryServiceProvider extends ServiceProvider
     }
 
     /**
-     * Bind contract -> concrete, wrap with:
-     * - Cached{Model}Repository + Eventful{Model}Repository if exists (preferred)
-     * - otherwise fallback to generic decorators (soft/non-soft aware)
+     * Register a binding from a contract to a concrete class.
+     *
+     * Automatically wraps the concrete class in Eventful and Cached decorators.
+     *
+     * If the contract implements SoftDeletesRepository, it will also be wrapped in
+     * SoftDeleteCachedRepository and SoftDeleteEventfulRepository.
+     *
+     * @param  string  $contract  The interface name of the repository.
+     * @param  string  $concrete  The class name of the repository implementation.
      */
     public function bindRepo(string $contract, string $concrete): void
     {
         $this->app->bind($contract, function ($app) use ($contract, $concrete) {
             $baseRepo = $app->make($concrete);
 
-            // Used for cache keys + RepositoryChanged event payload (NOT PHP namespace)
             $repoKey = class_basename($concrete); // e.g. PostRepository
 
             $cache = $app->make(RepositoryCache::class);
 
-            // Prefer per-model wrappers (best DX: correct typing, easy customize)
             $wrapped = $this->wrapModelDecorators($baseRepo, $cache, $repoKey, $concrete);
             if ($wrapped !== null) {
                 return $wrapped;
             }
 
-            // Fallback: generic decorators
             $isSoftDeletes = is_subclass_of($contract, SoftDeletesRepository::class);
 
             if ($isSoftDeletes) {
@@ -70,12 +73,13 @@ final class RepositoryServiceProvider extends ServiceProvider
     }
 
     /**
-     * Convention:
-     * - App\Repositories\Cache\Cached{Model}Repository
-     * - App\Repositories\Decorators\Eventful{Model}Repository
+     * Wraps the given repository with caching and eventful decorators based on the given model name.
      *
-     * Where {Model} is derived from concrete name:
-     *   PostRepository => Post
+     * @param  object  $baseRepo  The base repository to wrap.
+     * @param  RepositoryCache  $cache  The cache instance to use.
+     * @param  string  $repoKey  The key to use in the cache.
+     * @param  string  $concrete  The concrete repository class name.
+     * @return object|null The wrapped repository or null if the decorators do not exist.
      */
     private function wrapModelDecorators(object $baseRepo, RepositoryCache $cache, string $repoKey, string $concrete): ?object
     {

@@ -32,7 +32,7 @@ import {
 	Settings,
 	X,
 } from 'lucide-react';
-import { FormEventHandler, useRef, useState } from 'react';
+import { FormEventHandler, useEffect, useRef, useState } from 'react';
 
 export interface PostFormDataType {
 	title: string;
@@ -71,23 +71,54 @@ export function PostForm({
 	);
 	const imageInputRef = useRef<HTMLInputElement>(null);
 
-	const { data, setData, errors, processing, post: postMethod } =
-		useForm<PostFormDataType>({
-			title: post?.title ?? '',
-			slug: post?.slug ?? '',
-			excerpt: post?.excerpt ?? '',
-			content: post?.content ?? '',
-			image: post?.image ?? null,
-			meta_title: post?.meta_title ?? '',
-			meta_description: post?.meta_description ?? '',
-			category_id: post?.category?.id ?? '',
-			status: post?.status ?? 'draft',
-			published_at: post?.published_at
-				? new Date(post.published_at).toISOString().slice(0, 16)
-				: '',
-			tag_ids: post?.tags?.map((t) => t.id) ?? [],
-			_method: method,
-		});
+	const {
+		data,
+		setData,
+		errors,
+		processing,
+		post: postMethod,
+	} = useForm<PostFormDataType>({
+		title: post?.title ?? '',
+		slug: post?.slug ?? '',
+		excerpt: post?.excerpt ?? '',
+		content: post?.content ?? '',
+		image: post?.image ?? null,
+		meta_title: post?.meta_title ?? '',
+		meta_description: post?.meta_description ?? '',
+		category_id: post?.category?.id ?? '',
+		status: post?.status ?? 'draft',
+		published_at: post?.published_at
+			? new Date(post.published_at).toISOString().slice(0, 16)
+			: '',
+		tag_ids: post?.tags?.map((t) => t.id) ?? [],
+		_method: method,
+	});
+
+	const dataRef = useRef(data);
+	dataRef.current = data;
+
+	useEffect(() => {
+		const timer = setTimeout(() => {
+			const currentData = dataRef.current;
+			if (!post && currentData.title) {
+				const slug = currentData.title
+					.toLowerCase()
+					.normalize('NFD')
+					.replace(/[\u0300-\u036f]/g, '')
+					.replace(/[^a-z0-9]+/g, '-')
+					.replace(/(^-|-$)+/g, '');
+
+				setData({
+					...currentData,
+					slug,
+					meta_title: currentData.title,
+					meta_description: currentData.title,
+				});
+			}
+		}, 500);
+
+		return () => clearTimeout(timer);
+	}, [data.title]);
 
 	const handleSubmit: FormEventHandler = (e) => {
 		e.preventDefault();
@@ -111,18 +142,7 @@ export function PostForm({
 	};
 
 	const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		const title = e.target.value;
-		setData('title', title);
-		if (!post) {
-			const slug = title
-				.toLowerCase()
-				.normalize('NFD')
-				.replace(/[\u0300-\u036f]/g, '')
-				.replace(/[^a-z0-9]+/g, '-')
-				.replace(/(^-|-$)+/g, '');
-			setData('slug', slug);
-			if (!data.meta_title) setData('meta_title', title);
-		}
+		setData('title', e.target.value);
 	};
 
 	const toggleTag = (tagId: number) => {
@@ -140,7 +160,10 @@ export function PostForm({
 			{/* Header Section */}
 			<div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 				<div className="flex-1 space-y-2">
-					<Label htmlFor="title" className="text-md font-bold">
+					<Label
+						htmlFor="title"
+						className="text-sm font-medium text-muted-foreground"
+					>
 						Post Title
 					</Label>
 					<Input
@@ -148,7 +171,11 @@ export function PostForm({
 						value={data.title}
 						onChange={handleTitleChange}
 						placeholder="What's on your mind?"
-						className="border-transparent hover:border-gray-300 bg-transparent text-xl font-semibold"
+						className={cn(
+							'border-transparent bg-transparent text-xl font-semibold hover:border-gray-300',
+							errors.title &&
+								'border-destructive focus-visible:ring-destructive',
+						)}
 					/>
 					<div className="flex items-center gap-1 text-xs text-muted-foreground">
 						<span className="font-medium">Slug:</span>
@@ -156,7 +183,6 @@ export function PostForm({
 					</div>
 					<InputError message={errors.title} />
 				</div>
-
 			</div>
 
 			<div className="flex w-full max-w-7xl flex-col gap-6">
@@ -195,7 +221,7 @@ export function PostForm({
 							<CardContent className="grid gap-6">
 								<div className="space-y-6 duration-300 animate-in fade-in slide-in-from-bottom-2">
 									<div className="space-y-2">
-										<div className="flex items-center gap-2 text-sm font-bold text-foreground">
+										<div className="flex items-center gap-2 text-sm text-foreground">
 											<Info className="size-4 text-primary" />
 											Excerpt
 										</div>
@@ -210,13 +236,17 @@ export function PostForm({
 											}
 											placeholder="A short summary to hook your readers..."
 											rows={2}
-											className="resize-none border-none bg-muted/30 focus-visible:ring-1"
+											className={cn(
+												'resize-none border-none bg-muted/30 focus-visible:ring-1',
+												errors.excerpt &&
+													'ring-1 ring-destructive',
+											)}
 										/>
 										<InputError message={errors.excerpt} />
 									</div>
 
 									<div className="space-y-2">
-										<div className="flex items-center gap-2 text-sm font-bold text-foreground">
+										<div className="flex items-center gap-2 text-sm text-foreground">
 											<ChevronRight className="size-4 text-primary" />
 											Main Content
 										</div>
@@ -231,15 +261,16 @@ export function PostForm({
 											}
 											placeholder="Write your story here..."
 											rows={15}
-											className="border-none bg-muted/30 font-serif text-lg leading-relaxed focus-visible:ring-1"
+											className={cn(
+												'border-none bg-muted/30 font-serif text-lg leading-relaxed focus-visible:ring-1',
+												errors.content &&
+													'ring-1 ring-destructive',
+											)}
 										/>
 										<InputError message={errors.content} />
 									</div>
 								</div>
 							</CardContent>
-							{/* <CardFooter>
-								<Button>Save changes</Button>
-							</CardFooter> */}
 						</Card>
 					</TabsContent>
 					<TabsContent value="settings">
@@ -260,7 +291,7 @@ export function PostForm({
 											</div>
 											<div className="grid gap-4">
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
 														Status
 													</Label>
 													<Select
@@ -269,17 +300,32 @@ export function PostForm({
 															setData('status', v)
 														}
 													>
-														<SelectTrigger className="h-10 bg-background">
+														<SelectTrigger
+															className={cn(
+																'h-10 bg-background hover:cursor-pointer',
+																errors.status &&
+																	'border-destructive focus:ring-destructive',
+															)}
+														>
 															<SelectValue />
 														</SelectTrigger>
 														<SelectContent>
-															<SelectItem value="draft">
+															<SelectItem
+																value="draft"
+																className="hover:cursor-pointer"
+															>
 																Draft
 															</SelectItem>
-															<SelectItem value="pending">
+															<SelectItem
+																value="pending"
+																className="hover:cursor-pointer"
+															>
 																Pending
 															</SelectItem>
-															<SelectItem value="published">
+															<SelectItem
+																value="published"
+																className="hover:cursor-pointer"
+															>
 																Published
 															</SelectItem>
 														</SelectContent>
@@ -290,7 +336,7 @@ export function PostForm({
 												</div>
 
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
 														Publish Date
 													</Label>
 													<div className="relative">
@@ -307,7 +353,11 @@ export function PostForm({
 																		.value,
 																)
 															}
-															className="h-10 bg-background"
+															className={cn(
+																'h-10 bg-background hover:cursor-pointer',
+																errors.published_at &&
+																	'border-destructive focus-visible:ring-destructive',
+															)}
 														/>
 													</div>
 													<InputError
@@ -324,11 +374,11 @@ export function PostForm({
 										<div className="space-y-6 rounded-xl border bg-muted/10 p-6">
 											<div className="flex items-center gap-2 text-sm font-bold">
 												<Settings className="size-4 text-primary" />
-												Organization
+												Taxonomy
 											</div>
 											<div className="grid gap-4">
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
 														Category
 													</Label>
 													<Select
@@ -342,13 +392,20 @@ export function PostForm({
 															)
 														}
 													>
-														<SelectTrigger className="h-10 bg-background">
+														<SelectTrigger
+															className={cn(
+																'h-10 bg-background hover:cursor-pointer',
+																errors.category_id &&
+																	'border-destructive focus:ring-destructive',
+															)}
+														>
 															<SelectValue placeholder="Select category" />
 														</SelectTrigger>
 														<SelectContent>
 															{categories.map(
 																(c) => (
 																	<SelectItem
+																		className="hover:cursor-pointer"
 																		key={
 																			c.id
 																		}
@@ -370,10 +427,16 @@ export function PostForm({
 												</div>
 
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground uppercase">
+													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
 														Tags
 													</Label>
-													<div className="flex min-h-[42px] flex-wrap gap-2 rounded-lg border bg-background p-3">
+													<div
+														className={cn(
+															'flex min-h-[42px] flex-wrap gap-2 rounded-lg border bg-background p-3',
+															errors.tag_ids &&
+																'border-destructive',
+														)}
+													>
 														{tags.map((tag) => {
 															const selected = (
 																data.tag_ids as number[]
@@ -388,7 +451,7 @@ export function PostForm({
 																		)
 																	}
 																	className={cn(
-																		'rounded-full border px-3 py-1 text-[11px] font-bold transition-all',
+																		'rounded-full border px-3 py-1 text-[11px] font-bold transition-all hover:cursor-pointer',
 																		selected
 																			? 'border-primary bg-primary text-primary-foreground'
 																			: 'border-transparent bg-muted/50 text-muted-foreground hover:border-primary/30',
@@ -408,117 +471,119 @@ export function PostForm({
 									</div>
 								</div>
 							</CardContent>
-							{/* <CardFooter>
-								<Button>Save password</Button>
-							</CardFooter> */}
 						</Card>
 					</TabsContent>
 					<TabsContent value="seo">
 						<Card>
 							<CardHeader>
-								<CardTitle>SEO and media</CardTitle>
+								<CardTitle>SEO and Media</CardTitle>
 								<CardDescription>
 									Setting SEO for post
 								</CardDescription>
 							</CardHeader>
-							<CardContent className="grid gap-6">
-								<div className="grid gap-8 duration-300 animate-in fade-in slide-in-from-bottom-2 md:grid-cols-[1fr_300px]">
-									<div className="space-y-6">
-										<div className="space-y-4 rounded-xl border bg-muted/20 p-6">
-											<div className="flex items-center gap-2 text-sm font-bold">
-												<Search className="size-4 text-primary" />
-												Search Engine Optimization
-											</div>
-											<div className="space-y-4">
-												<div className="space-y-2">
-													<Label className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
-														Meta Title
-													</Label>
-													<Input
-														value={data.meta_title}
-														onChange={(e) =>
-															setData(
-																'meta_title',
-																e.target.value,
-															)
-														}
-														placeholder="Post title in search results"
-														className="bg-background"
-													/>
-													<div className="flex justify-between text-[10px] text-muted-foreground">
-														<span>
-															Recommended: 50-60
-															chars
-														</span>
-														<span
-															className={cn(
-																data.meta_title
-																	.length > 60
-																	? 'text-destructive'
-																	: '',
-															)}
-														>
-															{
-																data.meta_title
-																	.length
-															}
-															/60
-														</span>
-													</div>
+							<CardContent>
+								<div className="grid gap-8 duration-300 animate-in fade-in slide-in-from-bottom-2 md:grid-cols-[1fr_350px]">
+									<div className="h-full space-y-4 rounded-xl border bg-muted/20 p-6">
+										<div className="flex items-center gap-2 text-sm font-bold">
+											<Search className="size-4 text-primary" />
+											Search Engine Optimization
+										</div>
+										<div className="space-y-4">
+											<div className="space-y-2">
+												<Label className="text-xs font-bold tracking-wider text-muted-foreground">
+													Meta Title
+												</Label>
+												<Input
+													value={data.meta_title}
+													onChange={(e) =>
+														setData(
+															'meta_title',
+															e.target.value,
+														)
+													}
+													placeholder="Post title in search results"
+													className={cn(
+														'bg-background',
+														errors.meta_title &&
+															'border-destructive focus-visible:ring-destructive',
+													)}
+												/>{' '}
+												<div className="flex justify-between text-[10px] text-muted-foreground">
+													<span>
+														Recommended: 50-60 chars
+													</span>
+													<span
+														className={cn(
+															data.meta_title
+																.length > 60
+																? 'text-destructive'
+																: '',
+														)}
+													>
+														{data.meta_title.length}
+														/60
+													</span>
 												</div>
-												<div className="space-y-2">
-													<Label className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
-														Meta Description
-													</Label>
-													<Textarea
-														value={
-															data.meta_description
+											</div>
+											<div className="space-y-2">
+												<Label className="text-xs font-bold tracking-wider text-muted-foreground">
+													Meta Description
+												</Label>
+												<Textarea
+													value={
+														data.meta_description
+													}
+													onChange={(e) =>
+														setData(
+															'meta_description',
+															e.target.value,
+														)
+													}
+													placeholder="post description in search results"
+													rows={4}
+													className={cn(
+														'resize-none bg-background',
+														errors.meta_description &&
+															'border-destructive focus-visible:ring-destructive',
+													)}
+												/>{' '}
+												<div className="flex justify-between text-[10px] text-muted-foreground">
+													<span>
+														Recommended: 150-160
+														chars
+													</span>
+													<span
+														className={cn(
+															data
+																.meta_description
+																.length > 160
+																? 'text-destructive'
+																: '',
+														)}
+													>
+														{
+															data
+																.meta_description
+																.length
 														}
-														onChange={(e) =>
-															setData(
-																'meta_description',
-																e.target.value,
-															)
-														}
-														placeholder="post description in search results"
-														rows={3}
-														className="resize-none bg-background"
-													/>
-													<div className="flex justify-between text-[10px] text-muted-foreground">
-														<span>
-															Recommended: 150-160
-															chars
-														</span>
-														<span
-															className={cn(
-																data
-																	.meta_description
-																	.length >
-																	160
-																	? 'text-destructive'
-																	: '',
-															)}
-														>
-															{
-																data
-																	.meta_description
-																	.length
-															}
-															/160
-														</span>
-													</div>
+														/160
+													</span>
 												</div>
 											</div>
 										</div>
 									</div>
 
-									<div className="space-y-4">
+									<div className="flex h-full flex-col space-y-4 rounded-xl border bg-muted/20 p-6">
 										<div className="flex items-center gap-2 text-sm font-bold">
 											<ImageIcon className="size-4 text-primary" />
 											Featured Image
 										</div>
 										<div
-											className="group relative flex aspect-square cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/5 transition-all hover:border-primary/50 hover:bg-muted/10"
+											className={cn(
+												'group relative flex min-h-[200px] flex-1 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/5 transition-all hover:border-primary/50 hover:bg-muted/10',
+												errors.image &&
+													'border-destructive bg-destructive/5',
+											)}
 											onClick={() =>
 												imageInputRef.current?.click()
 											}
@@ -531,7 +596,7 @@ export function PostForm({
 														className="h-full w-full object-cover transition-transform group-hover:scale-105"
 													/>
 													<div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-														<p className="text-xs font-bold tracking-widest text-white uppercase">
+														<p className="text-xs font-bold tracking-widest text-white">
 															Change Image
 														</p>
 													</div>
@@ -551,7 +616,7 @@ export function PostForm({
 													<div className="rounded-full bg-muted p-4 transition-colors group-hover:bg-primary/10">
 														<ImageIcon className="size-8 text-muted-foreground transition-colors group-hover:text-primary" />
 													</div>
-													<span className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+													<span className="text-xs font-bold tracking-widest text-muted-foreground">
 														Upload Cover
 													</span>
 												</div>
@@ -568,9 +633,6 @@ export function PostForm({
 									</div>
 								</div>
 							</CardContent>
-							{/* <CardFooter>
-								<Button>Save password</Button>
-							</CardFooter> */}
 						</Card>
 					</TabsContent>
 				</Tabs>

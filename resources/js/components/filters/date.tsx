@@ -13,10 +13,11 @@ export function DateSection({
 	filters: PostFilters;
 	apply: (v: Partial<PostFilters>) => void;
 }) {
-	const [from, setFrom] = useState<string | ''>(filters.published_at_from ?? '');
+	const [from, setFrom] = useState<string | ''>(
+		filters.published_at_from ?? '',
+	);
 	const [to, setTo] = useState<string | ''>(filters.published_at_to ?? '');
 
-	// sync khi filter từ server đổi (Back / Reset all)
 	useEffect(() => {
 		setFrom(filters.published_at_from ?? '');
 		setTo(filters.published_at_to ?? '');
@@ -49,13 +50,15 @@ export function DateSection({
 	};
 
 	return (
-		<FilterSection 
-			title="Published Date" 
+		<FilterSection
+			title="Published Date"
 			icon={<CalendarIcon className="size-4 text-primary" />}
 		>
 			<div className="grid gap-4 py-2">
 				<div className="space-y-1.5">
-					<Label className="text-[11px] uppercase tracking-wider text-muted-foreground">From</Label>
+					<Label className="text-[11px] tracking-wider text-muted-foreground uppercase">
+						From
+					</Label>
 					<Input
 						type="date"
 						value={from}
@@ -65,7 +68,9 @@ export function DateSection({
 				</div>
 
 				<div className="space-y-1.5">
-					<Label className="text-[11px] uppercase tracking-wider text-muted-foreground">To</Label>
+					<Label className="text-[11px] tracking-wider text-muted-foreground uppercase">
+						To
+					</Label>
 					<Input
 						type="date"
 						value={to}
@@ -75,7 +80,7 @@ export function DateSection({
 				</div>
 			</div>
 
-			<div className="flex items-center justify-between gap-2 pt-2 border-t mt-2">
+			<div className="mt-2 flex items-center justify-between gap-2 border-t pt-2">
 				<Button
 					size="sm"
 					variant="ghost"
@@ -88,9 +93,9 @@ export function DateSection({
 				</Button>
 
 				<div className="flex gap-2">
-					<Button 
-						size="sm" 
-						disabled={!canApply} 
+					<Button
+						size="sm"
+						disabled={!canApply}
 						onClick={onApply}
 						className="h-8 px-4 text-xs shadow-sm"
 					>

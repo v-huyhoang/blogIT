@@ -1,3 +1,4 @@
+import UserController from '@/actions/App/Http/Controllers/UserController';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -13,7 +14,6 @@ import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, useForm } from '@inertiajs/react';
-import UserController from '@/actions/App/Http/Controllers/UserController';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{

@@ -21,7 +21,10 @@ export function AuthorSection({
 	users: { id: number; name: string }[];
 }) {
 	return (
-		<FilterSection title="Author" icon={<User className="size-4 text-primary" />}>
+		<FilterSection
+			title="Author"
+			icon={<User className="size-4 text-primary" />}
+		>
 			<Select
 				value={filters.user_id?.toString() ?? ALL}
 				onValueChange={(v) =>

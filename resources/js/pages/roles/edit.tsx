@@ -1,3 +1,4 @@
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +17,6 @@ import { RolePermission, SinglePermission } from '@/types/role_permissions';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
-import RoleController from '@/actions/App/Http/Controllers/RoleController';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{

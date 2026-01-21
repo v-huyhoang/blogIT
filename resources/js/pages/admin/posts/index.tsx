@@ -279,7 +279,6 @@ export default function PostIndex({
 								<TableHeader>
 									<TableRow>
 										<TableHead className="w-[50px] pl-6">
-											{/* <Checkbox className="size-4 hover:cursor-pointer" /> */}
 											<Checkbox
 												checked={
 													allSelected ||
@@ -293,24 +292,20 @@ export default function PostIndex({
 											/>
 										</TableHead>
 										<TableHead className="w-[50px]">
-											ID
+											#
 										</TableHead>
 										<TableHead> Post </TableHead>
-										{/* <TableHead> Tag </TableHead> */}
 										<TableHead> Author </TableHead>
 										<TableHead> Category </TableHead>
 										<TableHead> Status </TableHead>
 										<TableHead className="text-center">
-											{' '}
-											Views{' '}
+											Views
 										</TableHead>
 										<TableHead className="text-center">
-											{' '}
-											Comments{' '}
+											Comments
 										</TableHead>
 										<TableHead className="text-center">
-											{' '}
-											Likes{' '}
+											Likes
 										</TableHead>
 										<TableHead> Published At </TableHead>
 										<TableHead> Created At </TableHead>
@@ -335,10 +330,9 @@ export default function PostIndex({
 											</TableCell>
 										</TableRow>
 									) : (
-										posts.data.map((post: Post) => (
+										posts.data.map((post: Post, index) => (
 											<TableRow key={post.id}>
 												<TableCell className="pl-6 font-medium">
-													{/* <Checkbox className="size-4 hover:cursor-pointer" /> */}
 													<Checkbox
 														checked={
 															!!selected[post.id]
@@ -356,7 +350,7 @@ export default function PostIndex({
 													/>
 												</TableCell>
 												<TableCell className="font-medium">
-													{post.id}
+													{posts.from + index}
 												</TableCell>
 												<TableCell className="font-medium">
 													<div className="flex items-center gap-3">
@@ -374,29 +368,10 @@ export default function PostIndex({
 														<div className="max-w-[300px] truncate">
 															{post.title}
 															<br />
-															{/* <small className="text-muted-foreground">
-																Slug:{' '}
-																{post.slug}
-															</small> */}
-															{/* <br /> */}
-															{/* <small>
-																Category:{' '}
-																{post.category
-																	? post
-																			.category
-																			.name
-																	: '-'}
-															</small> */}
-															{/* <br /> */}
-															{/* <small>
-																Author:{' '}
-																{post.user
-																	? post.user
-																			.name
-																	: '-'}
-															</small> */}
-															<div className="flex flex-wrap gap-1 items-center">
-																<small className='font-bold'>Tags:</small>{' '}
+															<div className="flex flex-wrap items-center gap-1">
+																<small className="font-bold">
+																	Tags:
+																</small>{' '}
 																{post.tags
 																	.length > 0
 																	? post.tags.map(
@@ -422,52 +397,7 @@ export default function PostIndex({
 															</div>
 														</div>
 													</div>
-													{/* <div className="flex flex-wrap gap-1">
-																{post.tags
-																	.length > 0
-																	? post.tags.map(
-																			(
-																				tag,
-																			) => (
-																				<Badge
-																					key={
-																						tag.id
-																					}
-																					variant="secondary"
-																					className="border-sky-200 bg-sky-50 text-xs text-sky-700 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-400"
-																				>
-																					<small>
-																						{
-																							tag.name
-																						}
-																					</small>
-																				</Badge>
-																			),
-																		)
-																	: '-'}
-															</div> */}
 												</TableCell>
-												{/* <TableCell>
-													<div className="flex flex-wrap gap-1">
-														{post.tags.length > 0
-															? post.tags.map(
-																	(tag) => (
-																		<Badge
-																			key={
-																				tag.id
-																			}
-																			variant="secondary"
-																			className="border-sky-200 bg-sky-50 text-sky-700 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-400"
-																		>
-																			{
-																				tag.name
-																			}
-																		</Badge>
-																	),
-																)
-															: '-'}
-													</div>
-												</TableCell> */}
 												<TableCell>
 													{post.user.name}
 												</TableCell>

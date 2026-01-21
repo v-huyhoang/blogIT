@@ -21,7 +21,10 @@ export function StatusSection({
 	apply: (v: Partial<PostFilters>) => void;
 }) {
 	return (
-		<FilterSection title="Status & Visibility" icon={<Activity className="size-4 text-primary" />}>
+		<FilterSection
+			title="Status & Visibility"
+			icon={<Activity className="size-4 text-primary" />}
+		>
 			<div className="grid grid-cols-2 gap-2">
 				<Select
 					value={filters.status ?? ALL}
@@ -52,7 +55,9 @@ export function StatusSection({
 					onValueChange={(v) =>
 						apply({
 							trashed:
-								v === ALL ? null : enumOrNull(v, TRASHED_OPTIONS),
+								v === ALL
+									? null
+									: enumOrNull(v, TRASHED_OPTIONS),
 						})
 					}
 				>

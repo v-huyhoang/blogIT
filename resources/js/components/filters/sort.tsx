@@ -17,7 +17,10 @@ export function SortSection({
 	apply: (v: Partial<PostFilters>) => void;
 }) {
 	return (
-		<FilterSection title="Sort & Order" icon={<ArrowUpDown className="size-4 text-primary" />}>
+		<FilterSection
+			title="Sort & Order"
+			icon={<ArrowUpDown className="size-4 text-primary" />}
+		>
 			<div className="grid grid-cols-2 gap-2">
 				<Select
 					value={filters.sort ?? 'id'}
@@ -39,7 +42,9 @@ export function SortSection({
 
 				<Select
 					value={filters.direction ?? 'desc'}
-					onValueChange={(v) => apply({ direction: v as 'asc' | 'desc' })}
+					onValueChange={(v) =>
+						apply({ direction: v as 'asc' | 'desc' })
+					}
 				>
 					<SelectTrigger className="h-9">
 						<SelectValue />

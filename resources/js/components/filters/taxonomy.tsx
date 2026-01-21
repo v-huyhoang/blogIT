@@ -23,7 +23,10 @@ export function TaxonomySection({
 	tags: { id: number; name: string }[];
 }) {
 	return (
-		<FilterSection title="Taxonomy" icon={<Tag className="size-4 text-primary" />}>
+		<FilterSection
+			title="Taxonomy"
+			icon={<Tag className="size-4 text-primary" />}
+		>
 			<div className="grid grid-cols-2 gap-2">
 				{/* CATEGORY */}
 				<Select

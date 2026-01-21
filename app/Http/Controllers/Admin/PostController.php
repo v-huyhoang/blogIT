@@ -45,8 +45,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        $tags = Tag::all();
-        $categories = Category::all();
+        $tags = Tag::all(['id', 'name']);
+        $categories = Category::all(['id', 'name']);
 
         return Inertia::render('admin/posts/create', [
             'tags' => $tags,
@@ -84,8 +84,8 @@ class PostController extends Controller
     public function edit(Post $post): Response
     {
         $post->load('category', 'tags');
-        $tags = Tag::all();
-        $categories = Category::all();
+        $tags = Tag::all(['id', 'name']);
+        $categories = Category::all(['id', 'name']);
 
         return Inertia::render('admin/posts/edit', [
             'post' => $post,
@@ -115,11 +115,4 @@ class PostController extends Controller
 
         return to_route('admin.posts.index')->with('message', 'Post deleted successfully');
     }
-
-    // public function destroyMany(DeleteManyPostRequest $request): RedirectResponse
-    // {
-    //     $this->postService->bulkDelete($request->ids());
-
-    //     return to_route('admin.posts.index')->with('message', 'Posts deleted successfully');
-    // }
 }
