@@ -34,7 +34,6 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { usePermissions } from '@/hooks/user-permissions';
 
 import AppLayout from '@/layouts/app-layout';
 
@@ -42,6 +41,7 @@ import PostController from '@/actions/App/Http/Controllers/Admin/PostController'
 import PostDuplicateController from '@/actions/App/Http/Controllers/Admin/PostDuplicateController';
 import { BulkActionsDropdown } from '@/components/bulk-actions-dropdown';
 import { PerPageSelect } from '@/components/per-page-select';
+import { usePermissions } from '@/hooks/use-permissions';
 import { cn } from '@/lib/utils';
 import { BreadcrumbItem } from '@/types';
 import { PaginatedResponse } from '@/types/pagination';

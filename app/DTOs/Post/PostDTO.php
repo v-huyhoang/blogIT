@@ -15,7 +15,6 @@ class PostDTO extends BaseDTO
         public readonly string $status,
         public readonly ?Carbon $published_at,
         public readonly ?int $category_id,
-
         public readonly ?int $user_id = null,
         public readonly array $tag_ids = [],
     ) {}

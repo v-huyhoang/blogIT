@@ -14,6 +14,9 @@ final class FilterPipeline
         $this->pipes = $pipes;
     }
 
+    /**
+     * Applies the filter pipeline to the given query.
+     */
     public function apply(Builder $query, array $filters): Builder
     {
         foreach ($this->pipes as $pipe) {

@@ -63,7 +63,7 @@ export function DateSection({
 						type="date"
 						value={from}
 						onChange={(e) => setFrom(e.target.value)}
-						className="h-9 transition-all focus:ring-2 focus:ring-primary/20"
+						className="h-9 w-full transition-all focus:ring-2 focus:ring-primary/20"
 					/>
 				</div>
 
@@ -75,7 +75,7 @@ export function DateSection({
 						type="date"
 						value={to}
 						onChange={(e) => setTo(e.target.value)}
-						className="h-9 transition-all focus:ring-2 focus:ring-primary/20"
+						className="h-9 w-full transition-all focus:ring-2 focus:ring-primary/20"
 					/>
 				</div>
 			</div>

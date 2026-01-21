@@ -76,23 +76,30 @@ export function PostFilterAdvance({
 					</Button>
 				</PopoverTrigger>
 
-				<PopoverContent className="w-[420px] space-y-4">
-					<StatusSection filters={filters} apply={apply} />
-					<TaxonomySection
-						filters={filters}
-						apply={apply}
-						tags={tags}
-						categories={categories}
-					/>
-					<AuthorSection
-						filters={filters}
-						apply={apply}
-						users={users}
-					/>
-					<DateSection filters={filters} apply={apply} />
-					<SortSection filters={filters} apply={apply} />
+				<PopoverContent
+					align="end"
+					className="max-h-[80vh] w-[800px] overflow-y-auto p-4"
+				>
+					<div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+						<StatusSection filters={filters} apply={apply} />
+						<TaxonomySection
+							filters={filters}
+							apply={apply}
+							tags={tags}
+							categories={categories}
+						/>
+						<AuthorSection
+							filters={filters}
+							apply={apply}
+							users={users}
+						/>
+						<DateSection filters={filters} apply={apply} />
+						<SortSection filters={filters} apply={apply} />
+					</div>
 
-					<ResetButton onReset={onReset} />
+					<div className="mt-4 flex justify-end border-t pt-4">
+						<ResetButton onReset={onReset} />
+					</div>
 				</PopoverContent>
 			</Popover>
 		</div>

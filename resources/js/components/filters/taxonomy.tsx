@@ -27,7 +27,7 @@ export function TaxonomySection({
 			title="Taxonomy"
 			icon={<Tag className="size-4 text-primary" />}
 		>
-			<div className="grid grid-cols-2 gap-2">
+			<div className="grid grid-cols-1 gap-2">
 				{/* CATEGORY */}
 				<Select
 					value={filters.category_id?.toString() ?? ALL}
@@ -37,11 +37,11 @@ export function TaxonomySection({
 						})
 					}
 				>
-					<SelectTrigger className="h-9">
+					<SelectTrigger className="h-9 w-full">
 						<SelectValue placeholder="Category" />
 					</SelectTrigger>
 
-					<SelectContent>
+					<SelectContent className="max-h-[200px]">
 						<SelectItem value={ALL}>All Categories</SelectItem>
 						{categories.map((c) => (
 							<SelectItem key={c.id} value={String(c.id)}>
@@ -60,11 +60,11 @@ export function TaxonomySection({
 						})
 					}
 				>
-					<SelectTrigger className="h-9">
+					<SelectTrigger className="h-9 w-full">
 						<SelectValue placeholder="Tag" />
 					</SelectTrigger>
 
-					<SelectContent>
+					<SelectContent className="max-h-[200px]">
 						<SelectItem value={ALL}>All Tags</SelectItem>
 						{tags.map((t) => (
 							<SelectItem key={t.id} value={String(t.id)}>

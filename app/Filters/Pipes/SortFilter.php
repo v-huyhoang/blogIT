@@ -9,11 +9,12 @@ final class SortFilter implements FilterContract
 {
     public function apply(Builder $query, array $filters): Builder
     {
-        if (empty($filters['sort'])) {
+        $sort = $filters['sort'] ?? null;
+
+        if (! $sort) {
             return $query;
         }
 
-        $sort = $filters['sort'];
         $direction = str_starts_with($sort, '-') ? 'desc' : 'asc';
         $column = ltrim($sort, '-');
 

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\PostStatus;
 use App\Traits\Filterable;
 use App\Traits\HasSlug;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -68,6 +69,13 @@ class Post extends Model
     public function getImageUrlAttribute(): ?string
     {
         return $this->image ? Storage::url($this->image) : null;
+    }
+
+    public function filterTagId(Builder $query, $value): void
+    {
+        $query->whereHas('tags', function ($q) use ($value) {
+            $q->where('tags.id', $value);
+        });
     }
 
     public function user(): BelongsTo

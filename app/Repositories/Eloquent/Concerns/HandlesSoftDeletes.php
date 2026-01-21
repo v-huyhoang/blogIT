@@ -62,7 +62,6 @@ trait HandlesSoftDeletes
     {
         $this->ensureSoftDeletes();
 
-        $ids = array_values(array_unique(array_filter($ids, fn ($v) => $v !== null && $v !== '')));
         if ($ids === []) {
             return 0;
         }
@@ -109,7 +108,6 @@ trait HandlesSoftDeletes
     {
         $this->ensureSoftDeletes();
 
-        $ids = array_values(array_unique(array_filter($ids, fn ($v) => $v !== null && $v !== '')));
         if ($ids === []) {
             return 0;
         }

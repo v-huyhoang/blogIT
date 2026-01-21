@@ -33,11 +33,11 @@ export function AuthorSection({
 					})
 				}
 			>
-				<SelectTrigger className="h-9">
+				<SelectTrigger className="h-9 w-full">
 					<SelectValue placeholder="All authors" />
 				</SelectTrigger>
 
-				<SelectContent>
+				<SelectContent className="max-h-[200px]">
 					<SelectItem value={ALL} className="hover:cursor-pointer">
 						All Authors
 					</SelectItem>

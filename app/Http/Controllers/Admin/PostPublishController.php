@@ -15,19 +15,23 @@ final class PostPublishController extends Controller
         private readonly UnpublishPostAction $unpublish,
     ) {}
 
+    /**
+     * Publish a post.
+     *
+     * Publishes a post. The post must be published already.
+     */
     public function publish(Post $post): RedirectResponse
     {
-        // $this->authorize('publish', $post);
-
         $this->publish->handle($post);
 
         return back()->with('message', 'Post published.');
     }
 
+    /**
+     * Unpublish a post.
+     */
     public function unpublish(Post $post): RedirectResponse
     {
-        // $this->authorize('unpublish', $post);
-
         $this->unpublish->handle($post);
 
         return back()->with('message', 'Post unpublished.');

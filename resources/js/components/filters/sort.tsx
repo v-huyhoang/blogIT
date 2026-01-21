@@ -23,13 +23,13 @@ export function SortSection({
 		>
 			<div className="grid grid-cols-2 gap-2">
 				<Select
-					value={filters.sort ?? 'id'}
+					value={filters.sort ?? ''}
 					onValueChange={(v) => apply({ sort: v })}
 				>
-					<SelectTrigger className="h-9">
+					<SelectTrigger className="h-9 w-full">
 						<SelectValue placeholder="Sort by" />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="max-h-[200px]">
 						<SelectItem value="id">ID</SelectItem>
 						<SelectItem value="published_at">Published</SelectItem>
 						<SelectItem value="created_at">Created</SelectItem>
@@ -46,10 +46,10 @@ export function SortSection({
 						apply({ direction: v as 'asc' | 'desc' })
 					}
 				>
-					<SelectTrigger className="h-9">
+					<SelectTrigger className="h-9 w-full">
 						<SelectValue />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="max-h-[200px]">
 						<SelectItem value="desc">Desc</SelectItem>
 						<SelectItem value="asc">Asc</SelectItem>
 					</SelectContent>

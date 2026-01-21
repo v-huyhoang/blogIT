@@ -44,11 +44,6 @@ class IndexPostRequest extends FormRequest
         ];
     }
 
-    public function getValidData(): array
-    {
-        return $this->validated();
-    }
-
     public function toFilter(): PostFilterDTO
     {
         $data = $this->validated();

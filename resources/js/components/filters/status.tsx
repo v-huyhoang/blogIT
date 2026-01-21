@@ -25,7 +25,7 @@ export function StatusSection({
 			title="Status & Visibility"
 			icon={<Activity className="size-4 text-primary" />}
 		>
-			<div className="grid grid-cols-2 gap-2">
+			<div className="grid grid-cols-1 gap-2">
 				<Select
 					value={filters.status ?? ALL}
 					onValueChange={(v) => {
@@ -39,10 +39,10 @@ export function StatusSection({
 						}
 					}}
 				>
-					<SelectTrigger className="h-9">
+					<SelectTrigger className="h-9 w-full">
 						<SelectValue placeholder="All status" />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="max-h-[200px]">
 						<SelectItem value={ALL}>All Status</SelectItem>
 						<SelectItem value="draft">Draft</SelectItem>
 						<SelectItem value="pending">Pending</SelectItem>
@@ -61,10 +61,10 @@ export function StatusSection({
 						})
 					}
 				>
-					<SelectTrigger className="h-9">
+					<SelectTrigger className="h-9 w-full">
 						<SelectValue placeholder="Active only" />
 					</SelectTrigger>
-					<SelectContent>
+					<SelectContent className="max-h-[200px]">
 						<SelectItem value={ALL}>Active</SelectItem>
 						<SelectItem value="with">With Trashed</SelectItem>
 						<SelectItem value="only">Trashed Only</SelectItem>

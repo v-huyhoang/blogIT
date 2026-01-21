@@ -36,6 +36,14 @@ trait Filterable
                 continue;
             }
 
+            $method = 'filter'.str($key)->studly();
+
+            if (method_exists($this, $method)) {
+                $this->{$method}($query, $value);
+
+                continue;
+            }
+
             // relation filter: user.profile.status
             if (str_contains($key, '.')) {
                 [$relation, $column] = explode('.', $key, 2);

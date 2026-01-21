@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Post;
 
-use App\DTOs\Post\PostDTO;
 use App\Enums\PostStatus;
 use App\Rules\ValidPublishedAt;
 use Illuminate\Foundation\Http\FormRequest;
@@ -39,14 +38,5 @@ class UpdatePostRequest extends FormRequest
             'tag_ids' => ['array'],
             'tag_ids.*' => ['integer', 'exists:tags,id'],
         ];
-    }
-
-    public function toDto(): PostDTO
-    {
-        $data = $this->validated();
-
-        $data['published_at'] = ! empty($data['published_at']) ? $data['published_at']->toDateTimeString() : null;
-
-        return PostDTO::fromArray($data);
     }
 }

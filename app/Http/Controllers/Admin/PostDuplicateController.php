@@ -13,10 +13,11 @@ final class PostDuplicateController extends Controller
         private readonly DuplicatePostAction $duplicate,
     ) {}
 
+    /**
+     * Duplicate a post.
+     */
     public function duplicate(Post $post): RedirectResponse
     {
-        // $this->authorize('duplicate', $post);
-
         $newPost = $this->duplicate->handle($post);
 
         return to_route('admin.posts.edit', $newPost)->with('message', 'Post duplicated.');

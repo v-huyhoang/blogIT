@@ -110,18 +110,6 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $query = $this->query()->with($relations)->select($columns);
 
-        $this->applyFilters($query, $filters);
-
-        return $query
-            ->paginate($perPage)
-            ->withQueryString();
-    }
-
-    /**
-     * Apply filter pipeline.
-     */
-    protected function applyFilters(Builder $query, array $filters): void
-    {
         $pipeline = new FilterPipeline([
             TrashedFilter::class,
             SearchFilter::class,
@@ -130,6 +118,8 @@ abstract class BaseRepository implements BaseRepositoryInterface
         ]);
 
         $pipeline->apply($query, $filters);
+
+        return $query->paginate($perPage)->withQueryString();
     }
 
     /**
