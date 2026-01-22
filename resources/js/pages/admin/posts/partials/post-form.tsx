@@ -164,7 +164,7 @@ export function PostForm({
 						htmlFor="title"
 						className="text-sm font-medium text-muted-foreground"
 					>
-						Post Title
+						Post Title <span className="text-destructive">*</span>
 					</Label>
 					<Input
 						id="title"
@@ -248,7 +248,10 @@ export function PostForm({
 									<div className="space-y-2">
 										<div className="flex items-center gap-2 text-sm text-foreground">
 											<ChevronRight className="size-4 text-primary" />
-											Main Content
+											Main Content{' '}
+											<span className="text-destructive">
+												*
+											</span>
 										</div>
 										<Textarea
 											id="content"
@@ -291,8 +294,11 @@ export function PostForm({
 											</div>
 											<div className="grid gap-4">
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
-														Status
+													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
+														Status{' '}
+														<span className="text-destructive">
+															*
+														</span>
 													</Label>
 													<Select
 														value={data.status}
@@ -302,7 +308,7 @@ export function PostForm({
 													>
 														<SelectTrigger
 															className={cn(
-																'h-10 bg-background hover:cursor-pointer',
+																'h-10 w-full bg-background hover:cursor-pointer',
 																errors.status &&
 																	'border-destructive focus:ring-destructive',
 															)}
@@ -336,7 +342,7 @@ export function PostForm({
 												</div>
 
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
+													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
 														Publish Date
 													</Label>
 													<div className="relative">
@@ -378,8 +384,11 @@ export function PostForm({
 											</div>
 											<div className="grid gap-4">
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
-														Category
+													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
+														Category{' '}
+														<span className="text-destructive">
+															*
+														</span>
 													</Label>
 													<Select
 														value={String(
@@ -394,7 +403,7 @@ export function PostForm({
 													>
 														<SelectTrigger
 															className={cn(
-																'h-10 bg-background hover:cursor-pointer',
+																'h-10 w-full bg-background hover:cursor-pointer',
 																errors.category_id &&
 																	'border-destructive focus:ring-destructive',
 															)}
@@ -427,7 +436,7 @@ export function PostForm({
 												</div>
 
 												<div className="space-y-2">
-													<Label className="text-[11px] font-bold tracking-widest text-muted-foreground">
+													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
 														Tags
 													</Label>
 													<div
@@ -451,7 +460,7 @@ export function PostForm({
 																		)
 																	}
 																	className={cn(
-																		'rounded-full border px-3 py-1 text-[11px] font-bold transition-all hover:cursor-pointer',
+																		'rounded-full border px-3 py-1 text-xs font-bold transition-all hover:cursor-pointer',
 																		selected
 																			? 'border-primary bg-primary text-primary-foreground'
 																			: 'border-transparent bg-muted/50 text-muted-foreground hover:border-primary/30',

@@ -56,7 +56,7 @@ export function DateSection({
 		>
 			<div className="grid gap-4 py-2">
 				<div className="space-y-1.5">
-					<Label className="text-[11px] tracking-wider text-muted-foreground uppercase">
+					<Label className="text-xs tracking-wider text-muted-foreground">
 						From
 					</Label>
 					<Input
@@ -68,7 +68,7 @@ export function DateSection({
 				</div>
 
 				<div className="space-y-1.5">
-					<Label className="text-[11px] tracking-wider text-muted-foreground uppercase">
+					<Label className="text-xs tracking-wider text-muted-foreground">
 						To
 					</Label>
 					<Input

@@ -369,9 +369,6 @@ export default function PostIndex({
 															{post.title}
 															<br />
 															<div className="flex flex-wrap items-center gap-1">
-																<small className="font-bold">
-																	Tags:
-																</small>{' '}
 																{post.tags
 																	.length > 0
 																	? post.tags.map(
@@ -385,6 +382,9 @@ export default function PostIndex({
 																					variant="secondary"
 																					className="border-sky-200 bg-sky-50 text-xs text-sky-700 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-400"
 																				>
+																					<small className="font-bold">
+																						Tags:
+																					</small>{' '}
 																					<small>
 																						{
 																							tag.name
@@ -393,7 +393,7 @@ export default function PostIndex({
 																				</Badge>
 																			),
 																		)
-																	: '-'}
+																	: ''}
 															</div>
 														</div>
 													</div>
@@ -466,9 +466,9 @@ export default function PostIndex({
 																		post,
 																	)
 																}
-																className="hover:cursor-pointer"
+																className="hover:cursor-pointer hover:bg-orange-200 hover:text-orange-600"
 															>
-																<Edit className="mr-2 size-4" />
+																<Edit className="mr-2 size-4 text-primary" />
 																Edit
 															</DropdownMenuItem>
 															<DropdownMenuItem
@@ -477,9 +477,9 @@ export default function PostIndex({
 																		post,
 																	)
 																}
-																className="hover:cursor-pointer"
+																className="hover:cursor-pointer hover:bg-cyan-50 hover:text-cyan-600"
 															>
-																<Copy className="mr-2 size-4" />
+																<Copy className="mr-2 size-4 text-cyan-500" />
 																Copy
 															</DropdownMenuItem>
 															{can(
@@ -495,7 +495,7 @@ export default function PostIndex({
 																		}
 																		className="text-red-600 hover:cursor-pointer focus:bg-red-50 focus:text-red-600"
 																	>
-																		<Trash2 className="mr-2 size-4" />
+																		<Trash2 className="mr-2 size-4 text-red-500" />
 																		Delete
 																	</DropdownMenuItem>
 																</>
