@@ -382,9 +382,6 @@ export default function PostIndex({
 																					variant="secondary"
 																					className="border-sky-200 bg-sky-50 text-xs text-sky-700 hover:bg-sky-100 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-400"
 																				>
-																					<small className="font-bold">
-																						Tags:
-																					</small>{' '}
 																					<small>
 																						{
 																							tag.name
