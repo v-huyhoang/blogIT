@@ -24,11 +24,9 @@ class PostController extends Controller
      */
     public function index(IndexPostRequest $request): Response
     {
-        $filters = $request->toFilter();
-        $pagination = $request->toPagination();
-        $sort = $request->toSort();
+        $queryDTO = $request->toQueryDTO();
 
-        $posts = $this->postListQuery->execute($pagination, $sort, $filters, [
+        $posts = $this->postListQuery->execute($queryDTO, [
             'user:id,name',
             'category:id,name',
             'tags:id,name',
@@ -36,21 +34,18 @@ class PostController extends Controller
 
         return Inertia::render('admin/posts/index', [
             'posts' => $posts,
-            'filters' => $filters->toArray(),
+            'filters' => $queryDTO->filters,
         ]);
     }
 
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(): Response
     {
-        $tags = Tag::all(['id', 'name']);
-        $categories = Category::all(['id', 'name']);
-
         return Inertia::render('admin/posts/create', [
-            'tags' => $tags,
-            'categories' => $categories,
+            'tags' => Tag::all(['id', 'name']),
+            'categories' => Category::all(['id', 'name']),
         ]);
     }
 
@@ -59,9 +54,7 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request): RedirectResponse
     {
-        $data = $request->validated();
-
-        $this->postService->createPost($data);
+        $this->postService->createPost($request->validated());
 
         return to_route('admin.posts.index')->with('message', 'Post created successfully');
     }
@@ -84,13 +77,11 @@ class PostController extends Controller
     public function edit(Post $post): Response
     {
         $post->load('category', 'tags');
-        $tags = Tag::all(['id', 'name']);
-        $categories = Category::all(['id', 'name']);
 
         return Inertia::render('admin/posts/edit', [
             'post' => $post,
-            'tags' => $tags,
-            'categories' => $categories,
+            'tags' => Tag::all(['id', 'name']),
+            'categories' => Category::all(['id', 'name']),
         ]);
     }
 
@@ -99,9 +90,7 @@ class PostController extends Controller
      */
     public function update(UpdatePostRequest $request, Post $post): RedirectResponse
     {
-        $data = $request->validated();
-
-        $this->postService->updatePost($post, $data);
+        $this->postService->updatePost($post, $request->validated());
 
         return to_route('admin.posts.index')->with('message', 'Post updated successfully');
     }

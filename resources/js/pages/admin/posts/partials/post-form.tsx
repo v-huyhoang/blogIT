@@ -1,4 +1,6 @@
+import { Editor } from '@/components/blocks/editor-00/editor';
 import InputError from '@/components/input-error';
+import { MultiSelect } from '@/components/multi-select';
 import { Button } from '@/components/ui/button';
 import {
 	Card,
@@ -21,6 +23,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { Post } from '@/types/post';
 import { useForm } from '@inertiajs/react';
+import { SerializedEditorState } from 'lexical';
 import {
 	ChevronRight,
 	FileText,
@@ -32,7 +35,7 @@ import {
 	Settings,
 	X,
 } from 'lucide-react';
-import { FormEventHandler, useEffect, useRef, useState } from 'react';
+import { FormEventHandler, useEffect, useMemo, useRef, useState } from 'react';
 
 export interface PostFormDataType {
 	title: string;
@@ -118,7 +121,50 @@ export function PostForm({
 		}, 500);
 
 		return () => clearTimeout(timer);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [data.title]);
+
+	const initialEditorState = useMemo(() => {
+		if (!data.content) return undefined;
+		try {
+			if (data.content.trim().startsWith('{')) {
+				return JSON.parse(data.content) as SerializedEditorState;
+			}
+		} catch (e) {
+			console.error(e);
+		}
+
+		return {
+			root: {
+				children: [
+					{
+						children: [
+							{
+								detail: 0,
+								format: 0,
+								mode: 'normal',
+								style: '',
+								text: data.content,
+								type: 'text',
+								version: 1,
+							},
+						],
+						direction: 'ltr',
+						format: '',
+						indent: 0,
+						type: 'paragraph',
+						version: 1,
+					},
+				],
+				direction: 'ltr',
+				format: '',
+				indent: 0,
+				type: 'root',
+				version: 1,
+			},
+		} as unknown as SerializedEditorState;
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, []); // Run once on mount (or when post changes if we wanted to support external updates, but for now memo empty deps is safer for initial load)
 
 	const handleSubmit: FormEventHandler = (e) => {
 		e.preventDefault();
@@ -145,16 +191,6 @@ export function PostForm({
 		setData('title', e.target.value);
 	};
 
-	const toggleTag = (tagId: number) => {
-		const currentTags = data.tag_ids as number[];
-		setData(
-			'tag_ids',
-			currentTags.includes(tagId)
-				? currentTags.filter((id) => id !== tagId)
-				: [...currentTags, tagId],
-		);
-	};
-
 	return (
 		<form onSubmit={handleSubmit} className="mx-auto max-w-7xl space-y-6">
 			{/* Header Section */}
@@ -162,7 +198,7 @@ export function PostForm({
 				<div className="flex-1 space-y-2">
 					<Label
 						htmlFor="title"
-						className="text-sm font-medium text-muted-foreground"
+						className="text-md font-medium text-foreground"
 					>
 						Post Title <span className="text-destructive">*</span>
 					</Label>
@@ -172,13 +208,13 @@ export function PostForm({
 						onChange={handleTitleChange}
 						placeholder="What's on your mind?"
 						className={cn(
-							'border-transparent bg-transparent text-xl font-semibold hover:border-gray-300',
+							'mt-2 border bg-transparent text-2xl font-bold hover:border-gray-300',
 							errors.title &&
 								'border-destructive focus-visible:ring-destructive',
 						)}
 					/>
 					<div className="flex items-center gap-1 text-xs text-muted-foreground">
-						<span className="font-medium">Slug:</span>
+						<span>Slug:</span>
 						<span>{data.slug || 'auto-generated'}</span>
 					</div>
 					<InputError message={errors.title} />
@@ -221,7 +257,7 @@ export function PostForm({
 							<CardContent className="grid gap-6">
 								<div className="space-y-6 duration-300 animate-in fade-in slide-in-from-bottom-2">
 									<div className="space-y-2">
-										<div className="flex items-center gap-2 text-sm text-foreground">
+										<div className="flex items-center gap-2 text-sm font-medium text-foreground">
 											<Info className="size-4 text-primary" />
 											Excerpt
 										</div>
@@ -237,7 +273,7 @@ export function PostForm({
 											placeholder="A short summary to hook your readers..."
 											rows={2}
 											className={cn(
-												'resize-none border-none bg-muted/30 focus-visible:ring-1',
+												'resize-none border-none bg-muted/30 text-sm focus-visible:ring-1',
 												errors.excerpt &&
 													'ring-1 ring-destructive',
 											)}
@@ -246,30 +282,31 @@ export function PostForm({
 									</div>
 
 									<div className="space-y-2">
-										<div className="flex items-center gap-2 text-sm text-foreground">
+										<div className="flex items-center gap-2 text-sm font-medium text-foreground">
 											<ChevronRight className="size-4 text-primary" />
 											Main Content{' '}
 											<span className="text-destructive">
 												*
 											</span>
 										</div>
-										<Textarea
-											id="content"
-											value={data.content}
-											onChange={(e) =>
-												setData(
-													'content',
-													e.target.value,
-												)
-											}
-											placeholder="Write your story here..."
-											rows={15}
+										<div
 											className={cn(
-												'border-none bg-muted/30 font-serif text-lg leading-relaxed focus-visible:ring-1',
 												errors.content &&
-													'ring-1 ring-destructive',
+													'rounded-lg ring-1 ring-destructive',
 											)}
-										/>
+										>
+											<Editor
+												editorSerializedState={
+													initialEditorState
+												}
+												onSerializedChange={(value) =>
+													setData(
+														'content',
+														JSON.stringify(value),
+													)
+												}
+											/>
+										</div>
 										<InputError message={errors.content} />
 									</div>
 								</div>
@@ -294,7 +331,7 @@ export function PostForm({
 											</div>
 											<div className="grid gap-4">
 												<div className="space-y-2">
-													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
+													<Label className="text-sm font-medium text-foreground">
 														Status{' '}
 														<span className="text-destructive">
 															*
@@ -308,7 +345,7 @@ export function PostForm({
 													>
 														<SelectTrigger
 															className={cn(
-																'h-10 w-full bg-background hover:cursor-pointer',
+																'h-10 w-full bg-background text-sm hover:cursor-pointer',
 																errors.status &&
 																	'border-destructive focus:ring-destructive',
 															)}
@@ -318,19 +355,19 @@ export function PostForm({
 														<SelectContent>
 															<SelectItem
 																value="draft"
-																className="hover:cursor-pointer"
+																className="text-sm hover:cursor-pointer"
 															>
 																Draft
 															</SelectItem>
 															<SelectItem
 																value="pending"
-																className="hover:cursor-pointer"
+																className="text-sm hover:cursor-pointer"
 															>
 																Pending
 															</SelectItem>
 															<SelectItem
 																value="published"
-																className="hover:cursor-pointer"
+																className="text-sm hover:cursor-pointer"
 															>
 																Published
 															</SelectItem>
@@ -342,7 +379,7 @@ export function PostForm({
 												</div>
 
 												<div className="space-y-2">
-													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
+													<Label className="text-sm font-medium text-foreground">
 														Publish Date
 													</Label>
 													<div className="relative">
@@ -360,7 +397,7 @@ export function PostForm({
 																)
 															}
 															className={cn(
-																'h-10 bg-background hover:cursor-pointer',
+																'h-10 bg-background text-sm hover:cursor-pointer',
 																errors.published_at &&
 																	'border-destructive focus-visible:ring-destructive',
 															)}
@@ -384,7 +421,7 @@ export function PostForm({
 											</div>
 											<div className="grid gap-4">
 												<div className="space-y-2">
-													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
+													<Label className="text-sm font-medium text-foreground">
 														Category{' '}
 														<span className="text-destructive">
 															*
@@ -403,7 +440,7 @@ export function PostForm({
 													>
 														<SelectTrigger
 															className={cn(
-																'h-10 w-full bg-background hover:cursor-pointer',
+																'h-10 w-full bg-background text-sm hover:cursor-pointer',
 																errors.category_id &&
 																	'border-destructive focus:ring-destructive',
 															)}
@@ -414,7 +451,7 @@ export function PostForm({
 															{categories.map(
 																(c) => (
 																	<SelectItem
-																		className="hover:cursor-pointer"
+																		className="text-sm hover:cursor-pointer"
 																		key={
 																			c.id
 																		}
@@ -436,41 +473,25 @@ export function PostForm({
 												</div>
 
 												<div className="space-y-2">
-													<Label className="text-xs font-bold tracking-widest text-muted-foreground">
+													<Label className="text-sm font-medium text-foreground">
 														Tags
 													</Label>
-													<div
-														className={cn(
-															'flex min-h-[42px] flex-wrap gap-2 rounded-lg border bg-background p-3',
-															errors.tag_ids &&
-																'border-destructive',
+													<MultiSelect
+														options={tags.map(
+															(t) => ({
+																label: t.name,
+																value: t.id,
+															}),
 														)}
-													>
-														{tags.map((tag) => {
-															const selected = (
-																data.tag_ids as number[]
-															).includes(tag.id);
-															return (
-																<button
-																	key={tag.id}
-																	type="button"
-																	onClick={() =>
-																		toggleTag(
-																			tag.id,
-																		)
-																	}
-																	className={cn(
-																		'rounded-full border px-3 py-1 text-xs font-bold transition-all hover:cursor-pointer',
-																		selected
-																			? 'border-primary bg-primary text-primary-foreground'
-																			: 'border-transparent bg-muted/50 text-muted-foreground hover:border-primary/30',
-																	)}
-																>
-																	{tag.name}
-																</button>
-															);
-														})}
-													</div>
+														selected={data.tag_ids}
+														onChange={(values) =>
+															setData(
+																'tag_ids',
+																values as number[],
+															)
+														}
+														placeholder="Select tags..."
+													/>
 													<InputError
 														message={errors.tag_ids}
 													/>
@@ -499,7 +520,7 @@ export function PostForm({
 										</div>
 										<div className="space-y-4">
 											<div className="space-y-2">
-												<Label className="text-xs font-bold tracking-wider text-muted-foreground">
+												<Label className="text-sm font-medium text-foreground">
 													Meta Title
 												</Label>
 												<Input
@@ -512,12 +533,12 @@ export function PostForm({
 													}
 													placeholder="Post title in search results"
 													className={cn(
-														'bg-background',
+														'bg-background text-sm',
 														errors.meta_title &&
 															'border-destructive focus-visible:ring-destructive',
 													)}
 												/>{' '}
-												<div className="flex justify-between text-[10px] text-muted-foreground">
+												<div className="flex justify-between text-xs text-muted-foreground">
 													<span>
 														Recommended: 50-60 chars
 													</span>
@@ -535,7 +556,7 @@ export function PostForm({
 												</div>
 											</div>
 											<div className="space-y-2">
-												<Label className="text-xs font-bold tracking-wider text-muted-foreground">
+												<Label className="text-sm font-medium text-foreground">
 													Meta Description
 												</Label>
 												<Textarea
@@ -551,12 +572,12 @@ export function PostForm({
 													placeholder="post description in search results"
 													rows={4}
 													className={cn(
-														'resize-none bg-background',
+														'resize-none bg-background text-sm',
 														errors.meta_description &&
 															'border-destructive focus-visible:ring-destructive',
 													)}
 												/>{' '}
-												<div className="flex justify-between text-[10px] text-muted-foreground">
+												<div className="flex justify-between text-xs text-muted-foreground">
 													<span>
 														Recommended: 150-160
 														chars
@@ -605,7 +626,7 @@ export function PostForm({
 														className="h-full w-full object-cover transition-transform group-hover:scale-105"
 													/>
 													<div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-														<p className="text-xs font-bold tracking-widest text-white">
+														<p className="text-sm font-bold text-white">
 															Change Image
 														</p>
 													</div>
@@ -625,7 +646,7 @@ export function PostForm({
 													<div className="rounded-full bg-muted p-4 transition-colors group-hover:bg-primary/10">
 														<ImageIcon className="size-8 text-muted-foreground transition-colors group-hover:text-primary" />
 													</div>
-													<span className="text-xs font-bold tracking-widest text-muted-foreground">
+													<span className="text-sm font-medium text-muted-foreground">
 														Upload Cover
 													</span>
 												</div>

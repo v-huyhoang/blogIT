@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\PostStatus;
 use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -25,8 +26,12 @@ class PostFactory extends Factory
             'slug' => $this->faker->slug,
             'excerpt' => $this->faker->sentence,
             'content' => $this->faker->paragraph,
-            'status' => 'published',
-            'published_at' => now(),
+            // random in PostStatus enums
+            'status' => $status = $this->faker->randomElement(PostStatus::cases())->value,
+            'comments_count' => rand(0, 1000),
+            'views_count' => rand(0, 1000),
+            'likes_count' => rand(0, 1000),
+            'published_at' => $status === PostStatus::Published->value ? now()->subDays(rand(0, 30))->toDateString() : null,
         ];
     }
 }

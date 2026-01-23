@@ -19,9 +19,9 @@ abstract class BaseDTO
             $name = $p->getName(); // perPage
             $snake = Str::snake($name); // per_page
 
-            if (array_key_exists($name, $data)) {
+            if (array_key_exists($name, $data) && ($data[$name] !== null || $p->allowsNull())) {
                 $value = $data[$name];
-            } elseif (array_key_exists($snake, $data)) {
+            } elseif (array_key_exists($snake, $data) && ($data[$snake] !== null || $p->allowsNull())) {
                 $value = $data[$snake];
             } elseif ($p->isDefaultValueAvailable()) {
                 $value = $p->getDefaultValue();

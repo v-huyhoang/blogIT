@@ -426,10 +426,12 @@ export default function PostIndex({
 													{post.likes_count}
 												</TableCell>
 												<TableCell>
-													{format(
-														post.published_at as string,
-														'dd-MM-yyyy',
-													)}
+													{post.published_at
+														? format(
+																post.published_at as string,
+																'dd-MM-yyyy',
+															)
+														: '-'}
 												</TableCell>
 												<TableCell>
 													{format(

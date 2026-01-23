@@ -11,11 +11,15 @@ final class TrashedFilter implements FilterContract
 {
     public function apply(Builder $query, array $filters): Builder
     {
-        if (! in_array(SoftDeletes::class, class_uses_recursive($query->getModel()))) {
+        $model = $query->getModel();
+
+        if (! in_array(SoftDeletes::class, class_uses_recursive($model))) {
             return $query;
         }
 
-        return match ($filters['trashed'] ?? null) {
+        $trashedFilter = $filters['trashed'] ?? null;
+
+        return match ($trashedFilter) {
             TrashedConst::With->value => $query->withTrashed(),
             TrashedConst::Only->value => $query->onlyTrashed(),
             default => $query,

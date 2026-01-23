@@ -1,11 +1,4 @@
-import { FilterSection } from '@/components/filter-section';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { SelectFilter } from '@/components/select-filter';
 import { PostFilters } from '@/types/post';
 import { User } from 'lucide-react';
 
@@ -21,37 +14,23 @@ export function AuthorSection({
 	users: { id: number; name: string }[];
 }) {
 	return (
-		<FilterSection
+		<SelectFilter
 			title="Author"
 			icon={<User className="size-4 text-primary" />}
-		>
-			<Select
-				value={filters.user_id?.toString() ?? ALL}
-				onValueChange={(v) =>
-					apply({
-						user_id: v === ALL ? null : Number(v),
-					})
-				}
-			>
-				<SelectTrigger className="h-9 w-full">
-					<SelectValue placeholder="All authors" />
-				</SelectTrigger>
-
-				<SelectContent className="max-h-[200px]">
-					<SelectItem value={ALL} className="hover:cursor-pointer">
-						All Authors
-					</SelectItem>
-					{users.map((user) => (
-						<SelectItem
-							key={user.id}
-							value={String(user.id)}
-							className="hover:cursor-pointer"
-						>
-							{user.name}
-						</SelectItem>
-					))}
-				</SelectContent>
-			</Select>
-		</FilterSection>
+			value={filters.user_id?.toString() ?? ALL}
+			onValueChange={(v) =>
+				apply({
+					user_id: v === ALL ? null : Number(v),
+				})
+			}
+			options={[
+				{ label: 'All Authors', value: ALL },
+				...users.map((user) => ({
+					label: user.name,
+					value: String(user.id),
+				})),
+			]}
+			placeholder="All authors"
+		/>
 	);
 }

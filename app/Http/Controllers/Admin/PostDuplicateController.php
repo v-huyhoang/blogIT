@@ -14,7 +14,7 @@ final class PostDuplicateController extends Controller
     ) {}
 
     /**
-     * Duplicate a post.
+     * Duplicate a post
      */
     public function duplicate(Post $post): RedirectResponse
     {

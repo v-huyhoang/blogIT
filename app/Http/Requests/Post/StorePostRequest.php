@@ -25,26 +25,26 @@ class StorePostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['integer', 'exists:users,id'],
+            'user_id' => ['required', 'integer', 'exists:users,id'],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'title' => ['required', 'string', 'max:255'],
-            'slug' => ['nullable', 'string', 'max:255'],
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('posts', 'slug')],
             'excerpt' => ['nullable', 'string'],
             'content' => ['required', 'string'],
-            'image' => ['nullable', 'image', 'max:2048'],
+            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
             'status' => ['required', Rule::enum(PostStatus::class)],
             'published_at' => [new ValidPublishedAt($this->input('status'))],
-            'tag_ids' => ['array'],
-            'tag_ids.*' => ['integer', 'exists:tags,id'],
+            'tag_ids' => ['nullable', 'array'],
+            'tag_ids.*' => ['integer', 'exists:tags,id', 'distinct'],
         ];
     }
 
     public function prepareForValidation(): void
     {
         $this->merge([
-            'user_id' => $this->user()?->id,
+            'user_id' => $this->user()->id,
         ]);
     }
 }

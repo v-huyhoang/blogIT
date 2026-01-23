@@ -11,13 +11,23 @@ final class SortFilter implements FilterContract
     {
         $sort = $filters['sort'] ?? null;
 
-        if (! $sort) {
+        if ($sort === null) {
             return $query;
         }
 
-        $direction = str_starts_with($sort, '-') ? 'desc' : 'asc';
-        $column = ltrim($sort, '-');
+        $direction = $this->getDirectionFromSort($sort);
+        $column = $this->getColumnFromSort($sort);
 
         return $query->orderBy($column, $direction);
+    }
+
+    private function getDirectionFromSort(string $sort): string
+    {
+        return substr($sort, 0, 1) === '-' ? 'desc' : 'asc';
+    }
+
+    private function getColumnFromSort(string $sort): string
+    {
+        return ltrim($sort, '-+');
     }
 }

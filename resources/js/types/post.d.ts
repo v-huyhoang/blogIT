@@ -68,4 +68,6 @@ export type PostFilters = {
 
 	published_at_from?: string | null;
 	published_at_to?: string | null;
+
+	[key: string]: unknown;
 };

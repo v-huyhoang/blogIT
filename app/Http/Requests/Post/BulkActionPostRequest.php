@@ -23,16 +23,7 @@ class BulkActionPostRequest extends FormRequest
     {
         return [
             'ids' => ['required', 'array'],
-            'ids.*' => ['required', 'integer', 'exists:posts,id'],
+            'ids.*' => ['required', 'integer', 'exists:posts,id', 'distinct'],
         ];
-    }
-
-    /** @return array<int,int> */
-    public function ids(): array
-    {
-        /** @var array<int,int> $ids */
-        $ids = $this->validated('ids');
-
-        return array_values(array_unique($ids));
     }
 }

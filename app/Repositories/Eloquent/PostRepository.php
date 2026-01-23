@@ -5,15 +5,8 @@ declare(strict_types=1);
 namespace App\Repositories\Eloquent;
 
 use App\Enums\PostStatus;
-use App\Filters\FilterPipeline;
-use App\Filters\Pipes\ColumnFilter;
-use App\Filters\Pipes\DateRangeFilter;
-use App\Filters\Pipes\SearchFilter;
-use App\Filters\Pipes\SortFilter;
-use App\Filters\Pipes\TrashedFilter;
 use App\Models\Post;
 use App\Repositories\Contracts\PostRepositoryInterface;
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -22,19 +15,6 @@ final class PostRepository extends SoftDeleteRepository implements PostRepositor
     public function model(): string
     {
         return Post::class;
-    }
-
-    protected function applyFilters(Builder $query, array $filters): void
-    {
-        $pipeline = new FilterPipeline([
-            TrashedFilter::class,
-            SearchFilter::class,
-            DateRangeFilter::class,
-            ColumnFilter::class,
-            SortFilter::class,
-        ]);
-
-        $pipeline->apply($query, $filters);
     }
 
     /**

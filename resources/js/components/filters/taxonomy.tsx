@@ -1,79 +1,67 @@
-import { FilterSection } from '@/components/filter-section';
-import {
-	Select,
-	SelectContent,
-	SelectItem,
-	SelectTrigger,
-	SelectValue,
-} from '@/components/ui/select';
+import { SelectFilter } from '@/components/select-filter';
 import { PostFilters } from '@/types/post';
 import { Tag } from 'lucide-react';
 
 const ALL = '__all__';
 
-export function TaxonomySection({
+export function CategoryFilter({
 	filters,
 	apply,
 	categories,
-	tags,
 }: {
 	filters: PostFilters;
 	apply: (v: Partial<PostFilters>) => void;
 	categories: { id: number; name: string }[];
+}) {
+	return (
+		<SelectFilter
+			title="Category"
+			icon={<Tag className="size-4 text-primary" />}
+			value={filters.category_id?.toString() ?? ALL}
+			onValueChange={(v) =>
+				apply({
+					category_id: v === ALL ? null : Number(v),
+				})
+			}
+			options={[
+				{ label: 'All Categories', value: ALL },
+				...categories.map((c) => ({
+					label: c.name,
+					value: String(c.id),
+				})),
+			]}
+			placeholder="Category"
+		/>
+	);
+}
+
+export function TagFilter({
+	filters,
+	apply,
+	tags,
+}: {
+	filters: PostFilters;
+	apply: (v: Partial<PostFilters>) => void;
 	tags: { id: number; name: string }[];
 }) {
 	return (
-		<FilterSection
-			title="Taxonomy"
+		<SelectFilter
+			title="Tag"
 			icon={<Tag className="size-4 text-primary" />}
-		>
-			<div className="grid grid-cols-1 gap-2">
-				{/* CATEGORY */}
-				<Select
-					value={filters.category_id?.toString() ?? ALL}
-					onValueChange={(v) =>
-						apply({
-							category_id: v === ALL ? null : Number(v),
-						})
-					}
-				>
-					<SelectTrigger className="h-9 w-full">
-						<SelectValue placeholder="Category" />
-					</SelectTrigger>
-
-					<SelectContent className="max-h-[200px]">
-						<SelectItem value={ALL}>All Categories</SelectItem>
-						{categories.map((c) => (
-							<SelectItem key={c.id} value={String(c.id)}>
-								{c.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-
-				{/* TAG */}
-				<Select
-					value={filters.tag_id?.toString() ?? ALL}
-					onValueChange={(v) =>
-						apply({
-							tag_id: v === ALL ? null : Number(v),
-						})
-					}
-				>
-					<SelectTrigger className="h-9 w-full">
-						<SelectValue placeholder="Tag" />
-					</SelectTrigger>
-
-					<SelectContent className="max-h-[200px]">
-						<SelectItem value={ALL}>All Tags</SelectItem>
-						{tags.map((t) => (
-							<SelectItem key={t.id} value={String(t.id)}>
-								{t.name}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-			</div>
-		</FilterSection>
+			value={filters.tag_id?.toString() ?? ALL}
+			onValueChange={(v) =>
+				apply({
+					tag_id: v === ALL ? null : Number(v),
+				})
+			}
+			options={[
+				{ label: 'All Tags', value: ALL },
+				...tags.map((t) => ({
+					label: t.name,
+					value: String(t.id),
+				})),
+			]}
+			placeholder="Tag"
+		/>
 	);
 }

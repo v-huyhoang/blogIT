@@ -1,15 +1,13 @@
-import { FilterSection } from '@/components/filter-section';
+import { PostFilters } from '@/types/post';
 import {
 	Select,
 	SelectContent,
 	SelectItem,
 	SelectTrigger,
 	SelectValue,
-} from '@/components/ui/select';
-import { PostFilters } from '@/types/post';
-import { ArrowUpDown } from 'lucide-react';
+} from '../ui/select';
 
-export function SortSection({
+export function SortOrderFilter({
 	filters,
 	apply,
 }: {
@@ -17,44 +15,55 @@ export function SortSection({
 	apply: (v: Partial<PostFilters>) => void;
 }) {
 	return (
-		<FilterSection
-			title="Sort & Order"
-			icon={<ArrowUpDown className="size-4 text-primary" />}
-		>
-			<div className="grid grid-cols-2 gap-2">
-				<Select
-					value={filters.sort ?? ''}
-					onValueChange={(v) => apply({ sort: v })}
-				>
-					<SelectTrigger className="h-9 w-full">
-						<SelectValue placeholder="Sort by" />
-					</SelectTrigger>
-					<SelectContent className="max-h-[200px]">
-						<SelectItem value="id">ID</SelectItem>
-						<SelectItem value="published_at">Published</SelectItem>
-						<SelectItem value="created_at">Created</SelectItem>
-						<SelectItem value="title">Title</SelectItem>
-						<SelectItem value="views_count">Views</SelectItem>
-						<SelectItem value="comments_count">Comments</SelectItem>
-						<SelectItem value="likes_count">Likes</SelectItem>
-					</SelectContent>
-				</Select>
+		<div className="flex items-center gap-1.5 py-1">
+			<Select
+				value={filters.sort ?? ''}
+				onValueChange={(v) => apply({ sort: v })}
+			>
+				<SelectTrigger className="h-8 flex-1 text-xs hover:cursor-pointer">
+					<SelectValue placeholder="Sort by" />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="id" className="text-xs">
+						ID
+					</SelectItem>
+					<SelectItem value="published_at" className="text-xs">
+						Published
+					</SelectItem>
+					<SelectItem value="created_at" className="text-xs">
+						Created
+					</SelectItem>
+					<SelectItem value="title" className="text-xs">
+						Title
+					</SelectItem>
+					<SelectItem value="views_count" className="text-xs">
+						Views
+					</SelectItem>
+					<SelectItem value="comments_count" className="text-xs">
+						Comments
+					</SelectItem>
+					<SelectItem value="likes_count" className="text-xs">
+						Likes
+					</SelectItem>
+				</SelectContent>
+			</Select>
 
-				<Select
-					value={filters.direction ?? 'desc'}
-					onValueChange={(v) =>
-						apply({ direction: v as 'asc' | 'desc' })
-					}
-				>
-					<SelectTrigger className="h-9 w-full">
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent className="max-h-[200px]">
-						<SelectItem value="desc">Desc</SelectItem>
-						<SelectItem value="asc">Asc</SelectItem>
-					</SelectContent>
-				</Select>
-			</div>
-		</FilterSection>
+			<Select
+				value={filters.direction ?? 'desc'}
+				onValueChange={(v) => apply({ direction: v as 'asc' | 'desc' })}
+			>
+				<SelectTrigger className="h-8 w-[120px] text-xs hover:cursor-pointer">
+					<SelectValue />
+				</SelectTrigger>
+				<SelectContent>
+					<SelectItem value="desc" className="text-xs">
+						Desc
+					</SelectItem>
+					<SelectItem value="asc" className="text-xs">
+						Asc
+					</SelectItem>
+				</SelectContent>
+			</Select>
+		</div>
 	);
 }

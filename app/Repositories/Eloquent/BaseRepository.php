@@ -4,6 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Filters\FilterPipeline;
 use App\Filters\Pipes\ColumnFilter;
+use App\Filters\Pipes\ComparisonFilter;
 use App\Filters\Pipes\SearchFilter;
 use App\Filters\Pipes\SortFilter;
 use App\Filters\Pipes\TrashedFilter;
@@ -110,14 +111,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
     {
         $query = $this->query()->with($relations)->select($columns);
 
-        $pipeline = new FilterPipeline([
-            TrashedFilter::class,
-            SearchFilter::class,
-            ColumnFilter::class,
-            SortFilter::class,
-        ]);
-
-        $pipeline->apply($query, $filters);
+        $this->applyFilters($query, $filters);
 
         return $query->paginate($perPage)->withQueryString();
     }
@@ -178,5 +172,24 @@ abstract class BaseRepository implements BaseRepositoryInterface
         } catch (Throwable $e) {
             throw new RepositoryException("DeleteMany failed: {$this->model()}", 0, $e);
         }
+    }
+
+    /**
+     * Applies the filter pipeline to the given query.
+     *
+     * @param  Builder  $query  The query to apply filters to.
+     * @param  array  $filters  The filters to apply to the query.
+     */
+    protected function applyFilters(Builder $query, array $filters): void
+    {
+        $pipeline = new FilterPipeline([
+            TrashedFilter::class,
+            SearchFilter::class,
+            ComparisonFilter::class,
+            ColumnFilter::class,
+            SortFilter::class,
+        ]);
+
+        $pipeline->apply($query, $filters);
     }
 }

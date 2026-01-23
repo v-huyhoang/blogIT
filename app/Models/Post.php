@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Enums\PostStatus;
 use App\Traits\Filterable;
 use App\Traits\HasSlug;
-use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,20 +15,10 @@ use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
-    use Filterable;
-
     /** @use HasFactory<\Database\Factories\PostFactory> */
-    use HasFactory;
-
-    use HasSlug;
-    use SoftDeletes;
+    use Filterable, HasFactory, HasSlug, SoftDeletes;
 
     protected static string $slugFrom = 'title';
-
-    protected array $searchable = [
-        'title',
-        'excerpt',
-    ];
 
     protected $fillable = [
         'user_id',
@@ -48,6 +37,27 @@ class Post extends Model
     protected $appends = [
         'status_metadata',
         'image_url',
+    ];
+
+    protected array $allowedFilters = [
+        'id',
+        'user_id',
+        'category_id',
+        'title',
+        'slug',
+        'status',
+        'published_at',
+        'created_at',
+        'updated_at',
+        'views_count',
+        'comments_count',
+        'likes_count',
+        'deleted_at',
+    ];
+
+    protected array $searchable = [
+        'title',
+        'excerpt',
     ];
 
     protected function casts(): array
@@ -69,13 +79,6 @@ class Post extends Model
     public function getImageUrlAttribute(): ?string
     {
         return $this->image ? Storage::url($this->image) : null;
-    }
-
-    public function filterTagId(Builder $query, $value): void
-    {
-        $query->whereHas('tags', function ($q) use ($value) {
-            $q->where('tags.id', $value);
-        });
     }
 
     public function user(): BelongsTo

@@ -2,9 +2,7 @@
 
 namespace App\Queries\Post;
 
-use App\DTOs\Post\PaginationDTO;
-use App\DTOs\Post\PostFilterDTO;
-use App\DTOs\Post\SortDTO;
+use App\DTOs\Post\PostQueryDTO;
 use App\Queries\BaseQueryObject;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -16,22 +14,32 @@ final class PostListQuery extends BaseQueryObject
     ) {}
 
     public function execute(
-        PaginationDTO $pagination,
-        SortDTO $sort,
-        PostFilterDTO $filters,
+        PostQueryDTO $queryDTO,
         array $relations = []
     ): LengthAwarePaginator {
-        $filterArray = $filters->toArray();
+        $filterArray = $queryDTO->filters;
 
-        if ($sort->field) {
-            $filterArray['sort'] = $sort->direction === 'desc' ? "-{$sort->field}" : $sort->field;
+        if ($queryDTO->sortField) {
+            $filterArray['sort'] = $queryDTO->sortDirection === 'desc'
+                ? "-{$queryDTO->sortField}"
+                : $queryDTO->sortField;
         }
 
         return $this->repository->paginate(
-            perPage: $pagination->perPage,
-            columns: ['id', 'user_id', 'category_id', 'title', 'slug', 'status', 'image', 'views_count', 'comments_count', 'likes_count', 'published_at', 'created_at'],
+            perPage: $queryDTO->perPage,
+            columns: $this->getColumns(),
             filters: $filterArray,
             relations: $relations,
         );
+    }
+
+    /**
+     * Returns the default columns to be retrieved from the database.
+     *
+     * @return array<string> The default columns to be retrieved.
+     */
+    private function getColumns(): array
+    {
+        return ['id', 'user_id', 'category_id', 'title', 'slug', 'status', 'image', 'views_count', 'comments_count', 'likes_count', 'published_at', 'created_at'];
     }
 }
