@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { router } from '@inertiajs/react';
+import { Link } from '@inertiajs/react';
 
 export type PaginationLink = {
 	url: string | null;
@@ -33,33 +33,49 @@ export function TablePaginationLinks({
 				.join(' ')}
 		>
 			<div className="flex flex-wrap gap-1">
-				{links.map((link, i) => (
-					<Button
-						key={i}
-						className={buttonClassName}
-						variant={link.active ? 'default' : 'secondary'}
-						size="sm"
-						disabled={!link.url}
-						onClick={() => {
-							if (!link.url) return;
-							router.get(
-								link.url,
-								{},
-								{
-									preserveState,
-									preserveScroll,
-									replace,
-								},
-							);
-						}}
-					>
-						<span
-							dangerouslySetInnerHTML={{
-								__html: link.label,
-							}}
-						/>
-					</Button>
-				))}
+				{links.map((link, i) => {
+					if (!link.url) {
+						return (
+							<Button
+								key={i}
+								className={buttonClassName}
+								variant={link.active ? 'default' : 'secondary'}
+								size="sm"
+								disabled
+							>
+								<span
+									dangerouslySetInnerHTML={{
+										__html: link.label,
+									}}
+								/>
+							</Button>
+						);
+					}
+
+					return (
+						<Button
+							key={i}
+							asChild
+							className={buttonClassName}
+							variant={link.active ? 'default' : 'secondary'}
+							size="sm"
+						>
+							<Link
+								href={link.url}
+								preserveState={preserveState}
+								preserveScroll={preserveScroll}
+								replace={replace}
+								prefetch
+							>
+								<span
+									dangerouslySetInnerHTML={{
+										__html: link.label,
+									}}
+								/>
+							</Link>
+						</Button>
+					);
+				})}
 			</div>
 		</div>
 	);
