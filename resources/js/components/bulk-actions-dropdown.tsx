@@ -43,18 +43,31 @@ export function BulkActionsDropdown({
 				</Button>
 			</DropdownMenuTrigger>
 
-			<DropdownMenuContent align="start">
+			<DropdownMenuContent align="start" className="w-40">
 				{items.map((action) => (
 					<DropdownMenuItem
 						key={action.key}
 						onClick={action.onClick}
 						className={cn(
-							'flex items-center gap-2 hover:cursor-pointer',
-							action.destructive ? 'text-red-600' : undefined,
+							'flex items-center gap-2 py-1 pl-2 transition-colors hover:cursor-pointer',
+							action.destructive
+								? 'text-red-600 focus:bg-red-50 focus:text-red-700 dark:focus:bg-red-950/30'
+								: 'focus:bg-accent focus:text-accent-foreground',
 						)}
 					>
-						{action.icon}
-						{action.label}
+						{action.icon && (
+							<span
+								className={cn(
+									'shrink-0',
+									action.destructive
+										? 'text-red-500'
+										: 'text-muted-foreground',
+								)}
+							>
+								{action.icon}
+							</span>
+						)}
+						<span className="font-medium">{action.label}</span>
 					</DropdownMenuItem>
 				))}
 			</DropdownMenuContent>

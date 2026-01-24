@@ -42,7 +42,7 @@ export interface PostFormDataType {
 	slug: string;
 	excerpt: string;
 	content: string;
-	image: File | string | null;
+	image?: File | string | null;
 	meta_title: string;
 	meta_description: string;
 	category_id: number | string;
@@ -85,7 +85,7 @@ export function PostForm({
 		slug: post?.slug ?? '',
 		excerpt: post?.excerpt ?? '',
 		content: post?.content ?? '',
-		image: post?.image ?? null,
+		image: undefined,
 		meta_title: post?.meta_title ?? '',
 		meta_description: post?.meta_description ?? '',
 		category_id: post?.category?.id ?? '',

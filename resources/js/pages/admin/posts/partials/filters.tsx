@@ -153,12 +153,12 @@ export function PostFilterAdvance({
 							<Badge
 								key={key}
 								variant="secondary"
-								className="h-7 pr-1 pl-2"
+								className="h-7 pr-1 pl-2 hover:bg-gray-100/60 hover:shadow-xs"
 							>
 								{getFilterLabel(key, value)}
 								<button
 									onClick={() => removeFilter(key)}
-									className="ml-1 rounded-full p-0.5 transition-colors hover:bg-muted-foreground/20"
+									className="ml-1 rounded-full p-0.5 transition-colors hover:cursor-pointer hover:bg-muted-foreground/20"
 								>
 									<X className="size-3" />
 								</button>
