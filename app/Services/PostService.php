@@ -8,6 +8,7 @@ use App\Services\Traits\BulkDeleteServiceTrait;
 use App\Services\Traits\TransactionTrait;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class PostService
 {
@@ -23,7 +24,9 @@ class PostService
             unset($data['tag_ids']);
 
             if (isset($data['image']) && $data['image'] instanceof UploadedFile) {
-                $data['image'] = $data['image']->store('posts', 'public');
+                $slug = $data['slug'] ?? Str::slug($data['title'] ?? Str::random(10));
+                $filename = $slug.'.'.$data['image']->getClientOriginalExtension();
+                $data['image'] = $data['image']->storeAs('posts', $filename, 'public');
             }
 
             $post = $this->repository->create($data);
@@ -46,11 +49,16 @@ class PostService
                 if ($post->image) {
                     Storage::disk('public')->delete($post->image);
                 }
-                $data['image'] = $data['image']->store('posts', 'public');
-            } elseif (array_key_exists('image', $data) && is_null($data['image'])) {
+
+                $slug = $data['slug'] ?? $post->slug;
+                $filename = $slug.'.'.$data['image']->getClientOriginalExtension();
+                $data['image'] = $data['image']->storeAs('posts', $filename, 'public');
+            } elseif (array_key_exists('image', $data) && empty($data['image'])) {
+                // Handle case where image is set to null/empty to remove it
                 if ($post->image) {
                     Storage::disk('public')->delete($post->image);
                 }
+                $data['image'] = null;
             }
 
             $updatedPost = $this->repository->update($post->id, $data);
@@ -65,10 +73,6 @@ class PostService
 
     public function deletePost(Post $post): bool
     {
-        if ($post->image) {
-            Storage::disk('public')->delete($post->image);
-        }
-
         return $this->repository->delete($post->id);
     }
 }

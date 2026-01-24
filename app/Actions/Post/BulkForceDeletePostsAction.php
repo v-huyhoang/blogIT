@@ -3,6 +3,7 @@
 namespace App\Actions\Post;
 
 use App\Repositories\Contracts\PostRepositoryInterface;
+use Illuminate\Support\Facades\Storage;
 
 class BulkForceDeletePostsAction
 {
@@ -11,6 +12,21 @@ class BulkForceDeletePostsAction
     /** @param array<int,int> $ids */
     public function handle(array $ids): int
     {
-        return $this->repository->forceDeleteMany($ids);
+        // 1. Fetch posts BEFORE deleting to get image paths
+        $posts = $this->repository->getByIdsIncludingTrashed($ids, ['id', 'image']);
+
+        // 2. Perform database deletion
+        $affected = $this->repository->forceDeleteMany($ids);
+
+        // 3. If successful, clean up the files
+        if ($affected > 0) {
+            foreach ($posts as $post) {
+                if ($post->image) {
+                    Storage::disk('public')->delete($post->image);
+                }
+            }
+        }
+
+        return $affected;
     }
 }

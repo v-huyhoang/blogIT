@@ -7,8 +7,10 @@ namespace App\Repositories\Eloquent;
 use App\Enums\PostStatus;
 use App\Models\Post;
 use App\Repositories\Contracts\PostRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 final class PostRepository extends SoftDeleteRepository implements PostRepositoryInterface
 {
@@ -38,6 +40,26 @@ final class PostRepository extends SoftDeleteRepository implements PostRepositor
                 'slug' => $model->slug.'-copy-'.now()->format('YmdHis'),
                 'title' => $model->title.' (Copy)',
             ]);
+
+            // Handle Image Duplication
+            if ($model->image && Storage::disk('public')->exists($model->image)) {
+                $extension = pathinfo($model->image, PATHINFO_EXTENSION);
+                $dirname = pathinfo($model->image, PATHINFO_DIRNAME);
+                $filename = pathinfo($model->image, PATHINFO_FILENAME);
+
+                // Create a unique name for the copy
+                $newFilename = $filename.'-copy-'.now()->timestamp.'.'.$extension;
+                $newPath = ($dirname === '.' ? '' : $dirname.'/').$newFilename;
+
+                if (Storage::disk('public')->copy($model->image, $newPath)) {
+                    $new->image = $newPath;
+                } else {
+                    $new->image = null; // Fallback if copy fails
+                }
+            } else {
+                // If image doesn't exist on disk, don't reference it
+                $new->image = null;
+            }
 
             $new->save();
 
@@ -84,5 +106,14 @@ final class PostRepository extends SoftDeleteRepository implements PostRepositor
         ])->save();
 
         return $model;
+    }
+
+    public function getByIdsIncludingTrashed(array $ids, array $columns = ['*']): Collection
+    {
+        if ($ids === []) {
+            return new Collection;
+        }
+
+        return $this->model->newQuery()->withTrashed()->whereKey($ids)->select($columns)->get();
     }
 }

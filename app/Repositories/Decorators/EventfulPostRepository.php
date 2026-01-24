@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Repositories\Events\RepositoryChanged;
 use App\Repositories\Exceptions\RepositoryException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Event;
 
 final class EventfulPostRepository extends SoftDeleteEventfulRepository implements PostRepositoryInterface
@@ -46,5 +47,14 @@ final class EventfulPostRepository extends SoftDeleteEventfulRepository implemen
         Event::dispatch(new RepositoryChanged($this->namespace));
 
         return $result;
+    }
+
+    public function getByIdsIncludingTrashed(array $ids, array $columns = ['*']): Collection
+    {
+        if (! $this->inner instanceof PostRepositoryInterface) {
+            throw new RepositoryException('Inner repository does not implement PostRepositoryInterface.');
+        }
+
+        return $this->inner->getByIdsIncludingTrashed($ids, $columns);
     }
 }
