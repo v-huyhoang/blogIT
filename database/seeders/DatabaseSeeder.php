@@ -19,8 +19,8 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         $this->call(RolesAndPermissionsSeeder::class);
-        Category::factory(10)->create();
-        Tag::factory(10)->create();
+        Category::factory(10)->hasPosts(1)->create();
+        Tag::factory(10)->hasPosts(3)->create();
         Post::factory(100)->create();
     }
 }

@@ -28,10 +28,11 @@ class PostFactory extends Factory
             'content' => $this->faker->paragraph,
             // random in PostStatus enums
             'status' => $status = $this->faker->randomElement(PostStatus::cases())->value,
+            'is_featured' => $this->faker->boolean,
             'comments_count' => rand(0, 1000),
             'views_count' => rand(0, 1000),
             'likes_count' => rand(0, 1000),
-            'published_at' => $status === PostStatus::Published->value ? now()->subDays(rand(0, 30))->toDateString() : null,
+            'published_at' => $status === PostStatus::Published->value ? now()->subDays(rand(0, 60))->toDateString() : null,
         ];
     }
 }
