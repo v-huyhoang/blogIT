@@ -13,7 +13,7 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
-	BoxesIcon,
+	BookOpenText,
 	ContainerIcon,
 	FileText,
 	Key,
@@ -49,22 +49,24 @@ const mainNavItems: NavItem[] = [
 		permission: 'view_users',
 	},
 	{
-		title: 'Categories',
-		href: '/categories',
-		icon: ContainerIcon,
+		title: 'Blog',
+		href: '#',
+		icon: BookOpenText,
 		permission: 'view_categories',
-	},
-	{
-		title: 'Products',
-		href: '/products',
-		icon: BoxesIcon,
-		permission: 'view_products',
-	},
-	{
-		title: 'Posts',
-		href: '/admin/posts',
-		icon: FileText,
-		permission: 'view_categories',
+		items: [
+			{
+				title: 'Categories',
+				href: '/categories',
+				permission: 'view_categories',
+				icon: ContainerIcon,
+			},
+			{
+				title: 'Posts',
+				href: '/admin/posts',
+				permission: 'view_categories',
+				icon: FileText,
+			},
+		],
 	},
 ];
 
