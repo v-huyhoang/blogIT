@@ -22,7 +22,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
     {
-        $users = User::query()
+        $users = User::query()->with('roles')
             ->search($request->q)
             ->filter($request->only(['status']))
             ->latest()
@@ -32,7 +32,10 @@ class UserController extends Controller
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
-                'roles' => $user->getRoleNames(),
+                'roles' => $user->roles->map(fn ($role) => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ]),
                 'created_at' => $user->created_at->format('d-m-Y'),
                 'updated_at' => $user->updated_at->format('d-m-Y'),
             ]);

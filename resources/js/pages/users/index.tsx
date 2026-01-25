@@ -59,10 +59,13 @@ export default function Users({ users }: { users: UserIndexResponse }) {
 	const [search, setSearch] = useState(filters.q ?? '');
 
 	useEffect(() => {
+		const currentQ = filters.q ?? '';
+		if (search === currentQ) return;
+
 		const timeout = setTimeout(() => {
 			router.get(
 				'/users',
-				{ q: search },
+				search ? { q: search } : {},
 				{
 					preserveState: true,
 					replace: true,
@@ -71,7 +74,7 @@ export default function Users({ users }: { users: UserIndexResponse }) {
 		}, SEARCH_DEBOUNCE_DELAY);
 
 		return () => clearTimeout(timeout);
-	}, [search]);
+	}, [search, filters.q]);
 
 	return (
 		<AppLayout breadcrumbs={breadcrumbs}>
@@ -163,7 +166,7 @@ export default function Users({ users }: { users: UserIndexResponse }) {
 													variant={'outline'}
 													className="me-1"
 												>
-													{role}
+													{role.name}
 												</Badge>
 											))}
 										</TableCell>
