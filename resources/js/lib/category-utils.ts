@@ -1,4 +1,4 @@
-import { FlatCategory, SingleCategory } from '@/types/category';
+import { FlatCategory, SingleCategory } from '@/types';
 
 export const flattenCategories = (
 	categories: SingleCategory[],

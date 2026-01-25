@@ -19,10 +19,20 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('excerpt')->nullable();
             $table->longText('content');
-            $table->enum('status', ['draft', 'pending', 'published'])->default('draft');
+            $table->string('image')->nullable();
+            $table->boolean('is_featured')->default(false);
+            $table->tinyInteger('status')->default(0)->index(); // 0 = draft, 1 = pending, 2 = published
+            $table->timestamp('published_at')->nullable();
+
+            // Statistics
+            $table->unsignedInteger('views_count')->default(0);
             $table->unsignedInteger('comments_count')->default(0);
             $table->unsignedInteger('likes_count')->default(0);
-            $table->timestamp('published_at')->nullable();
+
+            // SEO Fields
+            $table->string('meta_title')->nullable();
+            $table->text('meta_description')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 

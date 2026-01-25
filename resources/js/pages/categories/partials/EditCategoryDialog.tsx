@@ -1,5 +1,5 @@
 import FormDialog from '@/components/dialogs/FormDialog';
-import { CategoryFormData, EditCategoryDialogProps } from '@/types/category';
+import { CategoryFormData, EditCategoryDialogProps } from '@/types';
 import { useForm } from '@inertiajs/react';
 import { useEffect } from 'react';
 import CategoryForm from './CategoryForm';

@@ -12,8 +12,7 @@ import AppLayout from '@/layouts/app-layout';
 import { flattenCategories } from '@/lib/category-utils';
 
 import TablePagination from '@/components/table-pagination';
-import { BreadcrumbItem } from '@/types';
-import { Category, SingleCategory } from '@/types/category';
+import { BreadcrumbItem, Category, SingleCategory } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import CategoriesTable from './partials/CategoriesTable';

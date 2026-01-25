@@ -1,5 +1,5 @@
 import FormDialog from '@/components/dialogs/FormDialog';
-import { CategoryFormData, FlatCategory } from '@/types/category';
+import { CategoryFormData, FlatCategory } from '@/types';
 import { useForm } from '@inertiajs/react';
 import CategoryForm from './CategoryForm';
 
@@ -18,7 +18,7 @@ export default function CreateCategoryDialog({
 		name: '',
 		description: '',
 		parent_id: null,
-		is_active: true
+		is_active: true,
 	});
 	const { post, processing, reset } = form;
 

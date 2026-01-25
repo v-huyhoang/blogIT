@@ -1,4 +1,4 @@
-import { Pagination } from '@/types/pagination';
+import { Pagination } from '@/types';
 import { Link } from '@inertiajs/react';
 import { Button } from './ui/button';
 

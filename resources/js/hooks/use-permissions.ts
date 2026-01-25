@@ -1,4 +1,4 @@
-import { SingleUser } from '@/types/user';
+import { SingleUser } from '@/types';
 import { usePage } from '@inertiajs/react';
 
 type AuthProps = {

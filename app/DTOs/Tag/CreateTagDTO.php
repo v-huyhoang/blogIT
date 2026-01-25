@@ -9,6 +9,7 @@ final class CreateTagDTO
         public readonly ?string $slug,
 
     ) {}
+
     public static function fromRequest(array $data): self
     {
         return new self(

@@ -2,10 +2,10 @@
 
 use Spatie\Permission\Models\Permission;
 
-if (!function_exists('cachedAccessControl')) {
+if (! function_exists('cachedAccessControl')) {
     function cachedAccessControl($user): array
     {
-        if (!$user) {
+        if (empty($user)) {
             return [];
         }
 

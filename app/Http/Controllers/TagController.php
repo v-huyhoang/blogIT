@@ -11,50 +11,50 @@ use App\Services\TagService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
-
 class TagController extends Controller
 {
-	protected $tagService;
+    protected $tagService;
 
-	public function __construct(TagService $tagService)
-	{
-		$this->tagService = $tagService;
-	}
+    public function __construct(TagService $tagService)
+    {
+        $this->tagService = $tagService;
+    }
 
-	public function index(Request $request)
-	{
-		$filterDTO = TagFilterDTO::fromRequest($request->all());
+    public function index(Request $request)
+    {
+        $filterDTO = TagFilterDTO::fromRequest($request->all());
 
-		$tags = $this->tagService->getAll($filterDTO);
+        $tags = $this->tagService->getAll($filterDTO);
 
-		return Inertia::render('tags/index', [
-			'tags' => $tags,
-		]);
-	}
+        return Inertia::render('tags/index', [
+            'tags' => $tags,
+        ]);
+    }
 
-	public function store(StoreTagRequest $request)
-	{
-		$dto = CreateTagDTO::fromRequest($request->validated());
-		$this->tagService->store($dto);
+    public function store(StoreTagRequest $request)
+    {
+        $dto = CreateTagDTO::fromRequest($request->validated());
+        $this->tagService->store($dto);
 
-		return to_route('tags.index')->with('message', 'Tag created successfully.');
-	}
+        return to_route('tags.index')->with('message', 'Tag created successfully.');
+    }
 
-	public function update(UpdateTagRequest $request, int $id)
-	{
-		$dto = UpdateTagDTO::fromRequest($request->validated());
-		$this->tagService->update($id, $dto);
+    public function update(UpdateTagRequest $request, int $id)
+    {
+        $dto = UpdateTagDTO::fromRequest($request->validated());
+        $this->tagService->update($id, $dto);
 
-		return to_route('tags.index')->with('message', 'Tag updated successfully.');
-	}
+        return to_route('tags.index')->with('message', 'Tag updated successfully.');
+    }
 
-	public function destroy(int $id)
-	{
-		try {
-			$this->tagService->delete($id);
-			return to_route('tags.index')->with('message', 'Tag deleted successfully.');
-		} catch (\Exception $e) {
-			return back()->withErrors(['error' => 'Cannot delete tag.']);
-		}
-	}
+    public function destroy(int $id)
+    {
+        try {
+            $this->tagService->delete($id);
+
+            return to_route('tags.index')->with('message', 'Tag deleted successfully.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Cannot delete tag.']);
+        }
+    }
 }

@@ -1,3 +1,4 @@
+import RoleController from '@/actions/App/Http/Controllers/RoleController';
 import InputError from '@/components/input-error';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,16 +12,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { RolePermission, SinglePermission } from '@/types/role_permissions';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { RolePermission, SinglePermission, type BreadcrumbItem } from '@/types';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
 		title: 'Edit Roles',
-		href: '/roles',
+		href: RoleController.index.url(),
 	},
 ];
 
@@ -31,9 +29,6 @@ export default function EditRoles({
 	permissions: SinglePermission[];
 	role: RolePermission;
 }) {
-	const { flash } = usePage<{ flash: { message?: string; error?: string } }>()
-		.props;
-
 	const permissionList = role.permissions.map((perm) => perm.name);
 
 	const { data, setData, put, processing, errors } = useForm({
@@ -42,24 +37,11 @@ export default function EditRoles({
 		permissions: permissionList,
 	});
 
-	useEffect(() => {
-		if (flash.message) {
-			toast.success(flash.message);
-		}
-		if (flash.error) {
-			toast.error(flash.error);
-		}
-	}, [flash.message, flash.error]);
-
 	function submit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
-		put(`/roles/${role.id}`, {
-			onSuccess: () => {
-				toast.success('Role updated successfully');
-			},
+		put(RoleController.update.url({ role: role.id }), {
 			onError: (errors) => {
 				console.error('Update errors:', errors);
-				toast.error('Failed to update role');
 			},
 		});
 	}
@@ -72,7 +54,7 @@ export default function EditRoles({
 					<CardHeader className="flex items-center justify-between">
 						<CardTitle>Edit Role</CardTitle>
 						<CardAction>
-							<Link href={'/roles'}>
+							<Link href={RoleController.index.url()}>
 								<Button variant="default">Go back</Button>
 							</Link>
 						</CardAction>

@@ -10,8 +10,13 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ActiveStatus, statusMap } from '@/enums/ActiveEnum';
-import { CategoryFormProps } from '@/types/category';
+import {
+	ActiveStatus,
+	CATEGORY_ROOT_VALUE,
+	NESTED_MARGIN_STEP,
+	statusMap,
+} from '@/constants';
+import { CategoryFormProps } from '@/types';
 import { CornerDownRight } from 'lucide-react';
 
 export default function CategoryForm({
@@ -28,13 +33,13 @@ export default function CategoryForm({
 				<Select
 					value={
 						data.parent_id === null
-							? 'root'
+							? CATEGORY_ROOT_VALUE
 							: String(data.parent_id)
 					}
 					onValueChange={(val) =>
 						setData(
 							'parent_id',
-							val === 'root' ? null : Number(val),
+							val === CATEGORY_ROOT_VALUE ? null : Number(val),
 						)
 					}
 				>
@@ -51,7 +56,7 @@ export default function CategoryForm({
 					<SelectContent className="max-h-[300px]">
 						<SelectGroup>
 							<SelectLabel>Root</SelectLabel>
-							<SelectItem value="root">
+							<SelectItem value={CATEGORY_ROOT_VALUE}>
 								📂 Create Root Category
 							</SelectItem>
 						</SelectGroup>
@@ -63,7 +68,7 @@ export default function CategoryForm({
 									<div
 										className="flex items-center"
 										style={{
-											marginLeft: `${(cat.level - 1) * 20}px`,
+											marginLeft: `${(cat.level - 1) * NESTED_MARGIN_STEP}px`,
 										}}
 									>
 										{cat.level > 1 && (

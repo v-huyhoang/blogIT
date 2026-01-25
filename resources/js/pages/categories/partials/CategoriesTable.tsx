@@ -8,10 +8,15 @@ import {
 	TableHeader,
 	TableRow,
 } from '@/components/ui/table';
-import { ActiveStatus, statusMap } from '@/enums/ActiveEnum';
+import {
+	ActiveStatus,
+	CATEGORY_INDEX_TABLE_COLUMNS,
+	NESTED_PADDING_STEP,
+	statusMap,
+} from '@/constants';
 import { usePermissions } from '@/hooks/use-permissions';
 import { confirm } from '@/lib/dialog';
-import { SingleCategory } from '@/types/category';
+import { SingleCategory } from '@/types';
 import { router } from '@inertiajs/react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState, type ReactElement } from 'react';
@@ -73,7 +78,7 @@ export default function CategoriesTable({
 					<TableCell>
 						<div
 							className="flex items-center gap-2"
-							style={{ paddingLeft: level * 24 }}
+							style={{ paddingLeft: level * NESTED_PADDING_STEP }}
 						>
 							{hasChildren && (
 								<button
@@ -154,7 +159,7 @@ export default function CategoriesTable({
 				{categories.length === 0 ? (
 					<TableRow>
 						<TableCell
-							colSpan={5}
+							colSpan={CATEGORY_INDEX_TABLE_COLUMNS}
 							className="py-8 text-center text-muted-foreground"
 						>
 							No categories found.

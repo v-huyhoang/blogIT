@@ -13,8 +13,9 @@ import { dashboard } from '@/routes';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/react';
 import {
-	BoxesIcon,
+	BookOpenText,
 	ContainerIcon,
+	FileText,
 	Key,
 	LayoutGrid,
 	LockKeyholeIcon,
@@ -48,23 +49,32 @@ const mainNavItems: NavItem[] = [
 		icon: Users2Icon,
 		permission: 'view_users',
 	},
+
 	{
-		title: 'Tags',
-		href: '/tags',
-		icon: LucideTag,
-		permission: 'view_tags',
-	},
-	{
-		title: 'Categories',
-		href: '/categories',
-		icon: ContainerIcon,
+		title: 'Blog',
+		href: '#',
+		icon: BookOpenText,
 		permission: 'view_categories',
-	},
-	{
-		title: 'Products',
-		href: '/products',
-		icon: BoxesIcon,
-		permission: 'view_products',
+		items: [
+			{
+				title: 'Categories',
+				href: '/categories',
+				permission: 'view_categories',
+				icon: ContainerIcon,
+			},
+			{
+				title: 'Posts',
+				href: '/admin/posts',
+				permission: 'view_categories',
+				icon: FileText,
+			},
+			{
+				title: 'Tags',
+				href: '/tags',
+				icon: LucideTag,
+				permission: 'view_tags',
+			},
+		],
 	},
 ];
 

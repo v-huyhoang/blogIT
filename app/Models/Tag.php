@@ -9,9 +9,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Tag extends Model
 {
+    use Filterable;
+
     /** @use HasFactory<\Database\Factories\TagFactory> */
     use HasFactory;
-    use Filterable;
 
     protected $searchable = [
         'name',

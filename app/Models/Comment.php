@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\Enums\Enums\CommentStatus;
+use App\Enums\CommentStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -23,10 +23,22 @@ class Comment extends Model
         'status',
     ];
 
+    protected $appends = [
+        'status_metadata',
+    ];
+
     protected function casts()
     {
         return [
             'status' => CommentStatus::class,
+        ];
+    }
+
+    public function getStatusMetadataAttribute(): array
+    {
+        return [
+            'label' => $this->status->label(),
+            'color' => $this->status->color(),
         ];
     }
 

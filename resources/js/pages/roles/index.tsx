@@ -18,11 +18,8 @@ import {
 } from '@/components/ui/table';
 import { usePermissions } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
-import { type BreadcrumbItem } from '@/types';
-import { Role } from '@/types/role_permissions';
-import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { Role, type BreadcrumbItem } from '@/types';
+import { Head, Link, router } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -38,16 +35,7 @@ function deleteRole(id: number) {
 }
 
 export default function Roles({ roles }: { roles: Role }) {
-	const { flash } = usePage<{ flash: { message?: string; error: string } }>()
-		.props;
-
 	const { can } = usePermissions();
-
-	useEffect(() => {
-		if (flash.message) {
-			toast.success(flash.message);
-		}
-	}, [flash.message]);
 
 	return (
 		<AppLayout breadcrumbs={breadcrumbs}>

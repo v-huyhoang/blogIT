@@ -1,5 +1,5 @@
 import { Input } from '@/components/ui/input';
-import { PasswordInputProps } from '@/types/ui';
+import { PasswordInputProps } from '@/types';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
 

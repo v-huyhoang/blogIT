@@ -17,7 +17,7 @@ return new class extends Migration
             $table->morphs('commentable');
             $table->foreignId('parent_id')->nullable()->constrained('comments')->cascadeOnDelete();
             $table->text('body');
-            $table->enum('status', ['pending', 'approved', 'spam'])->default('pending');
+            $table->tinyInteger('status')->default(0)->index(); // 0 = pending, 1 = approved, 2 = spam
             $table->timestamps();
             $table->softDeletes();
 
