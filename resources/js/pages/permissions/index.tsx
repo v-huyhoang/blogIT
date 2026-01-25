@@ -1,4 +1,3 @@
-import InputError from '@/components/input-error';
 import TablePagination from '@/components/table-pagination';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,16 +8,6 @@ import {
 	CardTitle,
 } from '@/components/ui/card';
 import {
-	Dialog,
-	DialogClose,
-	DialogContent,
-	DialogFooter,
-	DialogHeader,
-	DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import {
 	Table,
 	TableBody,
 	TableCell,
@@ -28,10 +17,12 @@ import {
 } from '@/components/ui/table';
 import { usePermissions } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
+import { useDialogStore } from '@/lib/dialog-store';
 import { Permission, SinglePermission, type BreadcrumbItem } from '@/types';
-import { Head, useForm, usePage } from '@inertiajs/react';
-import { Loader2 } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Head, useForm } from '@inertiajs/react';
+import { useState } from 'react';
+import CreatePermissionDialog from './partials/create-dialog';
+import EditPermissionDialog from './partials/edit-dialog';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -49,63 +40,29 @@ export default function Permissions({
 		useState(false);
 	const [openEditPermissionDialog, setOpenEditPermissionDialog] =
 		useState(false);
-
-	const { flash } = usePage<{ flash: { message?: string; error: string } }>()
-		.props;
+	const [selectedPermission, setSelectedPermission] =
+		useState<SinglePermission | null>(null);
 
 	const { can } = usePermissions();
-
-	useEffect(() => {
-		if (flash.message) {
-			setOpenAddNewPermissionDialog(false);
-			setOpenEditPermissionDialog(false);
-		}
-	}, [flash.message]);
-
-	const {
-		data,
-		setData,
-		post,
-		put,
-		delete: destroy,
-		processing,
-		errors,
-		reset,
-	} = useForm({
-		id: '',
-		name: '',
-		description: '',
-	});
-	function submit(e: React.FormEvent) {
-		e.preventDefault();
-		post('/permissions', {
-			onSuccess: () => {
-				reset('name');
-				reset('description');
-			},
-		});
-	}
+	const confirm = useDialogStore((state) => state.open);
+	const { delete: destroy } = useForm();
 
 	function edit(permission: SinglePermission) {
-		setData({
-			name: permission.name,
-			description: permission.description,
-		});
+		setSelectedPermission(permission);
 		setOpenEditPermissionDialog(true);
 	}
 
-	function update(e: React.FormEvent<HTMLFormElement>) {
-		e.preventDefault();
-		put(`/permissions/${data.id}`, {
-			onSuccess: () => {
-				reset('name');
-				reset('description');
-			},
+	async function deletePermission(id: number) {
+		const isConfirmed = await confirm({
+			title: 'Delete Permission',
+			message: 'Are you sure you want to delete this permission?',
+			confirmText: 'Delete',
+			cancelText: 'Cancel',
 		});
-	}
 
-	function deletePermission(id: number) {
-		destroy(`/permissions/${id}`);
+		if (isConfirmed) {
+			destroy(`/permissions/${id}`);
+		}
 	}
 
 	return (
@@ -119,9 +76,9 @@ export default function Permissions({
 							{can('create_permissions') && (
 								<Button
 									variant="default"
-									onClick={() =>
-										setOpenAddNewPermissionDialog(true)
-									}
+									onClick={() => {
+										setOpenAddNewPermissionDialog(true);
+									}}
 								>
 									Add new
 								</Button>
@@ -143,8 +100,8 @@ export default function Permissions({
 							</TableHeader>
 							<TableBody>
 								{permissions.data.map((permission, index) => (
-									<TableRow key={index + 1}>
-										<TableCell>{permission.id}</TableCell>
+									<TableRow key={permission.id}>
+										<TableCell>{index + 1}</TableCell>
 										<TableCell>{permission.name}</TableCell>
 										<TableCell>
 											{permission.description}
@@ -200,144 +157,17 @@ export default function Permissions({
 						</div>
 					)}
 				</Card>
-				{/* add new permission diaglog start */}
-				<Dialog
+
+				<CreatePermissionDialog
 					open={openAddNewPermissionDialog}
 					onOpenChange={setOpenAddNewPermissionDialog}
-				>
-					<form
-						onSubmit={(e) => {
-							e.preventDefault();
-						}}
-					>
-						<DialogContent className="sm:max-w-[425px]">
-							<DialogHeader>
-								<DialogTitle>Add New Permissions</DialogTitle>
-							</DialogHeader>
-							<div className="grid gap-4">
-								<div className="grid gap-3">
-									<Label htmlFor="name">
-										Permission Name
-									</Label>
-									<Input
-										id="name"
-										name="name"
-										placeholder="Permission Name"
-										value={data.name}
-										onChange={(e) =>
-											setData('name', e.target.value)
-										}
-										aria-invalid={!!errors.name}
-									/>
-									<InputError message={errors.name} />
-								</div>
+				/>
 
-								<div className="grid gap-3">
-									<Label htmlFor="description">
-										Description
-									</Label>
-									<Input
-										id="description"
-										name="description"
-										placeholder="Description"
-										value={data.description}
-										onChange={(e) =>
-											setData(
-												'description',
-												e.target.value,
-											)
-										}
-										aria-invalid={!!errors.description}
-									/>
-									<InputError message={errors.description} />
-								</div>
-							</div>
-							<DialogFooter>
-								<DialogClose asChild>
-									<Button variant="outline">Cancel</Button>
-								</DialogClose>
-								<Button
-									type="submit"
-									onClick={submit}
-									disabled={processing}
-								>
-									{processing && (
-										<Loader2 className="animate-spin" />
-									)}
-									Submit
-								</Button>
-							</DialogFooter>
-						</DialogContent>
-					</form>
-				</Dialog>
-				{/* add new permission diaglog end */}
-
-				<Dialog
+				<EditPermissionDialog
 					open={openEditPermissionDialog}
 					onOpenChange={setOpenEditPermissionDialog}
-				>
-					<DialogContent className="sm:max-w-[425px]">
-						<DialogHeader>
-							<DialogTitle>Edit Permissions</DialogTitle>
-						</DialogHeader>
-						<hr />
-						<form onSubmit={update}>
-							<div className="grid gap-4">
-								<div className="grid gap-3">
-									<Label htmlFor="name">
-										Permission Name
-									</Label>
-									<Input
-										id="name"
-										name="name"
-										placeholder="Permission Name"
-										value={data.name}
-										onChange={(e) =>
-											setData('name', e.target.value)
-										}
-										aria-invalid={!!errors.name}
-									/>
-									<InputError message={errors.name} />
-								</div>
-
-								<div className="grid gap-3">
-									<Label htmlFor="description">
-										Description
-									</Label>
-									<Input
-										id="description"
-										name="description"
-										placeholder="Description"
-										value={data.description}
-										onChange={(e) =>
-											setData(
-												'description',
-												e.target.value,
-											)
-										}
-										aria-invalid={!!errors.description}
-									/>
-									<InputError message={errors.description} />
-								</div>
-							</div>
-						</form>
-						<DialogFooter>
-							<DialogClose asChild>
-								<Button variant="outline">Cancel</Button>
-							</DialogClose>
-							<Button
-								type="submit"
-								onClick={submit}
-								disabled={processing}
-							>
-								{processing && (
-									<Loader2 className="animate-spin" />
-								)}
-								Submit
-							</Button>
-						</DialogFooter>
-					</DialogContent>
-				</Dialog>
+					permission={selectedPermission}
+				/>
 			</div>
 		</AppLayout>
 	);

@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Post;
+namespace App\Http\Requests\Permission;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class BulkActionPostRequest extends FormRequest
+class UpdatePermissionRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +23,13 @@ class BulkActionPostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ids' => ['required', 'array'],
-            'ids.*' => ['bail', 'required', 'integer', 'exists:posts,id', 'distinct'],
+            'name' => [
+                'required',
+                'string',
+                Rule::unique('permissions', 'name')->ignore($this->permission),
+            ],
+            'guard_name' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
         ];
     }
 }

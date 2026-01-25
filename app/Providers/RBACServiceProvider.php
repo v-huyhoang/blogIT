@@ -2,9 +2,10 @@
 
 namespace App\Providers;
 
+use App\Models\Permission;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
-use Spatie\Permission\Models\Permission;
+use Spatie\Permission\PermissionRegistrar;
 
 class RBACServiceProvider extends ServiceProvider
 {
@@ -21,14 +22,14 @@ class RBACServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $cacheKey = 'cached_access_control';
+        $clearPermissionCache = function () {
+            Cache::forget('cached_access_control');
 
-        $clearPermissionCache = function () use ($cacheKey) {
-            Cache::forget($cacheKey);
+            // use Spatie's internal forgetCachedPermissions if needed.
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
         };
 
         Permission::saved($clearPermissionCache);
-
         Permission::deleted($clearPermissionCache);
     }
 }
