@@ -40,6 +40,6 @@ final class PostListQuery extends BaseQueryObject
      */
     private function getColumns(): array
     {
-        return ['id', 'user_id', 'category_id', 'title', 'slug', 'status', 'image', 'views_count', 'comments_count', 'likes_count', 'published_at', 'created_at'];
+        return ['id', 'user_id', 'category_id', 'title', 'slug', 'status', 'image', 'is_featured', 'views_count', 'comments_count', 'likes_count', 'published_at', 'created_at'];
     }
 }

@@ -28,6 +28,9 @@ final class ColumnFilter implements FilterContract
      */
     public function apply(Builder $query, array $filterValues): Builder
     {
+        $model = $query->getModel();
+        $casts = $model->getCasts();
+
         // Get the reserved keys and filter out any keys that are not reserved
         $reservedKeys = array_flip($this->reserved);
         $filterValues = array_diff_key($filterValues, $reservedKeys);
@@ -36,14 +39,24 @@ final class ColumnFilter implements FilterContract
         $comparisonSuffixes = ['_from', '_to', '_gt', '_gte', '_lt', '_lte'];
         $filterValues = array_filter(
             $filterValues,
-            function ($value, $key) use ($comparisonSuffixes) {
-                return ! Str::endsWith($key, $comparisonSuffixes);
+            function ($value, $key) use ($comparisonSuffixes, $casts) {
+                // Ignore comparison suffixes
+                if (Str::endsWith($key, $comparisonSuffixes)) {
+                    return false;
+                }
+
+                // Ignore boolean casts as they are handled by BooleanFilter pipe
+                if (isset($casts[$key]) && ($casts[$key] === 'boolean' || $casts[$key] === 'bool')) {
+                    return false;
+                }
+
+                return true;
             },
             ARRAY_FILTER_USE_BOTH
         );
 
         // If the query model has a scopeFilter method, call it with the filter values
-        if (method_exists($query->getModel(), 'scopeFilter')) {
+        if (method_exists($model, 'scopeFilter')) {
             $query->filter($filterValues);
         }
 

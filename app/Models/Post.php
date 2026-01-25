@@ -32,6 +32,7 @@ class Post extends Model
         'meta_title',
         'meta_description',
         'status',
+        'is_featured',
         'published_at',
     ];
 
@@ -47,6 +48,7 @@ class Post extends Model
         'title',
         'slug',
         'status',
+        'is_featured',
         'published_at',
         'created_at',
         'updated_at',
@@ -65,6 +67,7 @@ class Post extends Model
     {
         return [
             'status' => PostStatus::class,
+            'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];
     }

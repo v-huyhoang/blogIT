@@ -8,9 +8,48 @@ import {
 } from '@/constants';
 import { enumOrNull, isEnumValue } from '@/lib/enum';
 import { PostFilters } from '@/types';
-import { Activity, Eye } from 'lucide-react';
+import { Activity, Eye, Star } from 'lucide-react';
 
 const ALL = '__all__';
+
+export function FeaturedFilter({
+	filters,
+	apply,
+}: {
+	filters: PostFilters;
+	apply: (v: Partial<PostFilters>) => void;
+}) {
+	const val = filters.is_featured;
+	const current =
+		val === 'true' || val === true || val === '1' || val === 1
+			? 'featured'
+			: val === 'false' || val === false || val === '0' || val === 0
+				? 'not_featured'
+				: ALL;
+
+	return (
+		<SelectFilter
+			title="Featured"
+			icon={<Star className="size-4 text-primary" />}
+			value={current}
+			onValueChange={(v) => {
+				if (v === ALL) {
+					apply({ is_featured: null });
+				} else if (v === 'featured') {
+					apply({ is_featured: '1' });
+				} else {
+					apply({ is_featured: '0' });
+				}
+			}}
+			options={[
+				{ label: 'All', value: ALL },
+				{ label: 'Featured', value: 'featured' },
+				{ label: 'Not Featured', value: 'not_featured' },
+			]}
+			placeholder="All"
+		/>
+	);
+}
 
 export function StatusFilter({
 	filters,

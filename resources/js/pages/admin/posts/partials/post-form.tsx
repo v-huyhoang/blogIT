@@ -18,6 +18,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -55,6 +56,7 @@ export interface PostFormDataType {
 	meta_description: string;
 	category_id: number | string;
 	status: number;
+	is_featured: boolean;
 	published_at: string;
 	tag_ids: number[];
 	_method?: string;
@@ -98,6 +100,7 @@ export function PostForm({
 		meta_description: post?.meta_description ?? '',
 		category_id: post?.category?.id ?? '',
 		status: post?.status ?? POST_STATUS_DRAFT,
+		is_featured: post?.is_featured ?? false,
 		published_at: post?.published_at
 			? new Date(post.published_at).toISOString().slice(0, 16)
 			: '',
@@ -386,6 +389,31 @@ export function PostForm({
 													</Select>
 													<InputError
 														message={errors.status}
+													/>
+												</div>
+
+												<div className="flex flex-row items-center justify-between rounded-lg border p-4">
+													<div className="space-y-0.5">
+														<Label className="text-base">
+															Featured Post
+														</Label>
+														<div className="text-sm text-muted-foreground">
+															Pin this post to the
+															top of the list
+														</div>
+													</div>
+													<Switch
+														checked={
+															data.is_featured
+														}
+														onCheckedChange={(
+															checked,
+														) =>
+															setData(
+																'is_featured',
+																checked,
+															)
+														}
 													/>
 												</div>
 

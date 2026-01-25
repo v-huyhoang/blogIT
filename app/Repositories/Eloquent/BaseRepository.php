@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent;
 
 use App\Filters\FilterPipeline;
+use App\Filters\Pipes\BooleanFilter;
 use App\Filters\Pipes\ColumnFilter;
 use App\Filters\Pipes\ComparisonFilter;
 use App\Filters\Pipes\SearchFilter;
@@ -185,6 +186,7 @@ abstract class BaseRepository implements BaseRepositoryInterface
         $pipeline = new FilterPipeline([
             TrashedFilter::class,
             SearchFilter::class,
+            BooleanFilter::class,
             ComparisonFilter::class,
             ColumnFilter::class,
             SortFilter::class,

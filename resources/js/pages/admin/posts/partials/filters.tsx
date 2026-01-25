@@ -24,6 +24,7 @@ import { AuthorSection } from '../../../../components/filters/author';
 import { DateSection } from '../../../../components/filters/date';
 import { SortOrderFilter } from '../../../../components/filters/sort';
 import {
+	FeaturedFilter,
 	StatusFilter,
 	VisibilityFilter,
 } from '../../../../components/filters/status';
@@ -122,6 +123,14 @@ export function PostFilterAdvance({
 				return `From: ${value}`;
 			case 'published_at_to':
 				return `To: ${value}`;
+			case 'is_featured': {
+				const isFeatured =
+					value === 'true' ||
+					value === true ||
+					value === '1' ||
+					value === 1;
+				return isFeatured ? 'Featured: Yes' : 'Featured: No';
+			}
 		}
 
 		if (key.endsWith(METRIC_FILTER_SUFFIXES.GT))
@@ -212,6 +221,10 @@ export function PostFilterAdvance({
 							apply={updateFilter}
 						/>
 						<VisibilityFilter
+							filters={localFilters}
+							apply={updateFilter}
+						/>
+						<FeaturedFilter
 							filters={localFilters}
 							apply={updateFilter}
 						/>

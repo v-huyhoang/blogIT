@@ -25,6 +25,7 @@ export interface Post {
 	meta_title: string | null;
 	meta_description: string | null;
 	status: PostStatus;
+	is_featured: boolean;
 	comments_count: number;
 	likes_count: number;
 	views_count: number;
@@ -61,6 +62,7 @@ export interface PostFilters {
 	user_id: number | null;
 	tag_id: number | null;
 	trashed: string | null;
+	is_featured: boolean | string | number | null;
 	published_at_from?: string | null;
 	published_at_to?: string | null;
 	[key: string]: unknown;

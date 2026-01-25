@@ -61,6 +61,7 @@ import {
 	FileSearch,
 	Plus,
 	RefreshCcw,
+	Star,
 	Trash2,
 	View,
 	X,
@@ -463,7 +464,15 @@ export default function PostIndex({
 																/>
 															</div>
 														)}
-														{post.title}
+														{post.is_featured && (
+															<Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+														)}
+														<span
+															className="max-w-[200px] truncate lg:max-w-[400px]"
+															title={post.title}
+														>
+															{post.title}
+														</span>
 													</div>
 												</TableCell>
 												<TableCell>

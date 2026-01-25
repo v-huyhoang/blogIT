@@ -31,6 +31,7 @@ class IndexPostRequest extends FormRequest
             'sort' => ['nullable', Rule::in(['id', 'published_at', 'created_at', 'views_count', 'comments_count', 'likes_count', 'status', 'title'])],
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
             'status' => ['nullable', Rule::enum(PostStatus::class)],
+            'is_featured' => ['nullable', 'boolean'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
             'direction' => ['nullable', 'string', 'max:255', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', Rule::in(Pagination::OPTIONS)],

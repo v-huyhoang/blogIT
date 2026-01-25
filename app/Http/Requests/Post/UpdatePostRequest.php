@@ -34,6 +34,7 @@ class UpdatePostRequest extends FormRequest
             'meta_title' => ['nullable', 'string', 'max:255'],
             'meta_description' => ['nullable', 'string', 'max:500'],
             'status' => ['required', Rule::enum(PostStatus::class)],
+            'is_featured' => ['boolean'],
             'published_at' => [new ValidPublishedAt($this->input('status'))],
             'tag_ids' => ['nullable', 'array'],
             'tag_ids.*' => ['integer', 'exists:tags,id', 'distinct'],
