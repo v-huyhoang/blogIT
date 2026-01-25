@@ -37,7 +37,6 @@ import type { PageProps, UserIndexResponse } from '@/types';
 import { type BreadcrumbItem } from '@/types';
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -53,20 +52,11 @@ function deleteUser(id: number) {
 }
 
 export default function Users({ users }: { users: UserIndexResponse }) {
-	const { flash } = usePage<{ flash: { message?: string; error: string } }>()
-		.props;
-
 	const { filters } = usePage<PageProps>().props;
 
 	const { can } = usePermissions();
 
 	const [search, setSearch] = useState(filters.q ?? '');
-
-	useEffect(() => {
-		if (flash.message) {
-			toast.success(flash.message);
-		}
-	}, [flash.message]);
 
 	useEffect(() => {
 		const timeout = setTimeout(() => {

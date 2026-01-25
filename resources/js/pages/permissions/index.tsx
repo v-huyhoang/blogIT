@@ -32,7 +32,6 @@ import { Permission, SinglePermission, type BreadcrumbItem } from '@/types';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -60,7 +59,6 @@ export default function Permissions({
 		if (flash.message) {
 			setOpenAddNewPermissionDialog(false);
 			setOpenEditPermissionDialog(false);
-			toast.success(flash.message);
 		}
 	}, [flash.message]);
 

@@ -13,9 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import AppLayout from '@/layouts/app-layout';
 import { RolePermission, SinglePermission, type BreadcrumbItem } from '@/types';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { useEffect } from 'react';
-import { toast } from 'sonner';
+import { Head, Link, useForm } from '@inertiajs/react';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -31,9 +29,6 @@ export default function EditRoles({
 	permissions: SinglePermission[];
 	role: RolePermission;
 }) {
-	const { flash } = usePage<{ flash: { message?: string; error?: string } }>()
-		.props;
-
 	const permissionList = role.permissions.map((perm) => perm.name);
 
 	const { data, setData, put, processing, errors } = useForm({
@@ -42,24 +37,11 @@ export default function EditRoles({
 		permissions: permissionList,
 	});
 
-	useEffect(() => {
-		if (flash.message) {
-			toast.success(flash.message);
-		}
-		if (flash.error) {
-			toast.error(flash.error);
-		}
-	}, [flash.message, flash.error]);
-
 	function submit(e: React.FormEvent<HTMLFormElement>) {
 		e.preventDefault();
 		put(RoleController.update.url({ role: role.id }), {
-			onSuccess: () => {
-				toast.success('Role updated successfully');
-			},
 			onError: (errors) => {
 				console.error('Update errors:', errors);
-				toast.error('Failed to update role');
 			},
 		});
 	}
