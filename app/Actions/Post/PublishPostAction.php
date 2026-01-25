@@ -15,7 +15,7 @@ class PublishPostAction
     {
         $post = $this->postRepository->findForUpdate($post->id);
 
-        if ($post->status === PostStatus::Published->value) {
+        if ($post->status === PostStatus::Published) {
             throw new DomainException('Already published');
         }
 

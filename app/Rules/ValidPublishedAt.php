@@ -8,7 +8,12 @@ use Illuminate\Contracts\Validation\ValidationRule;
 
 class ValidPublishedAt implements ValidationRule
 {
-    public function __construct(protected ?string $status) {}
+    protected ?int $status;
+
+    public function __construct(?int $status)
+    {
+        $this->status = $status !== null ? (int) $status : null;
+    }
 
     /**
      * Run the validation rule.

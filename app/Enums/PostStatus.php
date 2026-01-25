@@ -2,11 +2,11 @@
 
 namespace App\Enums;
 
-enum PostStatus: string
+enum PostStatus: int
 {
-    case Draft = 'draft';
-    case Pending = 'pending';
-    case Published = 'published';
+    case Draft = 0;
+    case Pending = 1;
+    case Published = 2;
 
     public function label(): string
     {

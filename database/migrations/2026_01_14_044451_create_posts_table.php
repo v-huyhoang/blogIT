@@ -21,7 +21,7 @@ return new class extends Migration
             $table->longText('content');
             $table->string('image')->nullable();
             $table->boolean('is_featured')->default(false);
-            $table->enum('status', ['draft', 'pending', 'published'])->default('draft');
+            $table->tinyInteger('status')->default(0)->index(); // 0 = draft, 1 = pending, 2 = published
             $table->timestamp('published_at')->nullable();
 
             // Statistics
