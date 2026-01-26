@@ -37,7 +37,6 @@ class TagService
     {
         $this->tagRepository->create([
             'name' => $dto->name,
-            'slug' => $dto->slug,
         ]);
     }
 
@@ -48,7 +47,6 @@ class TagService
     {
         $this->tagRepository->update($id, [
             'name' => $dto->name,
-            'slug' => $dto->slug,
         ]);
     }
 

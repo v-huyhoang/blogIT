@@ -62,9 +62,6 @@ Route::middleware(['auth', 'verified', 'admin.access'])->group(function () {
         // Add your tags routes here
         Route::get('/', [TagController::class, 'index'])->name('tags.index')->can('view_tags');
         Route::post('/', [TagController::class, 'store'])->name('tags.store')->can('create_tags');
-        Route::get('create', [TagController::class, 'create'])->name('tags.create')->can('create_tags');
-        Route::get('{tag}', [TagController::class, 'show'])->name('tags.show')->can('view_tags');
-        Route::get('{tag}/edit', [TagController::class, 'edit'])->name('tags.edit')->can('edit_tags');
         Route::put('{tag}', [TagController::class, 'update'])->name('tags.update')->can('edit_tags');
         Route::delete('{tag}', [TagController::class, 'destroy'])->name('tags.destroy')->can('delete_tags');
     });

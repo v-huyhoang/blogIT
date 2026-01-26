@@ -6,7 +6,6 @@ final class CreateTagDTO
 {
     public function __construct(
         public readonly string $name,
-        public readonly ?string $slug,
 
     ) {}
 
@@ -14,7 +13,6 @@ final class CreateTagDTO
     {
         return new self(
             name: $data['name'],
-            slug: $data['slug'],
         );
     }
 }

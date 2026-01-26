@@ -19,7 +19,7 @@ readonly class TagFilterDTO
                 'slug' => $data['slug'] ?? null,
                 // ...
             ], fn ($v) => ! is_null($v)),
-            sort: $data['sort'] ?? 'latest',
+            sort: $data['sort'] ?? 'id',
             perPage: (int) (
                 $data['per_page']
                 ?? config('constant.PAGINATION.PER_PAGE', 10)

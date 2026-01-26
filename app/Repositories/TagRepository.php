@@ -29,7 +29,7 @@ class TagRepository
         return $this->model
             ->search($dto->search)
             ->filter($dto->filters)
-            ->orderBy($dto->sort)
+            ->orderBy($dto->sort, 'desc')
             ->paginate($dto->perPage);
     }
 

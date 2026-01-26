@@ -33,7 +33,6 @@ import { SingleTag, Tag } from '@/types/tag';
 import { Head, useForm, usePage } from '@inertiajs/react';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -55,7 +54,6 @@ export default function Tags({ tags }: { tags: Tag }) {
 		if (flash.message) {
 			setOpenAddNewTagDialog(false);
 			setOpenEditTagDialog(false);
-			toast.success(flash.message);
 		}
 	}, [flash.message]);
 
@@ -68,35 +66,45 @@ export default function Tags({ tags }: { tags: Tag }) {
 		processing,
 		errors,
 		reset,
+		clearErrors,
 	} = useForm({
 		id: '',
 		name: '',
-		slug: '',
 	});
+
+	function create() {
+		setData({
+			id: '',
+			name: '',
+		});
+		clearErrors();
+		setOpenAddNewTagDialog(true);
+	}
+
 	function submit(e: React.FormEvent) {
 		e.preventDefault();
 		post('/tags', {
 			onSuccess: () => {
-				reset('name');
-				reset('slug');
+				reset();
 			},
 		});
 	}
 
 	function edit(tag: SingleTag) {
 		setData({
+			id: tag.id.toString(),
 			name: tag.name,
-			slug: tag.slug,
 		});
+		clearErrors();
 		setOpenEditTagDialog(true);
 	}
 
-	function update(e: React.FormEvent<HTMLFormElement>) {
+	function update(e: React.FormEvent) {
 		e.preventDefault();
 		put(`/tags/${data.id}`, {
 			onSuccess: () => {
-				reset('name');
-				reset('slug');
+				reset();
+				setOpenEditTagDialog(false);
 			},
 		});
 	}
@@ -116,7 +124,9 @@ export default function Tags({ tags }: { tags: Tag }) {
 							{can('create_tags') && (
 								<Button
 									variant="default"
-									onClick={() => setOpenAddNewTagDialog(true)}
+									onClick={() => {
+										create();
+									}}
 								>
 									Add new
 								</Button>
@@ -149,7 +159,9 @@ export default function Tags({ tags }: { tags: Tag }) {
 												<Button
 													variant={'outline'}
 													size={'sm'}
-													onClick={() => edit(tag)}
+													onClick={() => {
+														edit(tag);
+													}}
 												>
 													Edit
 												</Button>
@@ -214,21 +226,6 @@ export default function Tags({ tags }: { tags: Tag }) {
 									/>
 									<InputError message={errors.name} />
 								</div>
-
-								<div className="grid gap-3">
-									<Label htmlFor="slug">Slug</Label>
-									<Input
-										id="slug"
-										name="slug"
-										placeholder="slug"
-										value={data.slug}
-										onChange={(e) =>
-											setData('slug', e.target.value)
-										}
-										aria-invalid={!!errors.slug}
-									/>
-									<InputError message={errors.slug} />
-								</div>
 							</div>
 							<DialogFooter>
 								<DialogClose asChild>
@@ -254,12 +251,13 @@ export default function Tags({ tags }: { tags: Tag }) {
 					open={openEditTagDialog}
 					onOpenChange={setOpenEditTagDialog}
 				>
-					<DialogContent className="sm:max-w-[425px]">
-						<DialogHeader>
-							<DialogTitle>Edit Tags</DialogTitle>
-						</DialogHeader>
-						<hr />
-						<form onSubmit={update}>
+					<form onSubmit={update}>
+						<DialogContent className="sm:max-w-[425px]">
+							<DialogHeader>
+								<DialogTitle>Edit Tags</DialogTitle>
+							</DialogHeader>
+							<hr />
+
 							<div className="grid gap-4">
 								<div className="grid gap-3">
 									<Label htmlFor="name">Tag Name</Label>
@@ -275,39 +273,25 @@ export default function Tags({ tags }: { tags: Tag }) {
 									/>
 									<InputError message={errors.name} />
 								</div>
-
-								<div className="grid gap-3">
-									<Label htmlFor="slug">Slug</Label>
-									<Input
-										id="slug"
-										name="slug"
-										placeholder="Slug"
-										value={data.slug}
-										onChange={(e) =>
-											setData('slug', e.target.value)
-										}
-										aria-invalid={!!errors.slug}
-									/>
-									<InputError message={errors.slug} />
-								</div>
 							</div>
-						</form>
-						<DialogFooter>
-							<DialogClose asChild>
-								<Button variant="outline">Cancel</Button>
-							</DialogClose>
-							<Button
-								type="submit"
-								onClick={submit}
-								disabled={processing}
-							>
-								{processing && (
-									<Loader2 className="animate-spin" />
-								)}
-								Submit
-							</Button>
-						</DialogFooter>
-					</DialogContent>
+
+							<DialogFooter>
+								<DialogClose asChild>
+									<Button variant="outline">Cancel</Button>
+								</DialogClose>
+								<Button
+									type="submit"
+									onClick={update}
+									disabled={processing}
+								>
+									{processing && (
+										<Loader2 className="animate-spin" />
+									)}
+									Update
+								</Button>
+							</DialogFooter>
+						</DialogContent>
+					</form>
 				</Dialog>
 			</div>
 		</AppLayout>

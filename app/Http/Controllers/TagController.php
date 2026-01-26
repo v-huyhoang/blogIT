@@ -41,8 +41,12 @@ class TagController extends Controller
 
     public function update(UpdateTagRequest $request, int $id)
     {
-        $dto = UpdateTagDTO::fromRequest($request->validated());
-        $this->tagService->update($id, $dto);
+        try {
+            $dto = UpdateTagDTO::fromRequest($request->validated());
+            $this->tagService->update($id, $dto);
+        } catch (\Throwable $th) {
+            return back()->withErrors(['error' => 'Cannot update tag.']);
+        }
 
         return to_route('tags.index')->with('message', 'Tag updated successfully.');
     }

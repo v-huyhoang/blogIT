@@ -19,8 +19,14 @@ class UpdateTagRequest extends FormRequest
         $id = $tag instanceof Model ? $tag->getKey() : $tag;
 
         return [
-            'name' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255|unique:tags,slug,'.$id,
+            'name' => 'required|string|max:255|unique:tags,name,'.$id,
+        ];
+    }
+
+    public function attributes(): array
+    {
+        return [
+            'name' => 'Tag name',
         ];
     }
 }
