@@ -2,57 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use Illuminate\Http\Request;
+use App\Http\Requests\Permission\StorePermissionRequest;
+use App\Http\Requests\Permission\UpdatePermissionRequest;
+use App\Models\Permission;
+use App\Services\PermissionService;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
-use Spatie\Permission\Models\Permission;
+use Inertia\Response;
 
 class PermissionController extends Controller
 {
-    public function index()
+    public function __construct(private readonly PermissionService $permissionService) {}
+
+    public function index(): Response
     {
-        $permissions = Permission::latest()->paginate(15);
-        $permissions->getCollection()->transform(function ($permission) {
-            return [
+        $permissions = Permission::select(['id', 'name', 'description', 'created_at', 'updated_at'])
+            ->latest()
+            ->paginate(15)
+            ->through(fn ($permission) => [
                 'id' => $permission->id,
                 'name' => $permission->name,
                 'description' => $permission->description,
-                'created_at' => Carbon::parse($permission->created_at)->format('Y-m-d H:i:s'),
-                'updated_at' => Carbon::parse($permission->updated_at)->format('Y-m-d H:i:s'),
-            ];
-        });
+                'created_at' => $permission->created_at?->format('Y-m-d H:i:s'),
+                'updated_at' => $permission->updated_at?->format('Y-m-d H:i:s'),
+            ]);
 
         return Inertia::render('permissions/index', [
             'permissions' => $permissions,
         ]);
     }
 
-    public function store(Request $request)
+    public function store(StorePermissionRequest $request): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:permissions,name',
-        ]);
-
-        // Create the permission
-        Permission::create(['name' => $request->name, 'description' => $request->description]);
+        $this->permissionService->createPermission($request->validated());
 
         return to_route('permissions.index')->with('message', 'Permission created successfully.');
     }
 
-    public function update(Request $request, Permission $permission)
+    public function update(UpdatePermissionRequest $request, Permission $permission): RedirectResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255|unique:permissions,name,'.$permission->id,
-        ]);
-
-        $permission->update(['name' => $request->name, 'description' => $request->description]);
+        $this->permissionService->editPermission($permission, $request->validated());
 
         return to_route('permissions.index')->with('message', 'Permission updated successfully.');
     }
 
-    public function destroy(Permission $permission)
+    public function destroy(Permission $permission): RedirectResponse
     {
-        $permission->delete();
+        $this->permissionService->deletePermission($permission);
 
         return to_route('permissions.index')->with('message', 'Permission deleted successfully.');
     }

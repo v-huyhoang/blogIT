@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Post;
+namespace App\Http\Requests\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class BulkActionPostRequest extends FormRequest
+class StoreRoleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,8 +22,11 @@ class BulkActionPostRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'ids' => ['required', 'array'],
-            'ids.*' => ['bail', 'required', 'integer', 'exists:posts,id', 'distinct'],
+            'name' => ['required', 'string', 'unique:roles,name'],
+            'guard_name' => ['nullable', 'string'],
+            'description' => ['nullable', 'string'],
+            'permissions' => ['array'],
+            'permissions.*' => ['bail', 'string', 'exists:permissions,name', 'distinct'],
         ];
     }
 }

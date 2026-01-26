@@ -44,7 +44,10 @@ export default function ConfirmDialog() {
 					<AlertDialogCancel onClick={handleCancel}>
 						{options.cancelText || 'Cancel'}
 					</AlertDialogCancel>
-					<AlertDialogAction onClick={handleConfirm}>
+					<AlertDialogAction
+						onClick={handleConfirm}
+						className="bg-red-500 text-white hover:bg-destructive"
+					>
 						{options.confirmText || 'Confirm'}
 					</AlertDialogAction>
 				</AlertDialogFooter>
