@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\PostDuplicateController;
 use App\Http\Controllers\Admin\PostPublishController;
 use App\Http\Controllers\Admin\PostViewController;
+use App\Http\Controllers\Admin\TagController;
 
 Route::resource('posts', PostController::class);
 
@@ -24,3 +25,10 @@ Route::prefix('posts/{post}')->name('posts.')->group(function () {
     // Duplicate
     Route::post('/duplicate', [PostDuplicateController::class, 'duplicate'])->name('duplicate');
 });
+
+Route::middleware(['can:view_tags'])->group(function () {
+    Route::get('tags', [TagController::class, 'index'])->name('tags.index');
+});
+Route::post('tags', [TagController::class, 'store'])->name('tags.store')->middleware('can:create_tags');
+Route::put('tags/{tag}', [TagController::class, 'update'])->name('tags.update')->middleware('can:edit_tags');
+Route::delete('tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy')->middleware('can:delete_tags');

@@ -99,19 +99,51 @@ export interface CategoryFormData {
 export interface CategoryFormProps {
 	form: {
 		data: CategoryFormData;
+
 		setData: (
 			key: keyof CategoryFormData,
+
 			value: string | number | null | boolean,
 		) => void;
+
 		errors: Partial<Record<keyof CategoryFormData, string>>;
 	};
+
 	flatCategories: FlatCategory[];
+
 	isEdit?: boolean;
 }
 
 export interface EditCategoryDialogProps {
 	open: boolean;
+
 	onOpenChange: (open: boolean) => void;
+
 	category: SingleCategory | null;
+
 	flatCategories: FlatCategory[];
+}
+
+// Interface for Tag
+
+export interface SingleTag {
+	id: number;
+
+	name: string;
+
+	slug: string;
+
+	created_at: string;
+
+	updated_at: string;
+}
+
+export interface Tag extends Pagination {
+	data: SingleTag[];
+}
+
+export interface TagFormData {
+	name: string;
+
+	slug: string;
 }
