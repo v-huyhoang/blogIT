@@ -4,7 +4,13 @@ namespace App\Console\Commands;
 
 use App\Jobs\PublishPostJob;
 use App\Models\Post;
+use App\Models\User;
+use App\Notifications\Post\PostBatchPublishedForAdminNotification;
+use Illuminate\Bus\Batch;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Str;
 
 class PublishScheduledPosts extends Command
 {
@@ -27,22 +33,41 @@ class PublishScheduledPosts extends Command
      */
     public function handle()
     {
-        $total = 0;
+        $postIds = Post::scheduledToPublish()->pluck('id')->toArray();
 
-        Post::scheduledToPublish()
-            ->select('id')
-            ->chunkById(100, function ($posts) use (&$total) {
-                $posts->each(function ($post) {
-                    PublishPostJob::dispatch($post->id);
-                });
+        if (empty($postIds)) {
+            $this->info('No scheduled posts are currently due for publishing.');
 
-                $total += $posts->count();
-            });
+            return;
+        }
 
-        $this->info(
-            $total > 0
-                ? "Dispatched {$total} posts for publishing."
-                : 'No scheduled posts are currently due for publishing.'
-        );
+        $jobs = [];
+        foreach ($postIds as $id) {
+            $jobs[] = new PublishPostJob($id);
+        }
+
+        Bus::batch($jobs)
+            ->name('Publish Scheduled Posts')
+            ->finally(function (Batch $batch) use ($postIds) {
+                $publishedPostIds = Post::whereIn('id', $postIds)
+                    ->published()
+                    ->pluck('id')
+                    ->all();
+
+                if (empty($publishedPostIds)) {
+                    return;
+                }
+
+                $admins = User::admins()->oldest()->get();
+
+                Notification::send(
+                    $admins,
+                    new PostBatchPublishedForAdminNotification($publishedPostIds)
+                );
+            })
+            ->dispatch();
+
+        $count = count($postIds);
+        $this->info('Dispatched '.$count.' '.Str::plural('post', $count).' for publishing.');
     }
 }

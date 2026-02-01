@@ -6,6 +6,7 @@ use App\Notifications\Auth\ResetPassword;
 use App\Notifications\Auth\VerifyEmail;
 use App\Traits\Filterable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -92,5 +93,31 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Check if the user has an administrative role.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole(['Super Admin', 'Admin']);
+    }
+
+    /**
+     * Check if the user is a Super Admin.
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->hasRole('Super Admin');
+    }
+
+    /**
+     * Scope a query to only include admin users.
+     */
+    public function scopeAdmins(Builder $query): Builder
+    {
+        return $query->whereHas('roles', function ($query) {
+            $query->whereIn('name', ['Admin', 'Super Admin']);
+        });
     }
 }

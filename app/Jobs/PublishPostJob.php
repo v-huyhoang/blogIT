@@ -3,50 +3,65 @@
 namespace App\Jobs;
 
 use App\Enums\PostStatus;
-// use App\Events\PostPublished;
+use App\Events\PostPublished;
 use App\Models\Post;
+use DateTime;
+use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\DB;
 
 class PublishPostJob implements ShouldQueue
 {
-	use Queueable;
+    use Batchable, Queueable;
 
-	/**
-	 * Create a new job instance.
-	 */
-	public function __construct(private readonly int $postId)
-	{
-		//
-	}
+    public int $tries = 3;
 
-	/**
-	 * Execute the job.
-	 */
-	public function handle(): void
-	{
-		$post = null;
-		DB::transaction(function () use (&$post) {
-			$post = Post::whereKey($this->postId)
-				->scheduledToPublish()
-				->lockForUpdate()
-				->first();
+    public function backoff(): array
+    {
+        return [5, 30, 120];
+    }
 
-			if (! $post) {
-				return;
-			}
+    public function retryUntil(): DateTime
+    {
+        return now()->addMinutes(10);
+    }
 
-			$post->fill([
-				'status' => PostStatus::Published,
-				'published_at' => now(),
-				'publish_at' => null,
-			]);
+    /**
+     * Create a new job instance.
+     */
+    public function __construct(private readonly int $postId) {}
 
-			$post->save();
-		});
-		// if ($post) {
-		// 	DB::afterCommit(fn() => event(new PostPublished($post->id)));
-		// }
-	}
+    /**
+     * Execute the job.
+     */
+    public function handle(): void
+    {
+        if ($this->batch()?->cancelled()) {
+            return;
+        }
+
+        $postPublished = false;
+
+        DB::transaction(function () use (&$postPublished) {
+            $post = Post::whereKey($this->postId)->scheduledToPublish()->lockForUpdate()->first();
+
+            if (! $post) {
+                return;
+            }
+
+            $post->update([
+                'status' => PostStatus::Published,
+                'published_at' => now(),
+                'publish_at' => null,
+            ]);
+
+            $postPublished = true;
+        });
+
+        // if post was published, notify
+        if ($postPublished) {
+            event(new PostPublished($this->postId));
+        }
+    }
 }

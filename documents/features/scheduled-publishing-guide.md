@@ -6,96 +6,99 @@ This document provides a comprehensive overview of the Scheduled Publishing feat
 
 The Scheduled Publishing feature allows authors to set a specific future date and time for a post to go live. The system automatically handles the transition from `Schedule` to `Published` state without manual intervention.
 
-## 2. Technical Implementation
+## 2. Technical Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant U as User (Admin)
+    participant C as Cron Job (Every Minute)
+    participant Cmd as PublishScheduledPosts Command
+    participant B as Laravel Bus (Batch)
+    participant J as PublishPostJob
+    participant DB as Database
+    participant E as PostPublished Event
+    participant L as PostPublishedHandler Listener
+    participant N as Notification System
+
+    U->>DB: Set Post status=Schedule, publish_at=FutureDate
+    loop Every Minute
+        C->>Cmd: php artisan app:publish-scheduled-posts
+        Cmd->>DB: Query due posts (status=Schedule, publish_at <= now)
+        DB-->>Cmd: List of IDs
+        alt Posts Due
+            Cmd->>B: Dispatch Batch of Jobs
+            loop for each ID
+                B->>J: Handle PublishPostJob
+                J->>DB: Transaction + LockForUpdate
+                Note over J,DB: Status=Published, published_at=now, publish_at=null
+                DB-->>J: Commit
+                J->>E: Dispatch PostPublished Event
+                E->>L: Handle (Queue)
+                L->>DB: Invalidate Repository Cache
+            end
+            B->>Cmd: Batch finally()
+            Cmd->>DB: Fetch success IDs & Admins
+            Cmd->>N: Send Batch Notification to Admins
+        else No Posts Due
+            Cmd-->>C: Exit
+        end
+    end
+```
+
+## 3. Technical Implementation
 
 ### Core Components
 
-- **Model:** `app/Models/Post.php` (contains `scopeScheduledToPublish`)
-- **Validation:** `app/Rules/ValidPublishedAt.php` (ensures dates are valid and in the future)
-- **Service:** `app/Services/PostService.php` (centralizes publishing logic)
-- **Command:** `app/Console/Commands/PublishScheduledPosts.php` (discovers due posts)
-- **Job:** `app/Jobs/PublishPostJob.php` (executes the state change via the queue)
+- **Model:** `app/Models/Post.php` - Uses `scopeScheduledToPublish` to filter due posts.
+- **Validation:** `app/Rules/ValidPublishedAt.php` - Ensures dates are in the future when status is `Schedule`.
+- **Command:** `app/Console/Commands/PublishScheduledPosts.php` - The entry point triggered by the scheduler. Uses Laravel Batches for atomic execution tracking.
+- **Job:** `app/Jobs/PublishPostJob.php` - **Queued**. Performs the status transition within a database transaction with a pessimistic lock (`lockForUpdate`).
+- **Event:** `app/Events/PostPublished.php` - Domain event triggered for each successfully published post.
+- **Listener:** `app/Listeners/PostPublishedHandler.php` - **Queued**. Handles side effects:
+  - Invalidate `PostRepository` cache (Tags/Version bumping).
+  - Future: Social media autoposting, Follower notifications.
 
 ### Database Optimization
 
-A composite index was added to the `posts` table to ensure the discovery query remains fast as the database grows:
+A composite index ensures that the lookup for due posts is $O(log N)$:
 
 ```sql
 CREATE INDEX posts_status_publish_at_index ON posts (status, publish_at);
 ```
 
-### State Management
+### Performance & Scaling
 
-1. When status is set to `Schedule`, the user-provided date is stored in `publish_at`. `published_at` remains `null`.
-2. When the job executes, `status` becomes `Published`, `published_at` is set to `now()`, and `publish_at` is cleared (`null`).
+- **Batching:** Multiple scheduled posts are dispatched as a single batch. This allows the system to send a **single summary notification** to admins after the entire process is complete, instead of spamming one email per post.
+- **Concurrency:** `lockForUpdate()` prevents race conditions if the command is manually triggered while the scheduler is running.
+- **Queueing:** All heavy lifting (status updates, cache clearing, notifications) is done in the background.
 
-## 3. How to Use (Admin Dashboard)
+## 4. How to Use (Admin Dashboard)
 
-### Scheduling a Post
+1. **Create/Edit Post**: Open the post editor.
+2. **Status**: Change status to **Schedule**.
+3. **Date**: Select a future date/time in the **Scheduled For** field.
+4. **Save**: Click Save. The post will remain hidden until the chosen time.
 
-1. Open the **Post Editor** (Create or Edit).
-2. Go to the **Settings** tab.
-3. In the **Publication Status** section, change the status to **Schedule**.
-4. A **Scheduled For** field will appear. Select your desired future date and time.
-5. Click **Save Post**.
+## 5. Server Configuration
 
-### UI Feedback
+### Task Scheduler
 
-- Scheduled posts appear with a **blue "Scheduled" badge** in the post list.
-- A warning will appear in the editor if you select a date that has already passed.
-
-## 4. Server Configuration & Deployment
-
-To ensure scheduled posts go live automatically, you must configure the following on your server:
-
-### A. Task Scheduler (Cron)
-
-Laravel's scheduler must run every minute to check for posts that have reached their scheduled time.
-
-Add this entry to your server's crontab (`crontab -e`):
+The scheduler must run every minute to ensure timely publication:
 
 ```bash
 * * * * * cd /path-to-your-project && php artisan schedule:run >> /dev/null 2>&1
 ```
 
-### B. Queue Worker (Supervisor)
+### Queue Worker
 
-The actual publishing process is handled in the background via the queue. You must have a queue worker running.
-
-**Example Supervisor Configuration:**
-
-```ini
-[program:laravel-worker]
-process_name=%(program_name)s_%(process_num)02d
-command=php /path-to-your-project/artisan queue:work --sleep=3 --tries=3
-autostart=true
-autorestart=true
-user=your-user
-numprocs=2
-redirect_stderr=true
-stdout_logfile=/path-to-your-project/storage/logs/worker.log
-```
-
-## 5. Maintenance & CLI Commands
-
-### Manual Trigger
-
-To manually check and publish due posts without waiting for the cron job:
+Ensure supervisor is managing your queue workers to process `PublishPostJob`:
 
 ```bash
-php artisan app:publish-scheduled-posts
+php artisan queue:work --tries=3 --backoff=5,30,120
 ```
 
-### Testing locally
+## 6. Maintenance & Debugging
 
-If you don't have a queue worker running locally, you can process the publishing job manually after running the command:
-
-```bash
-php artisan queue:work --once
-```
-
-## 6. Performance & Safety Notes
-
-- **Overlapping:** The command is configured with `withoutOverlapping()`, ensuring that if a large batch of posts takes more than a minute to process, a second command won't start and cause conflicts.
-- **Atomicity:** The publishing transition happens inside a database transaction with a `lockForUpdate()` to prevent race conditions.
-- **Validation:** The system ignores date fields when status is `Draft` or `Pending`, preventing accidental validation blocks.
+- **Manual Trigger**: `php artisan app:publish-scheduled-posts`
+- **Check Status**: Use `php artisan queue:failed` to see if any publishing jobs failed.
+- **Logs**: Batch results and notification counts are logged to `storage/logs/laravel.log`.

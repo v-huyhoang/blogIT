@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Post;
 use App\Enums\PostStatus;
+use App\Models\Post;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Services\Traits\BulkDeleteServiceTrait;
 use App\Services\Traits\TransactionTrait;
