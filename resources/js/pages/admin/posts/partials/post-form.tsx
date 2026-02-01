@@ -19,7 +19,6 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Textarea } from '@/components/ui/textarea';
 import {
 	DEBOUNCE_DELAY,
@@ -119,26 +118,22 @@ export function PostForm({
 		_method: method,
 	});
 
-	const dataRef = useRef(data);
-	dataRef.current = data;
-
 	useEffect(() => {
 		const timer = setTimeout(() => {
-			const currentData = dataRef.current;
-			if (!post && currentData.title) {
-				const slug = currentData.title
+			if (!post && data.title) {
+				const slug = data.title
 					.toLowerCase()
 					.normalize('NFD')
 					.replace(/[\u0300-\u036f]/g, '')
 					.replace(/[^a-z0-9]+/g, '-')
 					.replace(/(^-|-$)+/g, '');
 
-				setData({
-					...currentData,
+				setData((prev) => ({
+					...prev,
 					slug,
-					meta_title: currentData.title,
-					meta_description: currentData.title,
-				});
+					meta_title: prev.meta_title || prev.title,
+					meta_description: prev.meta_description || prev.title,
+				}));
 			}
 		}, DEBOUNCE_DELAY);
 
@@ -148,12 +143,13 @@ export function PostForm({
 
 	const initialEditorState = useMemo(() => {
 		if (!data.content) return undefined;
-		try {
-			if (data.content.trim().startsWith('{')) {
+
+		if (data.content.trim().startsWith('{')) {
+			try {
 				return JSON.parse(data.content) as SerializedEditorState;
+			} catch (e) {
+				console.error('Error parsing content JSON:', e);
 			}
-		} catch (e) {
-			console.error(e);
 		}
 
 		return {
@@ -186,7 +182,7 @@ export function PostForm({
 			},
 		} as unknown as SerializedEditorState;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []); // Run once on mount (or when post changes if we wanted to support external updates, but for now memo empty deps is safer for initial load)
+	}, [post?.id]);
 
 	const handleSubmit: FormEventHandler = (e) => {
 		e.preventDefault();
@@ -209,357 +205,315 @@ export function PostForm({
 		if (imageInputRef.current) imageInputRef.current.value = '';
 	};
 
-	const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setData('title', e.target.value);
-	};
+	const [activeTab, setActiveTab] = useState<'content' | 'settings' | 'seo'>(
+		'content',
+	);
+
+	const tabs = [
+		{ id: 'content', label: 'Content', icon: FileText },
+		{ id: 'settings', label: 'Settings', icon: Settings },
+		{ id: 'seo', label: 'SEO & Media', icon: Globe },
+	] as const;
 
 	return (
 		<form onSubmit={handleSubmit} className="mx-auto max-w-7xl space-y-6">
-			{/* Header Section */}
+			{/* Title Input - Always Visible */}
 			<div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
 				<div className="flex-1 space-y-2">
-					<Label
-						htmlFor="title"
-						className="text-md font-medium text-foreground"
-					>
+					<Label className="text-md font-medium">
 						Post Title <span className="text-destructive">*</span>
 					</Label>
 					<Input
-						id="title"
 						value={data.title}
-						onChange={handleTitleChange}
+						onChange={(e) => setData('title', e.target.value)}
 						placeholder="What's on your mind?"
 						className={cn(
-							'mt-2 border bg-transparent text-2xl font-bold hover:border-gray-300',
+							'w-full bg-transparent text-2xl',
 							errors.title &&
-								'border-destructive focus-visible:ring-destructive',
+								'border-destructive ring-0 ring-destructive focus-visible:ring-destructive',
 						)}
 					/>
-					<div className="flex items-center gap-1 text-xs text-muted-foreground">
-						<span>Slug:</span>
-						<span>{data.slug || 'auto-generated'}</span>
+					<div className="text-xs text-muted-foreground">
+						Slug: {data.slug || 'auto-generated'}
 					</div>
 					<InputError message={errors.title} />
 				</div>
 			</div>
 
-			<div className="flex w-full max-w-7xl flex-col gap-6">
-				<Tabs defaultValue="content">
-					<TabsList>
-						<TabsTrigger
-							value="content"
-							className="hover:cursor-pointer"
+			<div className="flex flex-col gap-6">
+				{/* Simple Tab Buttons */}
+				<div className="flex w-fit items-center gap-1 rounded-lg bg-muted p-1">
+					{tabs.map((tab) => (
+						<button
+							key={tab.id}
+							type="button"
+							onClick={() => setActiveTab(tab.id)}
+							className={cn(
+								'flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-all hover:cursor-pointer',
+								activeTab === tab.id
+									? 'bg-background shadow-sm'
+									: 'text-muted-foreground hover:bg-background/50',
+							)}
 						>
-							<FileText className="size-4" />
-							Content
-						</TabsTrigger>
-						<TabsTrigger
-							value="settings"
-							className="hover:cursor-pointer"
-						>
-							<Settings className="size-4" />
-							Settings
-						</TabsTrigger>
-						<TabsTrigger
-							value="seo"
-							className="hover:cursor-pointer"
-						>
-							<Globe className="size-4" />
-							Seo & Media
-						</TabsTrigger>
-					</TabsList>
-					<TabsContent value="content">
+							<tab.icon className="size-4" />
+							{tab.label}
+						</button>
+					))}
+				</div>
+
+				<div className="mt-4">
+					{/* Content Tab - Hidden by CSS only */}
+					<div
+						className={activeTab === 'content' ? 'block' : 'hidden'}
+					>
 						<Card>
 							<CardHeader>
 								<CardTitle>Content</CardTitle>
 								<CardDescription>
-									Edit content here
+									Main post content and summary
 								</CardDescription>
 							</CardHeader>
-							<CardContent className="grid gap-6">
-								<div className="space-y-6 duration-300 animate-in fade-in slide-in-from-bottom-2">
-									<div className="space-y-2">
-										<div className="flex items-center gap-2 text-sm font-medium text-foreground">
-											<Info className="size-4 text-primary" />
-											Excerpt
-										</div>
-										<Textarea
-											id="excerpt"
-											value={data.excerpt}
-											onChange={(e) =>
+							<CardContent className="space-y-6">
+								<div className="space-y-2">
+									<Label className="flex items-center gap-2">
+										<Info className="size-4 text-primary" />{' '}
+										Excerpt
+									</Label>
+									<Textarea
+										value={data.excerpt}
+										onChange={(e) =>
+											setData('excerpt', e.target.value)
+										}
+										placeholder="A short summary..."
+										rows={3}
+										className={cn(
+											'w-full bg-muted/30',
+											errors.excerpt &&
+												'border-destructive ring-destructive focus-visible:ring-destructive',
+										)}
+									/>
+									<InputError message={errors.excerpt} />
+								</div>
+
+								<div className="space-y-2">
+									<Label className="flex items-center gap-2">
+										<ChevronRight className="size-4 text-primary" />{' '}
+										Main Content{' '}
+										<span className="text-destructive">
+											*
+										</span>
+									</Label>
+									<div>
+										<Editor
+											editorSerializedState={
+												initialEditorState
+											}
+											onSerializedChange={(value) =>
 												setData(
-													'excerpt',
-													e.target.value,
+													'content',
+													JSON.stringify(value),
 												)
 											}
-											placeholder="A short summary to hook your readers..."
-											rows={2}
-											className={cn(
-												'resize-none border-none bg-muted/30 text-sm focus-visible:ring-1',
-												errors.excerpt &&
-													'ring-1 ring-destructive',
-											)}
-										/>
-										<InputError message={errors.excerpt} />
-									</div>
-
-									<div className="space-y-2">
-										<div className="flex items-center gap-2 text-sm font-medium text-foreground">
-											<ChevronRight className="size-4 text-primary" />
-											Main Content{' '}
-											<span className="text-destructive">
-												*
-											</span>
-										</div>
-										<div
 											className={cn(
 												errors.content &&
-													'rounded-lg ring-1 ring-destructive',
+													'border-destructive ring-0 ring-destructive',
 											)}
-										>
-											<Editor
-												editorSerializedState={
-													initialEditorState
-												}
-												onSerializedChange={(value) =>
-													setData(
-														'content',
-														JSON.stringify(value),
-													)
-												}
-											/>
-										</div>
-										<InputError message={errors.content} />
+										/>
 									</div>
+									<InputError message={errors.content} />
 								</div>
 							</CardContent>
 						</Card>
-					</TabsContent>
-					<TabsContent value="settings">
+					</div>
+
+					{/* Settings Tab - Hidden by CSS only */}
+					<div
+						className={
+							activeTab === 'settings' ? 'block' : 'hidden'
+						}
+					>
 						<Card>
 							<CardHeader>
 								<CardTitle>Settings</CardTitle>
 								<CardDescription>
-									Change your setting for post here
+									Publication and classification
 								</CardDescription>
 							</CardHeader>
-							<CardContent className="grid gap-6">
-								<div className="grid gap-8 duration-300 animate-in fade-in slide-in-from-bottom-2 md:grid-cols-2">
-									<div className="space-y-6">
-										<div className="space-y-6 rounded-xl border bg-muted/10 p-6">
-											<div className="flex items-center gap-2 text-sm font-bold">
-												<Save className="size-4 text-primary" />
-												Publication Status
-											</div>
-											<div className="grid gap-4">
-												<div className="space-y-2">
-													<Label className="text-sm font-medium text-foreground">
-														Status{' '}
-														<span className="text-destructive">
-															*
-														</span>
-													</Label>
-													<Select
-														value={data.status.toString()}
-														onValueChange={(v) =>
-															setData(
-																'status',
-																Number(v),
-															)
+							<CardContent className="grid gap-8 md:grid-cols-2">
+								<div className="space-y-6">
+									<div className="space-y-6 rounded-xl border bg-muted/10 p-6">
+										<Label className="flex items-center gap-2 font-bold">
+											<Save className="size-4 text-primary" />{' '}
+											Publication
+										</Label>
+										<div className="space-y-4">
+											<div className="space-y-2">
+												<Label>Status</Label>
+												<Select
+													value={data.status.toString()}
+													onValueChange={(v) =>
+														setData(
+															'status',
+															Number(v),
+														)
+													}
+												>
+													<SelectTrigger
+														aria-invalid={
+															!!errors.status
 														}
-													>
-														<SelectTrigger
-															className={cn(
-																'h-10 w-full bg-background text-sm hover:cursor-pointer',
-																errors.status &&
-																	'border-destructive focus:ring-destructive',
-															)}
-														>
-															<SelectValue />
-														</SelectTrigger>
-														<SelectContent>
-															<SelectItem
-																value={POST_STATUS_DRAFT.toString()}
-																className="text-sm hover:cursor-pointer"
-															>
-																Draft
-															</SelectItem>
-															<SelectItem
-																value={POST_STATUS_PENDING.toString()}
-																className="text-sm hover:cursor-pointer"
-															>
-																Pending
-															</SelectItem>
-															<SelectItem
-																value={POST_STATUS_SCHEDULE.toString()}
-																className="text-sm hover:cursor-pointer"
-															>
-																Schedule
-															</SelectItem>
-															<SelectItem
-																value={POST_STATUS_PUBLISHED.toString()}
-																className="text-sm hover:cursor-pointer"
-															>
-																Published
-															</SelectItem>
-														</SelectContent>
-													</Select>
-													<InputError
-														message={errors.status}
-													/>
-												</div>
-
-												<div className="flex flex-row items-center justify-between rounded-lg border p-4">
-													<div className="space-y-0.5">
-														<Label className="text-base">
-															Featured Post
-														</Label>
-														<div className="text-sm text-muted-foreground">
-															Pin this post to the
-															top of the list
-														</div>
-													</div>
-													<Switch
-														checked={
-															data.is_featured
-														}
-														onCheckedChange={(
-															checked,
-														) =>
-															setData(
-																'is_featured',
-																checked,
-															)
-														}
-													/>
-												</div>
-
-												{(data.status ===
-													POST_STATUS_SCHEDULE ||
-													data.status ===
-														POST_STATUS_PUBLISHED) && (
-													<div className="space-y-2">
-														<Label className="text-sm font-medium text-foreground">
-															{data.status ===
-															POST_STATUS_SCHEDULE
-																? 'Scheduled For'
-																: 'Publish Date'}
-														</Label>
-														<div className="relative">
-															<Input
-																id="published_at"
-																type="datetime-local"
-																value={
-																	data.published_at
-																}
-																onChange={(e) =>
-																	setData(
-																		'published_at',
-																		e.target
-																			.value,
-																	)
-																}
-																className={cn(
-																	'h-10 bg-background text-sm hover:cursor-pointer',
-																	(errors.published_at ||
-																		(data.status ===
-																			POST_STATUS_SCHEDULE &&
-																			data.published_at &&
-																			new Date(
-																				data.published_at,
-																			) <=
-																				new Date())) &&
-																		'border-destructive focus-visible:ring-destructive',
-																)}
-															/>
-														</div>
-														{data.status ===
-															POST_STATUS_SCHEDULE &&
-															data.published_at &&
-															new Date(
-																data.published_at,
-															) <= new Date() && (
-																<p className="text-xs text-destructive">
-																	Warning:
-																	Scheduled
-																	time is in
-																	the past.
-																</p>
-															)}
-														<InputError
-															message={
-																errors.published_at
-															}
-														/>
-													</div>
-												)}
-											</div>
-										</div>
-									</div>
-
-									<div className="space-y-6">
-										<div className="space-y-6 rounded-xl border bg-muted/10 p-6">
-											<div className="flex items-center gap-2 text-sm font-bold">
-												<Settings className="size-4 text-primary" />
-												Taxonomy
-											</div>
-											<div className="grid gap-4">
-												<div className="space-y-2">
-													<Label className="text-sm font-medium text-foreground">
-														Category{' '}
-														<span className="text-destructive">
-															*
-														</span>
-													</Label>
-													<Select
-														value={String(
-															data.category_id,
+														className={cn(
+															'w-full bg-background',
+															errors.status &&
+																'border-destructive ring-destructive focus:ring-destructive',
 														)}
-														onValueChange={(v) =>
+													>
+														<SelectValue />
+													</SelectTrigger>
+													<SelectContent>
+														<SelectItem
+															value={POST_STATUS_DRAFT.toString()}
+														>
+															Draft
+														</SelectItem>
+														<SelectItem
+															value={POST_STATUS_PENDING.toString()}
+														>
+															Pending
+														</SelectItem>
+														<SelectItem
+															value={POST_STATUS_SCHEDULE.toString()}
+														>
+															Schedule
+														</SelectItem>
+														<SelectItem
+															value={POST_STATUS_PUBLISHED.toString()}
+														>
+															Published
+														</SelectItem>
+													</SelectContent>
+												</Select>
+												<InputError
+													message={errors.status}
+												/>
+											</div>
+											<div className="flex items-center justify-between rounded-lg border p-4">
+												<Label>Featured Post</Label>
+												<Switch
+													checked={data.is_featured}
+													onCheckedChange={(v) =>
+														setData(
+															'is_featured',
+															v,
+														)
+													}
+												/>
+											</div>
+											{(data.status ===
+												POST_STATUS_SCHEDULE ||
+												data.status ===
+													POST_STATUS_PUBLISHED) && (
+												<div className="space-y-2">
+													<Label>
+														{data.status ===
+														POST_STATUS_SCHEDULE
+															? 'Scheduled For'
+															: 'Publish Date'}
+													</Label>
+													<Input
+														type="datetime-local"
+														value={
+															data.published_at
+														}
+														onChange={(e) =>
 															setData(
-																'category_id',
-																Number(v),
+																'published_at',
+																e.target.value,
 															)
 														}
-													>
-														<SelectTrigger
-															className={cn(
-																'h-10 w-full bg-background text-sm hover:cursor-pointer',
-																errors.category_id &&
-																	'border-destructive focus:ring-destructive',
-															)}
-														>
-															<SelectValue placeholder="Select category" />
-														</SelectTrigger>
-														<SelectContent>
-															{categories.map(
-																(c) => (
-																	<SelectItem
-																		className="text-sm hover:cursor-pointer"
-																		key={
-																			c.id
-																		}
-																		value={String(
-																			c.id,
-																		)}
-																	>
-																		{c.name}
-																	</SelectItem>
-																),
-															)}
-														</SelectContent>
-													</Select>
+														className={cn(
+															'w-full bg-background',
+															errors.published_at &&
+																'border-destructive ring-destructive focus-visible:ring-destructive',
+														)}
+													/>
 													<InputError
 														message={
-															errors.category_id
+															errors.published_at
 														}
 													/>
 												</div>
-
-												<div className="space-y-2">
-													<Label className="text-sm font-medium text-foreground">
-														Tags
-													</Label>
+											)}
+										</div>
+									</div>
+								</div>
+								<div className="space-y-6">
+									<div className="space-y-6 rounded-xl border bg-muted/10 p-6">
+										<Label className="flex items-center gap-2 font-bold">
+											<Settings className="size-4 text-primary" />{' '}
+											Taxonomy
+										</Label>
+										<div className="space-y-4">
+											<div className="space-y-2">
+												<Label>
+													Category{' '}
+													<span className="text-destructive">
+														*
+													</span>
+												</Label>
+												<Select
+													value={
+														data.category_id
+															? String(
+																	data.category_id,
+																)
+															: ''
+													}
+													onValueChange={(v) =>
+														setData(
+															'category_id',
+															Number(v),
+														)
+													}
+												>
+													<SelectTrigger
+														aria-invalid={
+															!!errors.category_id
+														}
+														className={cn(
+															'w-full bg-background',
+															errors.category_id &&
+																'border-destructive ring-destructive focus:ring-destructive',
+														)}
+													>
+														<SelectValue placeholder="Select category" />
+													</SelectTrigger>
+													<SelectContent>
+														{categories.map((c) => (
+															<SelectItem
+																key={c.id}
+																value={String(
+																	c.id,
+																)}
+															>
+																{c.name}
+															</SelectItem>
+														))}
+													</SelectContent>
+												</Select>
+												<InputError
+													message={errors.category_id}
+												/>
+											</div>
+											<div className="space-y-2">
+												<Label>Tags</Label>
+												<div
+													className={cn(
+														'w-full rounded-md',
+														errors.tag_ids &&
+															'ring-1 ring-destructive',
+													)}
+												>
 													<MultiSelect
 														options={tags.map(
 															(t) => ({
@@ -568,45 +522,44 @@ export function PostForm({
 															}),
 														)}
 														selected={data.tag_ids}
-														onChange={(values) =>
+														onChange={(v) =>
 															setData(
 																'tag_ids',
-																values as number[],
+																v as number[],
 															)
 														}
-														placeholder="Select tags..."
-													/>
-													<InputError
-														message={errors.tag_ids}
 													/>
 												</div>
+												<InputError
+													message={errors.tag_ids}
+												/>
 											</div>
 										</div>
 									</div>
 								</div>
 							</CardContent>
 						</Card>
-					</TabsContent>
-					<TabsContent value="seo">
+					</div>
+
+					{/* SEO Tab - Hidden by CSS only */}
+					<div className={activeTab === 'seo' ? 'block' : 'hidden'}>
 						<Card>
 							<CardHeader>
 								<CardTitle>SEO and Media</CardTitle>
 								<CardDescription>
-									Setting SEO for post
+									Search engine optimization
 								</CardDescription>
 							</CardHeader>
 							<CardContent>
-								<div className="grid gap-8 duration-300 animate-in fade-in slide-in-from-bottom-2 md:grid-cols-[1fr_350px]">
-									<div className="h-full space-y-4 rounded-xl border bg-muted/20 p-6">
-										<div className="flex items-center gap-2 text-sm font-bold">
-											<Search className="size-4 text-primary" />
-											Search Engine Optimization
-										</div>
+								<div className="grid gap-8 md:grid-cols-[1fr_350px]">
+									<div className="space-y-4 rounded-xl border bg-muted/20 p-6">
+										<Label className="flex items-center gap-2 font-bold">
+											<Search className="size-4 text-primary" />{' '}
+											SEO
+										</Label>
 										<div className="space-y-4">
 											<div className="space-y-2">
-												<Label className="text-sm font-medium text-foreground">
-													Meta Title
-												</Label>
+												<Label>Meta Title</Label>
 												<Input
 													value={data.meta_title}
 													onChange={(e) =>
@@ -615,26 +568,23 @@ export function PostForm({
 															e.target.value,
 														)
 													}
-													placeholder="Post title in search results"
 													className={cn(
-														'bg-background text-sm',
+														'w-full bg-background',
 														errors.meta_title &&
-															'border-destructive focus-visible:ring-destructive',
+															'border-destructive ring-destructive focus-visible:ring-destructive',
 													)}
-												/>{' '}
-												<div className="flex justify-between text-xs text-muted-foreground">
+												/>
+												<div className="flex justify-between text-[10px] text-muted-foreground">
 													<span>
 														Recommended:{' '}
-														{SEO_TITLE_MAX_LENGTH}{' '}
-														chars
+														{SEO_TITLE_MAX_LENGTH}
 													</span>
 													<span
 														className={cn(
 															data.meta_title
 																.length >
-																SEO_TITLE_MAX_LENGTH
-																? 'text-destructive'
-																: '',
+																SEO_TITLE_MAX_LENGTH &&
+																'text-destructive',
 														)}
 													>
 														{data.meta_title.length}
@@ -643,9 +593,7 @@ export function PostForm({
 												</div>
 											</div>
 											<div className="space-y-2">
-												<Label className="text-sm font-medium text-foreground">
-													Meta Description
-												</Label>
+												<Label>Meta Description</Label>
 												<Textarea
 													value={
 														data.meta_description
@@ -656,30 +604,27 @@ export function PostForm({
 															e.target.value,
 														)
 													}
-													placeholder="post description in search results"
 													rows={4}
 													className={cn(
-														'resize-none bg-background text-sm',
+														'w-full bg-background',
 														errors.meta_description &&
-															'border-destructive focus-visible:ring-destructive',
+															'border-destructive ring-destructive focus-visible:ring-destructive',
 													)}
-												/>{' '}
-												<div className="flex justify-between text-xs text-muted-foreground">
+												/>
+												<div className="flex justify-between text-[10px] text-muted-foreground">
 													<span>
 														Recommended:{' '}
 														{
 															SEO_DESCRIPTION_MAX_LENGTH
 														}
-														chars
 													</span>
 													<span
 														className={cn(
 															data
 																.meta_description
 																.length >
-																SEO_DESCRIPTION_MAX_LENGTH
-																? 'text-destructive'
-																: '',
+																SEO_DESCRIPTION_MAX_LENGTH &&
+																'text-destructive',
 														)}
 													>
 														{
@@ -696,33 +641,30 @@ export function PostForm({
 											</div>
 										</div>
 									</div>
-
-									<div className="flex h-full flex-col space-y-4 rounded-xl border bg-muted/20 p-6">
-										<div className="flex items-center gap-2 text-sm font-bold">
-											<ImageIcon className="size-4 text-primary" />
-											Featured Image
-										</div>
+									<div className="space-y-4 rounded-xl border bg-muted/20 p-6">
+										<Label className="flex items-center gap-2 font-bold">
+											<ImageIcon className="size-4 text-primary" />{' '}
+											Cover
+										</Label>
 										<div
 											className={cn(
-												'group relative flex min-h-[200px] flex-1 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/5 transition-all hover:border-primary/50 hover:bg-muted/10',
-												errors.image &&
-													'border-destructive bg-destructive/5',
+												'group relative flex min-h-[200px] w-full cursor-pointer items-center justify-center overflow-hidden rounded-xl border-2 border-dashed',
+												errors.image
+													? 'border-destructive bg-destructive/5'
+													: 'hover:border-primary/50',
 											)}
 											onClick={() =>
 												imageInputRef.current?.click()
 											}
 										>
 											{imagePreview ? (
-												<div className="relative h-full w-full overflow-hidden rounded-lg">
+												<>
 													<img
 														src={imagePreview}
-														alt="Preview"
-														className="h-full w-full object-cover transition-transform group-hover:scale-105"
+														className="h-full w-full object-cover"
 													/>
-													<div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-														<p className="text-sm font-bold text-white">
-															Change Image
-														</p>
+													<div className="absolute inset-0 flex items-center justify-center bg-black/40 font-bold text-white opacity-0 transition-opacity group-hover:opacity-100">
+														Change
 													</div>
 													<button
 														type="button"
@@ -730,19 +672,15 @@ export function PostForm({
 															e.stopPropagation();
 															removeImage();
 														}}
-														className="absolute top-2 right-2 rounded-full bg-destructive/90 p-1.5 text-white shadow-lg transition-transform hover:scale-110"
+														className="absolute top-2 right-2 rounded-full bg-destructive p-1.5 text-white"
 													>
 														<X className="size-4" />
 													</button>
-												</div>
+												</>
 											) : (
-												<div className="flex flex-col items-center gap-3 p-4 text-center">
-													<div className="rounded-full bg-muted p-4 transition-colors group-hover:bg-primary/10">
-														<ImageIcon className="size-8 text-muted-foreground transition-colors group-hover:text-primary" />
-													</div>
-													<span className="text-sm font-medium text-muted-foreground">
-														Upload Cover
-													</span>
+												<div className="flex flex-col items-center gap-2 text-muted-foreground">
+													<ImageIcon className="size-8" />
+													<span>Upload Image</span>
 												</div>
 											)}
 											<input
@@ -758,17 +696,17 @@ export function PostForm({
 								</div>
 							</CardContent>
 						</Card>
-					</TabsContent>
-				</Tabs>
+					</div>
+				</div>
 			</div>
-			<div>
+
+			<div className="border-t pt-4">
 				<Button
 					type="submit"
 					disabled={processing}
-					className="font-bold shadow-lg hover:cursor-pointer disabled:cursor-not-allowed"
+					className="font-bold shadow-lg hover:cursor-pointer"
 				>
-					<Save className="size-4" />
-					{submitLabel}
+					<Save className="size-4" /> {submitLabel}
 				</Button>
 			</div>
 		</form>
