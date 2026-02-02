@@ -34,6 +34,7 @@ export interface Post {
 		label: string;
 		color: string;
 	};
+	publish_at?: string | null;
 	published_at: string | null;
 	tags: PostTag[];
 	created_at: string;

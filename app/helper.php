@@ -10,7 +10,7 @@ if (! function_exists('cachedAccessControl')) {
             return [];
         }
 
-        if ($user->hasRole('Super Admin')) {
+        if ($user->isSuperAdmin()) {
             return Cache::rememberForever('cached_access_control', function () {
                 return Permission::query()->pluck('name')->toArray();
             });

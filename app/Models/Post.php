@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
@@ -34,6 +35,7 @@ class Post extends Model
         'status',
         'is_featured',
         'published_at',
+        'publish_at',
     ];
 
     protected $appends = [
@@ -69,6 +71,7 @@ class Post extends Model
             'status' => PostStatus::class,
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
+            'publish_at' => 'datetime',
         ];
     }
 
@@ -82,7 +85,7 @@ class Post extends Model
 
     public function getImageUrlAttribute(): ?string
     {
-        return $this->image ? Storage::url($this->image) : null;
+        return ! empty($this->attributes['image']) ? Storage::url($this->attributes['image']) : null;
     }
 
     public function user(): BelongsTo
@@ -118,5 +121,25 @@ class Post extends Model
         $query->whereHas('tags', function (Builder $q) use ($value) {
             $q->where('tags.id', $value);
         });
+    }
+
+    /**
+     * Scope a query to only include scheduled posts that are due for publishing.
+     */
+    public function scopeScheduledToPublish(Builder $query, ?Carbon $time = null): Builder
+    {
+        $time ??= now();
+
+        return $query->where('status', PostStatus::Schedule)
+            ->where('publish_at', '<=', $time);
+    }
+
+    /**
+     * Scope a query to only include published posts.
+     */
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query->where('status', PostStatus::Published)
+            ->whereNotNull('published_at');
     }
 }

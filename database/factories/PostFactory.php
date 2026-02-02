@@ -19,6 +19,19 @@ class PostFactory extends Factory
      */
     public function definition(): array
     {
+        $status = $this->faker->randomElement(PostStatus::cases());
+
+        $publishAt = null;
+        $publishedAt = null;
+
+        if ($status === PostStatus::Schedule) {
+            // Schedule for the future (e.g., between 1 hour and 30 days from now)
+            $publishAt = now()->addMinutes(rand(60, 43200));
+        } elseif ($status === PostStatus::Published) {
+            // Published in the past (e.g., between 1 hour and 60 days ago)
+            $publishedAt = now()->subMinutes(rand(60, 86400));
+        }
+
         return [
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
@@ -26,13 +39,13 @@ class PostFactory extends Factory
             'slug' => $this->faker->slug,
             'excerpt' => $this->faker->sentence,
             'content' => $this->faker->paragraph,
-            // random in PostStatus enums
-            'status' => $status = $this->faker->randomElement(PostStatus::cases())->value,
+            'status' => $status->value,
             'is_featured' => $this->faker->boolean,
             'comments_count' => rand(0, 1000),
             'views_count' => rand(0, 1000),
             'likes_count' => rand(0, 1000),
-            'published_at' => $status === PostStatus::Published->value ? now()->subDays(rand(0, 60))->toDateString() : null,
+            'publish_at' => $publishAt,
+            'published_at' => $publishedAt,
         ];
     }
 }

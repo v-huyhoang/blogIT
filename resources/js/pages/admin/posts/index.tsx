@@ -45,6 +45,7 @@ import { PerPageSelect } from '@/components/per-page-select';
 import {
 	POST_INDEX_TABLE_COLUMNS,
 	POST_STATUS_PUBLISHED,
+	POST_STATUS_SCHEDULE,
 	TRASHED_ONLY,
 } from '@/constants';
 import { usePermissions } from '@/hooks/use-permissions';
@@ -506,17 +507,41 @@ export default function PostIndex({
 													{post.likes_count}
 												</TableCell>
 												<TableCell>
-													{post.published_at
-														? format(
-																post.published_at as string,
-																'dd-MM-yyyy',
-															)
-														: '-'}
+													{post.status ===
+													POST_STATUS_SCHEDULE ? (
+														<div className="flex flex-col">
+															<span className="text-[10px] font-bold text-sky-600">
+																Scheduled
+															</span>
+															<span>
+																{post.publish_at
+																	? format(
+																			post.publish_at,
+																			'dd-MM-yyyy HH:mm',
+																		)
+																	: '-'}
+															</span>
+														</div>
+													) : post.published_at ? (
+														<div className="flex flex-col">
+															<span className="text-[10px] font-bold text-emerald-600">
+																Published
+															</span>
+															<span>
+																{format(
+																	post.published_at,
+																	'dd-MM-yyyy HH:mm',
+																)}
+															</span>
+														</div>
+													) : (
+														'-'
+													)}
 												</TableCell>
 												<TableCell>
 													{format(
 														post.created_at,
-														'dd-MM-yyyy',
+														'dd-MM-yyyy HH:mm',
 													)}
 												</TableCell>
 												<TableCell className="pr-6 text-right">

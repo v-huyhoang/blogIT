@@ -4,9 +4,11 @@ import {
 } from '@lexical/react/LexicalComposer';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
 import { EditorState, SerializedEditorState } from 'lexical';
+import { useMemo, useRef } from 'react';
 
 import { editorTheme } from '@/components/editor/themes/editor-theme';
 import { TooltipProvider } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 
 import { nodes } from './nodes';
 import { Plugins } from './plugins';
@@ -25,23 +27,36 @@ export function Editor({
 	editorSerializedState,
 	onChange,
 	onSerializedChange,
+	className,
 }: {
 	editorState?: EditorState;
 	editorSerializedState?: SerializedEditorState;
 	onChange?: (editorState: EditorState) => void;
 	onSerializedChange?: (editorSerializedState: SerializedEditorState) => void;
+	className?: string;
 }) {
+	const initialConfig = useMemo(
+		() => ({
+			...editorConfig,
+			...(editorState ? { editorState } : {}),
+			...(editorSerializedState
+				? { editorState: JSON.stringify(editorSerializedState) }
+				: {}),
+		}),
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+		[],
+	);
+
+	const composerRef = useRef(initialConfig);
+
 	return (
-		<div className="overflow-hidden rounded-lg border bg-background shadow">
-			<LexicalComposer
-				initialConfig={{
-					...editorConfig,
-					...(editorState ? { editorState } : {}),
-					...(editorSerializedState
-						? { editorState: JSON.stringify(editorSerializedState) }
-						: {}),
-				}}
-			>
+		<div
+			className={cn(
+				'overflow-hidden rounded-lg border bg-background shadow',
+				className,
+			)}
+		>
+			<LexicalComposer initialConfig={composerRef.current}>
 				<TooltipProvider>
 					<Plugins />
 

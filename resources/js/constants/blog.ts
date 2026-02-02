@@ -1,11 +1,13 @@
 // Post Statuses
 export const POST_STATUS_DRAFT = 0;
 export const POST_STATUS_PENDING = 1;
-export const POST_STATUS_PUBLISHED = 2;
+export const POST_STATUS_SCHEDULE = 2;
+export const POST_STATUS_PUBLISHED = 3;
 
 export const POST_STATUSES = [
 	POST_STATUS_DRAFT,
 	POST_STATUS_PENDING,
+	POST_STATUS_SCHEDULE,
 	POST_STATUS_PUBLISHED,
 ] as const;
 

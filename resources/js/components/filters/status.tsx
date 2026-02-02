@@ -3,6 +3,7 @@ import {
 	POST_STATUS_DRAFT,
 	POST_STATUS_PENDING,
 	POST_STATUS_PUBLISHED,
+	POST_STATUS_SCHEDULE,
 	POST_STATUSES,
 	TRASHED_OPTIONS,
 } from '@/constants';
@@ -78,6 +79,7 @@ export function StatusFilter({
 				{ label: 'All Status', value: ALL },
 				{ label: 'Draft', value: POST_STATUS_DRAFT.toString() },
 				{ label: 'Pending', value: POST_STATUS_PENDING.toString() },
+				{ label: 'Schedule', value: POST_STATUS_SCHEDULE.toString() },
 				{ label: 'Published', value: POST_STATUS_PUBLISHED.toString() },
 			]}
 			placeholder="All status"

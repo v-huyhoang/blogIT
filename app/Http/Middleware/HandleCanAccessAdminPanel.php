@@ -19,13 +19,7 @@ class HandleCanAccessAdminPanel
             return to_route('login');
         }
 
-        if ($request->user()->hasRole('Super Admin')) {
-            return $next($request);
-        }
-
-        $allowedRoles = ['Admin'];
-
-        if ($request->user()->hasAnyRole($allowedRoles)) {
+        if ($request->user()->isAdmin()) {
             return $next($request);
         }
 
