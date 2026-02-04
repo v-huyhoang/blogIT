@@ -82,8 +82,9 @@ export interface Category extends Pagination {
 	data: SingleCategory[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export interface CategoryFilters extends BaseFilter {}
+export interface CategoryFilters extends BaseFilter {
+	is_active: boolean | null;
+}
 
 export interface FlatCategory extends SingleCategory {
 	level: number;

@@ -11,10 +11,13 @@ import { FilterSection } from '@/components/filter-section';
 import { SearchBox } from '@/components/search-box';
 
 import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
+import { StatusFilter } from '@/components/filters/status_v2';
 import { cleanFilters } from '@/lib/clean-filters';
 import { CategoryFilters } from '@/types';
 import { ArrowUpDown, ChevronDown, Filter } from 'lucide-react';
 import { SortOrderFilter } from '../../../components/filters/sort';
+
+import { ActiveStatus } from '@/constants';
 
 export function CategoryFilterAdvance({
 	filters,
@@ -51,6 +54,7 @@ export function CategoryFilterAdvance({
 	};
 
 	const handleApply = () => {
+		console.log(localFilters);
 		apply(localFilters);
 	};
 
@@ -95,10 +99,7 @@ export function CategoryFilterAdvance({
 							}
 						>
 							<SortOrderFilter
-								filters={{
-									...localFilters,
-									sort: localFilters.sort ?? 'id',
-								}}
+								filters={localFilters}
 								apply={updateFilter}
 								sortOptions={[
 									{ label: 'ID', value: 'id' },
@@ -106,6 +107,19 @@ export function CategoryFilterAdvance({
 								]}
 							/>
 						</FilterSection>
+						<StatusFilter
+							filters={localFilters}
+							apply={updateFilter}
+							title="Status"
+							filterKey="is_active"
+							options={[
+								{ label: 'Active', value: ActiveStatus.ACTIVE },
+								{
+									label: 'Inactive',
+									value: ActiveStatus.INACTIVE,
+								},
+							]}
+						/>
 					</div>
 
 					<div className="mt-4 flex items-center justify-end gap-2 border-t pt-4">

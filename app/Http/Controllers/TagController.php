@@ -26,7 +26,7 @@ class TagController extends Controller
 
         return Inertia::render('tags/index', [
             'tags' => $tags,
-            'filters' => $request->validated(),
+            'filters' => $dto->filters,
         ]);
     }
 

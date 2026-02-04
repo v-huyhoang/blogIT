@@ -12,9 +12,8 @@ export function SortOrderFilter<T extends BaseFilter>({
 	apply,
 	sortOptions,
 }: SortOrderFilterProps<T>) {
-	console.log(filters.sort);
 	return (
-		<div className="flex items-center gap-1.5 py-1">
+		<div className="flex items-center gap-1.5">
 			<Select
 				value={filters.sort ?? ''}
 				onValueChange={(v) => apply({ sort: v } as Partial<T>)}

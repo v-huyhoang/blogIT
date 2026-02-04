@@ -30,6 +30,10 @@ final class CategoryRepository extends BaseRepository implements CategoryReposit
             $query->whereNull('parent_id');
         }
 
+        if (isset($dto->filters['is_active'])) {
+            $query->where('is_active', $dto->filters['is_active']);
+        }
+
         return $query->orderBy('id', 'desc')->paginate(10);
     }
 }
