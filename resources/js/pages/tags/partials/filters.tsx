@@ -92,10 +92,7 @@ export function TagFilterAdvance({ filters }: { filters: TagFilters }) {
 							}
 						>
 							<SortOrderFilter
-								filters={{
-									...localFilters,
-									sort: localFilters.sort ?? 'id',
-								}}
+								filters={localFilters}
 								apply={updateFilter}
 								sortOptions={[
 									{ label: 'ID', value: 'id' },

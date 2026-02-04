@@ -15,7 +15,9 @@ readonly class TagFilterDTO
     public static function fromRequest(array $data): self
     {
         return new self(
-            filters: $data,
+            filters: array_merge($data, [
+                'sort' => $data['sort'] ?? 'id',
+            ]),
             sortField: $data['sort'] ?? 'id',
             sortDirection: $data['direction'] ?? config('constant.DEFAULT_FILTERS.SORT_DIRECTION'),
             perPage: (int) (

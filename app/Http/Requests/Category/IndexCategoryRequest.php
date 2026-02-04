@@ -4,6 +4,7 @@ namespace App\Http\Requests\Category;
 
 use App\Constants\Pagination;
 use App\DTOs\Category\CategoryFilterDTO;
+use App\Enums\Category;
 use App\Enums\TrashedFilter;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -28,6 +29,7 @@ class IndexCategoryRequest extends FormRequest
         return [
             'q' => ['nullable', 'string', 'max:255'],
             'sort' => ['nullable', Rule::in(['id', 'name'])],
+            'is_active' => ['nullable', Rule::enum(Category::class)],
             'direction' => ['nullable', 'string', 'max:255', 'in:asc,desc'],
             'per_page' => ['nullable', 'integer', Rule::in(Pagination::OPTIONS)],
             'trashed' => ['nullable', Rule::enum(TrashedFilter::class)],
@@ -37,6 +39,6 @@ class IndexCategoryRequest extends FormRequest
 
     public function toQueryDTO(): CategoryFilterDTO
     {
-        return CategoryFilterDTO::fromRequest($this->validated());
+        return CategoryFilterDTO::fromRequest($this->all());
     }
 }
