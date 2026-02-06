@@ -1,3 +1,4 @@
+import TruncatedText from '@/components/text-truncate';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -96,8 +97,10 @@ export default function CategoriesTable({
 						</div>
 					</TableCell>
 					<TableCell className="">{cat.slug}</TableCell>
-					<TableCell className="w-[350px] break-words">
-						{cat.description}
+					<TableCell className="">
+						<div className="w-[350px]">
+							<TruncatedText text={cat.description} />
+						</div>
 					</TableCell>
 					<TableCell>
 						{(() => {

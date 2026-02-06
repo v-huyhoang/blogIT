@@ -143,7 +143,7 @@ export default function Tags({
 							</CardAction>
 						</div>
 						<br />
-						{/* BO	TTOM HEADER */}
+						{/* BOTTOM HEADER */}
 						<div className="flex flex-wrap items-center justify-end gap-4">
 							{/* RIGHT: SEARCH / FILTER */}
 							<div className="flex-end flex flex-wrap items-center gap-2">

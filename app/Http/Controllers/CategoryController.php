@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Constants\Category;
 use App\DTOs\Category\CreateCategoryDTO;
 use App\DTOs\Category\UpdateCategoryDTO;
-use App\Http\Requests\CategoryRequest;
+use App\Enums\Category;
+use App\Http\Requests\Category\CategoryRequest;
+use App\Http\Requests\Category\IndexCategoryRequest;
+use App\Queries\Category\CategoryListQuery;
 use App\Services\CategoryService;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -18,7 +20,7 @@ class CategoryController extends Controller
     /**
      * Inject Category repository
      */
-    public function __construct(CategoryService $categoryService)
+    public function __construct(CategoryService $categoryService, private CategoryListQuery $categoryListQuery)
     {
         $this->categoryService = $categoryService;
     }
@@ -26,12 +28,16 @@ class CategoryController extends Controller
     /**
      * Get all categories with full subcategories
      */
-    public function index(): Response
+    public function index(IndexCategoryRequest $request): Response
     {
-        $categories = $this->categoryService->getAll(Category::GET_ROOT);
+        $dto = $request->toQueryDTO();
+        $categories = $this->categoryListQuery->execute($dto, [
+            'childrenRecursive',
+        ]);
 
         return Inertia::render('categories/index', [
             'categories' => $categories,
+            'filters' => $dto->filters,
         ]);
     }
 

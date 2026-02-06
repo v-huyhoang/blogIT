@@ -1,8 +1,8 @@
 <?php
 
-namespace App\DTOs\Tag;
+namespace App\DTOs\Category;
 
-readonly class TagFilterDTO
+readonly class CategoryFilterDTO
 {
     public function __construct(
         public readonly array $filters,

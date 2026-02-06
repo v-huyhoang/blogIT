@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\DTOs\Category\CategoryFilterDTO;
 use App\DTOs\Category\CreateCategoryDTO;
 use App\DTOs\Category\UpdateCategoryDTO;
 use App\Repositories\CategoryRepository;
+use App\Repositories\Contracts\CategoryRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryService
@@ -16,7 +18,7 @@ class CategoryService
      *
      * @param CategoryRepository
      */
-    public function __construct(CategoryRepository $categoryRepository)
+    public function __construct(CategoryRepositoryInterface $categoryRepository)
     {
         $this->categoryRepository = $categoryRepository;
     }
@@ -26,9 +28,9 @@ class CategoryService
      *
      * @param  bool  $onlyRoot
      */
-    public function getAll($onlyRoot = false): LengthAwarePaginator
+    public function getAll($onlyRoot, CategoryFilterDTO $dto): LengthAwarePaginator
     {
-        return $this->categoryRepository->getAll($onlyRoot);
+        return $this->categoryRepository->getAll($onlyRoot, $dto);
     }
 
     /**

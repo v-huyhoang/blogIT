@@ -82,6 +82,10 @@ export interface Category extends Pagination {
 	data: SingleCategory[];
 }
 
+export interface CategoryFilters extends BaseFilter {
+	is_active: boolean | null;
+}
+
 export interface FlatCategory extends SingleCategory {
 	level: number;
 }

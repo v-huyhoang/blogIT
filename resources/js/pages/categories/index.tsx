@@ -12,13 +12,18 @@ import AppLayout from '@/layouts/app-layout';
 import { flattenCategories } from '@/lib/category-utils';
 
 import TablePagination from '@/components/table-pagination';
-import { BreadcrumbItem, Category, SingleCategory } from '@/types';
+import {
+	BreadcrumbItem,
+	Category,
+	CategoryFilters,
+	SingleCategory,
+} from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
 import CategoriesTable from './partials/CategoriesTable';
 import CreateCategoryDialog from './partials/CreateCategoryDialog';
 import EditCategoryDialog from './partials/EditCategoryDialog';
-import {CategoryFilters}  from '@/types/blog';
+import { CategoryFilterAdvance } from './partials/filters';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -28,8 +33,9 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 
 export default function CategoryPage() {
-	const { categories: paginatedCategories } = usePage<{
+	const { categories: paginatedCategories, filters } = usePage<{
 		categories: Category;
+		filters: CategoryFilters;
 	}>().props;
 
 	const { data: categories } = paginatedCategories;
@@ -60,17 +66,26 @@ export default function CategoryPage() {
 		<AppLayout breadcrumbs={breadcrumbs}>
 			<div className="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4">
 				<Head title="Category" />
-
 				<Card>
-					<CardHeader className="flex flex-row items-center justify-between">
-						<CardTitle>Category Management</CardTitle>
-						<CardAction>
-							<Button onClick={() => setShowCreateDialog(true)}>
-								Add new
-							</Button>
-						</CardAction>
+					<CardHeader className="space-y-4 border-b">
+						<div className="flex flex-row items-center justify-between">
+							<CardTitle>Category Management</CardTitle>
+							<CardAction>
+								<Button
+									onClick={() => setShowCreateDialog(true)}
+								>
+									Add new
+								</Button>
+							</CardAction>
+						</div>
+						<br />
+						<div className="flex flex-wrap items-center justify-end gap-4">
+							{/* RIGHT: SEARCH / FILTER */}
+							<div className="flex-end flex flex-wrap items-center gap-2">
+								<CategoryFilterAdvance filters={filters} />
+							</div>
+						</div>
 					</CardHeader>
-					<hr />
 					<CardContent>
 						<CategoriesTable
 							categories={categories}
