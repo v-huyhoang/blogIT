@@ -12,6 +12,57 @@ Route::get('/', function () {
     return Inertia::render('welcome');
 })->name('home');
 
+// Frontend Routes
+Route::prefix('f')->group(function () {
+    Route::get('/login', function () {
+        return Inertia::render('frontend/auth/login');
+    })->name('user.login');
+    Route::get('/register', function () {
+        return Inertia::render('frontend/auth/register');
+    })->name('user.register');
+    Route::get('/blog', function () {
+        return Inertia::render('frontend/blogs/index');
+    })->name('blog.index');
+
+    Route::get('/blog/{slug}', function () {
+        return Inertia::render('frontend/blogs/show');
+    })->name('blog.show');
+
+    Route::get('/tags', function () {
+        return Inertia::render('frontend/tags/index');
+    })->name('tags.index');
+
+    Route::get('/categories', function () {
+        return Inertia::render('frontend/categories/index');
+    })->name('categories.index');
+
+    Route::get('/snippets', function () {
+        return Inertia::render('frontend/snippets/index');
+    })->name('snippets.index');
+
+    Route::get('/author/{slug}', function () {
+        return Inertia::render('frontend/authors/show');
+    })->name('author.show');
+
+    Route::prefix('user')->group(function () {
+        Route::get('/dashboard', function () {
+            return Inertia::render('frontend/users/dashboard');
+        })->name('u.dashboard');
+        Route::get('/profile', function () {
+            return Inertia::render('frontend/users/profile');
+        })->name('u.profile');
+        Route::get('/wishlist', function () {
+            return Inertia::render('frontend/users/wishlist');
+        })->name('u.wishlist');
+        Route::get('/history', function () {
+            return Inertia::render('frontend/users/dashboard');
+        })->name('u.history');
+        Route::get('/vip', function () {
+            return Inertia::render('frontend/users/vip');
+        })->name('u.vip');
+    });
+});
+
 Route::middleware(['auth', 'verified', 'admin.access'])->group(function () {
     Route::get('dashboard', function () {
         return Inertia::render('dashboard');

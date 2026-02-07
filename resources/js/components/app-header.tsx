@@ -200,6 +200,17 @@ export function AppHeader({ breadcrumbs = [] }: AppHeaderProps) {
 							>
 								<Search className="!size-5 opacity-80 group-hover:opacity-100" />
 							</Button>
+
+							{/* <Link href="/f/user/wishlist" prefetch>
+								<Button
+									variant="ghost"
+									size="icon"
+									className="group h-9 w-9 cursor-pointer text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30"
+								>
+									<Heart className="!size-5 fill-current transition-transform duration-300 active:scale-125" />
+								</Button>
+							</Link> */}
+
 							<div className="hidden lg:flex">
 								{rightNavItems.map((item) => (
 									<TooltipProvider
