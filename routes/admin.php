@@ -5,6 +5,11 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\PostDuplicateController;
 use App\Http\Controllers\Admin\PostPublishController;
 use App\Http\Controllers\Admin\PostViewController;
+use Inertia\Inertia;
+
+Route::get('dashboard', function () {
+    return Inertia::render('admin/dashboard/dashboard');
+})->name('dashboard');
 
 Route::resource('posts', PostController::class);
 

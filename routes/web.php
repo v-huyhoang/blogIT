@@ -64,9 +64,6 @@ Route::prefix('f')->group(function () {
 });
 
 Route::middleware(['auth', 'verified', 'admin.access'])->group(function () {
-    Route::get('dashboard', function () {
-        return Inertia::render('dashboard');
-    })->name('dashboard');
 
     Route::get('/permissions', [PermissionController::class, 'index'])->name('permissions.index')->can('view_permissions');
     Route::post('/permissions', [PermissionController::class, 'store'])->name('permissions.store')->can('create_permissions');
