@@ -33,3 +33,4 @@ GEMINI.md
 gha-creds-*.json
 _ide_helper_models.php
 /.agent
+/documents/react-hook.md
