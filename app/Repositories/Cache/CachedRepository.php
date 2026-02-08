@@ -143,7 +143,7 @@ class CachedRepository implements BaseRepositoryInterface
      * @param  Closure(): T  $callback
      * @return T
      */
-    private function remember(string $method, array $parts, Closure $callback): mixed
+    protected function remember(string $method, array $parts, Closure $callback): mixed
     {
         if ($this->skipCache || ! $this->cache->enabled()) {
             $this->skipCache = false;

@@ -31,7 +31,6 @@ final class MakeRepositoryCommand extends Command
         }
 
         $studly = Str::studly($name);              // Post
-        $var = Str::camel($studly);             // post
         $soft = (bool) $this->option('soft');
 
         // Paths
@@ -153,8 +152,6 @@ final class MakeRepositoryCommand extends Command
             ? 'BaseRepositoryInterface, SoftDeletesRepository'
             : 'BaseRepositoryInterface';
 
-        $softUse = $soft ? "use App\\Repositories\\Contracts\\SoftDeletesRepository;\n" : '';
-
         return <<<PHP
 <?php
 
@@ -162,7 +159,7 @@ declare(strict_types=1);
 
 namespace App\Repositories\Contracts;
 
-{$softUse}interface {$studly}RepositoryInterface extends {$extends}
+interface {$studly}RepositoryInterface extends {$extends}
 {
 }
 
@@ -180,8 +177,8 @@ declare(strict_types=1);
 
 namespace App\Repositories\Eloquent;
 
-use App\\Models\\{$studly};
-use App\\Repositories\\Contracts\\{$studly}RepositoryInterface;
+use App\Models\\{$studly};
+use App\Repositories\Contracts\\{$studly}RepositoryInterface;
 
 final class {$studly}Repository extends {$base} implements {$studly}RepositoryInterface
 {
@@ -196,8 +193,6 @@ PHP;
 
     private function cachedStub(string $studly, bool $soft): string
     {
-        // You already have SoftDeleteCachedRepository / CachedRepository in previous design.
-        // If not soft, extend CachedRepository. If soft, extend SoftDeleteCachedRepository.
         $parent = $soft ? 'SoftDeleteCachedRepository' : 'CachedRepository';
 
         return <<<PHP
@@ -207,10 +202,29 @@ declare(strict_types=1);
 
 namespace App\Repositories\Cache;
 
+use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Contracts\\{$studly}RepositoryInterface;
+use App\Repositories\Exceptions\RepositoryException;
 
+/**
+ * @property {$studly}RepositoryInterface \$inner
+ */
 final class Cached{$studly}Repository extends {$parent} implements {$studly}RepositoryInterface
 {
+    /**
+     * @param  {$studly}RepositoryInterface  \$inner  The inner repository (enforced by type hint and check).
+     */
+    public function __construct(
+        BaseRepositoryInterface \$inner,
+        RepositoryCache \$cache,
+        string \$namespace
+    ) {
+        if (! \$inner instanceof {$studly}RepositoryInterface) {
+            throw new RepositoryException('Inner repository must implement {$studly}RepositoryInterface');
+        }
+
+        parent::__construct(\$inner, \$cache, \$namespace);
+    }
 }
 
 PHP;
@@ -218,7 +232,6 @@ PHP;
 
     private function eventfulStub(string $studly, bool $soft): string
     {
-        // If soft, extend SoftDeleteEventfulRepository else EventfulRepository
         $parent = $soft ? 'SoftDeleteEventfulRepository' : 'EventfulRepository';
 
         return <<<PHP
@@ -228,10 +241,28 @@ declare(strict_types=1);
 
 namespace App\Repositories\Decorators;
 
+use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Contracts\\{$studly}RepositoryInterface;
+use App\Repositories\Exceptions\RepositoryException;
 
+/**
+ * @property {$studly}RepositoryInterface \$inner
+ */
 final class Eventful{$studly}Repository extends {$parent} implements {$studly}RepositoryInterface
 {
+    /**
+     * @param  {$studly}RepositoryInterface  \$inner  The inner repository (enforced by type hint and check).
+     */
+    public function __construct(
+        BaseRepositoryInterface \$inner,
+        string \$namespace
+    ) {
+        if (! \$inner instanceof {$studly}RepositoryInterface) {
+            throw new RepositoryException('Inner repository must implement {$studly}RepositoryInterface');
+        }
+
+        parent::__construct(\$inner, \$namespace);
+    }
 }
 
 PHP;
