@@ -6,9 +6,21 @@ import {
 	CardHeader,
 	CardTitle,
 } from '@/components/ui/card';
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { home } from '@/routes';
 import { Link } from '@inertiajs/react';
+import { ArrowLeft, ChevronDown, Globe } from 'lucide-react';
 import { type PropsWithChildren } from 'react';
+
+const languages = [
+	{ code: 'en', label: 'English', flag: '🇺🇸' },
+	{ code: 'vi', label: 'Tiếng Việt', flag: '🇻🇳' },
+];
 
 export default function AuthCardLayout({
 	children,
@@ -41,6 +53,42 @@ export default function AuthCardLayout({
 							{children}
 						</CardContent>
 					</Card>
+
+					<div className="flex items-center justify-between px-2 text-xs font-medium text-muted-foreground">
+						<Link
+							href={home()}
+							className="flex items-center gap-2 transition-colors hover:text-primary"
+						>
+							<ArrowLeft className="h-3 w-3" />
+							Back to Homepage
+						</Link>
+
+						<DropdownMenu>
+							<DropdownMenuTrigger className="flex items-center gap-2 transition-colors outline-none hover:text-primary">
+								<Globe className="h-3 w-3" />
+								<span>Select Language</span>
+								<ChevronDown className="h-3 w-3 opacity-50" />
+							</DropdownMenuTrigger>
+							<DropdownMenuContent
+								align="end"
+								className="w-40 rounded-xl"
+							>
+								{languages.map((lang) => (
+									<DropdownMenuItem
+										key={lang.code}
+										className="cursor-pointer rounded-lg"
+									>
+										<span className="mr-2 text-base">
+											{lang.flag}
+										</span>
+										<span className="text-xs font-bold">
+											{lang.label}
+										</span>
+									</DropdownMenuItem>
+								))}
+							</DropdownMenuContent>
+						</DropdownMenu>
+					</div>
 				</div>
 			</div>
 		</div>

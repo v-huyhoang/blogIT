@@ -1,4 +1,5 @@
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 import { PasswordInputProps } from '@/types';
 import { Eye, EyeOff } from 'lucide-react';
 import { useEffect, useId, useState } from 'react';
@@ -44,7 +45,7 @@ export function InputPassword({
 				{...props}
 				id={inputId}
 				type={show ? 'text' : 'password'}
-				className={['pr-10', className].filter(Boolean).join(' ')}
+				className={cn('pr-10', className)}
 			/>
 
 			<button
@@ -54,19 +55,17 @@ export function InputPassword({
 				aria-label={show ? hideLabel : showLabel}
 				aria-pressed={show}
 				tabIndex={-1}
-				className={[
+				className={cn(
 					'absolute top-1/2 right-[1px] -translate-y-1/2 rounded-md p-2',
 					'text-muted-foreground hover:text-foreground',
 					'hover:bg-accent focus:ring-2 focus:ring-ring focus:outline-none',
 					buttonClassName,
-				]
-					.filter(Boolean) // remove undefined|null|false => avoid "undefined" class
-					.join(' ')} // merge class- array to string
+				)}
 			>
 				{show ? (
-					<EyeOff className="h-4 w-4" />
-				) : (
 					<Eye className="h-4 w-4" />
+				) : (
+					<EyeOff className="h-4 w-4" />
 				)}
 			</button>
 		</div>

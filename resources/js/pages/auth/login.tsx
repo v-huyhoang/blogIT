@@ -1,4 +1,5 @@
 import AuthenticatedSessionController from '@/actions/App/Http/Controllers/Auth/AuthenticatedSessionController';
+import { AuthMascot } from '@/components/auth-mascot';
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,8 @@ import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 import { Form, Head } from '@inertiajs/react';
-import { LoaderCircle } from 'lucide-react';
+import { Eye, LoaderCircle } from 'lucide-react';
+import { useState } from 'react';
 
 interface LoginProps {
 	status?: string;
@@ -18,12 +20,26 @@ interface LoginProps {
 }
 
 export default function Login({ status, canResetPassword }: LoginProps) {
+	const [focusedField, setFocusedField] = useState<
+		'idle' | 'typing' | 'password'
+	>('idle');
+	const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+
+	const mascotState =
+		focusedField === 'password' && isPasswordVisible
+			? 'typing'
+			: focusedField;
+
 	return (
 		<AuthLayout
 			title="Log in to your account"
 			description="Enter your email and password below to log in"
 		>
 			<Head title="Log in" />
+
+			<div className="mb-4 flex scale-90 justify-center">
+				<AuthMascot state={mascotState} />
+			</div>
 
 			<Form
 				{...AuthenticatedSessionController.store.form()}
@@ -32,9 +48,14 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 			>
 				{({ processing, errors }) => (
 					<>
-						<div className="grid gap-6">
+						<div className="grid gap-4">
 							<div className="grid gap-2">
-								<Label htmlFor="email">Email address</Label>
+								<Label
+									htmlFor="email"
+									className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
+								>
+									Email Address
+								</Label>
 								<Input
 									id="email"
 									type="email"
@@ -44,17 +65,26 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 									tabIndex={1}
 									autoComplete="email"
 									placeholder="email@example.com"
+									suffixIcon={<Eye className="size-4" />}
+									onFocus={() => setFocusedField('typing')}
+									onBlur={() => setFocusedField('idle')}
+									className="h-11 rounded-2xl border-border/50 bg-background/50 px-5 focus:ring-primary/20"
 								/>
 								<InputError message={errors.email} />
 							</div>
 
 							<div className="grid gap-2">
 								<div className="flex items-center">
-									<Label htmlFor="password">Password</Label>
+									<Label
+										htmlFor="password"
+										className="text-[10px] font-black tracking-[0.2em] text-muted-foreground uppercase"
+									>
+										Password
+									</Label>
 									{canResetPassword && (
 										<TextLink
 											href={request()}
-											className="ml-auto text-sm"
+											className="ml-auto text-[10px] font-black tracking-widest text-primary uppercase"
 											tabIndex={5}
 										>
 											Forgot password?
@@ -69,6 +99,11 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 									autoComplete="current-password"
 									placeholder="Password"
 									autoHideWhen={processing}
+									buttonClassName="text-muted-foreground/50"
+									onFocus={() => setFocusedField('password')}
+									onBlur={() => setFocusedField('idle')}
+									onToggle={setIsPasswordVisible}
+									className="h-11 rounded-2xl border-border/50 bg-background/50 px-5 focus:ring-primary/20"
 								/>
 
 								<InputError message={errors.password} />
@@ -79,28 +114,38 @@ export default function Login({ status, canResetPassword }: LoginProps) {
 									id="remember"
 									name="remember"
 									tabIndex={3}
-									className="hover:cursor-pointer"
+									className="h-5 w-5 rounded-md border-border/50 hover:cursor-pointer data-[state=checked]:border-primary data-[state=checked]:bg-primary"
 								/>
-								<Label htmlFor="remember">Remember me</Label>
+								<Label
+									htmlFor="remember"
+									className="text-xs font-bold text-muted-foreground select-none hover:cursor-pointer"
+								>
+									Remember me
+								</Label>
 							</div>
 
 							<Button
 								type="submit"
-								className="mt-4 w-full hover:cursor-pointer"
+								className="mt-2 h-12 rounded-2xl bg-primary text-sm font-black tracking-widest text-white shadow-xl shadow-primary/20 transition-all hover:scale-[1.02] hover:bg-primary/90 hover:shadow-primary/30 active:scale-[0.98]"
 								tabIndex={4}
 								disabled={processing}
 								data-test="login-button"
 							>
-								{processing && (
-									<LoaderCircle className="h-4 w-4 animate-spin" />
+								{processing ? (
+									<LoaderCircle className="h-5 w-5 animate-spin" />
+								) : (
+									'Log in'
 								)}
-								Log in
 							</Button>
 						</div>
 
-						<div className="text-center text-sm text-muted-foreground">
+						<div className="text-center text-[10px] font-bold tracking-widest text-muted-foreground uppercase">
 							Don't have an account?{' '}
-							<TextLink href={register()} tabIndex={5}>
+							<TextLink
+								href={register()}
+								className="text-primary underline decoration-2 underline-offset-4"
+								tabIndex={5}
+							>
 								Sign up
 							</TextLink>
 						</div>
