@@ -61,6 +61,7 @@ import {
 import { useAppearance } from '@/hooks/use-appearance';
 import { useScrollDirection } from '@/hooks/use-scroll-direction';
 import { logout } from '@/routes';
+import articlesRoute from '@/routes/articles';
 import { SharedData } from '@/types';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
@@ -95,7 +96,7 @@ const GuestNavbar = ({
 					title: 'Articles',
 					description: 'Deep dives into tech and design',
 					icon: <Book className="size-5" />,
-					url: '/f/blog',
+					url: articlesRoute.index.url(),
 				},
 				{
 					title: 'Categories',
@@ -172,17 +173,17 @@ const GuestNavbar = ({
 		{
 			title: 'The Future of AI',
 			category: 'Technology',
-			url: '/f/blog/show',
+			url: articlesRoute.show.url('the-future-of-ai'),
 		},
 		{
 			title: 'React Performance',
 			category: 'Development',
-			url: '/f/blog/show',
+			url: articlesRoute.show.url('react-performance'),
 		},
 		{
 			title: 'System Design 101',
 			category: 'Architecture',
-			url: '/f/blog/show',
+			url: articlesRoute.show.url('system-design-101'),
 		},
 	].filter((item) =>
 		item.title.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -226,7 +227,7 @@ const GuestNavbar = ({
 								<Button
 									variant="ghost"
 									size="icon"
-									className="rounded-full text-muted-foreground transition-colors hover:text-primary"
+									className="rounded-full text-muted-foreground transition-colors hover:cursor-pointer hover:text-primary"
 								>
 									<Search className="h-5 w-5" />
 								</Button>
@@ -308,14 +309,14 @@ const GuestNavbar = ({
 
 						{/* Wishlist Icon */}
 						<Link
-							href={auth.user ? '/f/user/wishlist' : '/f//login'}
+							href={auth.user ? '/f/user/wishlist' : '/f/login'}
 							prefetch
 						>
 							<Button
 								variant="ghost"
 								size="icon"
 								className={cn(
-									'hidden rounded-full transition-all sm:flex',
+									'hidden rounded-full transition-all hover:cursor-pointer sm:flex',
 									auth.user
 										? 'text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30'
 										: 'text-muted-foreground hover:text-primary',
@@ -337,7 +338,7 @@ const GuestNavbar = ({
 									<Button
 										variant="ghost"
 										size="icon"
-										className="relative rounded-full text-muted-foreground transition-all hover:text-primary"
+										className="relative rounded-full text-muted-foreground transition-all hover:cursor-pointer hover:text-primary"
 									>
 										<Bell className="h-5 w-5" />
 										<span className="absolute top-2 right-2 h-2 w-2 animate-pulse rounded-full bg-primary ring-2 ring-background"></span>
@@ -391,7 +392,7 @@ const GuestNavbar = ({
 								<div className="bg-secondary/30 p-4 text-center">
 									<Button
 										variant="ghost"
-										className="w-full text-[10px] font-black tracking-widest uppercase hover:text-primary"
+										className="w-full text-[10px] font-black tracking-widest uppercase hover:cursor-pointer hover:text-primary"
 									>
 										View All Notifications
 									</Button>
@@ -405,7 +406,7 @@ const GuestNavbar = ({
 								<Button
 									variant="ghost"
 									size="icon"
-									className="hidden rounded-full text-muted-foreground transition-colors hover:text-primary sm:flex"
+									className="hidden rounded-full text-muted-foreground transition-colors hover:cursor-pointer hover:text-primary sm:flex"
 								>
 									<Settings className="h-5 w-5" />
 								</Button>
@@ -425,12 +426,12 @@ const GuestNavbar = ({
 												: 'ghost'
 										}
 										size="sm"
-										className="h-8 justify-start rounded-xl px-2"
+										className="h-8 justify-start rounded-xl px-2 hover:cursor-pointer"
 										onClick={() =>
 											updateAppearance('light')
 										}
 									>
-										<Sun className="mr-2 h-4 w-4" />
+										<Sun className="w- mr-2 h-4 text-yellow-500" />
 										<span className="text-xs font-bold">
 											Light
 										</span>
@@ -442,7 +443,7 @@ const GuestNavbar = ({
 												: 'ghost'
 										}
 										size="sm"
-										className="h-8 justify-start rounded-xl px-2"
+										className="h-8 justify-start rounded-xl px-2 hover:cursor-pointer"
 										onClick={() => updateAppearance('dark')}
 									>
 										<Moon className="mr-2 h-4 w-4" />
@@ -459,7 +460,7 @@ const GuestNavbar = ({
 									<DropdownMenuItem
 										key={lang.code}
 										className={cn(
-											'flex items-center justify-between rounded-xl px-3 py-2 font-bold transition-all',
+											'flex items-center justify-between rounded-xl px-3 py-2 font-bold transition-all hover:cursor-pointer',
 											currentLang === lang.code
 												? 'bg-primary/10 text-primary'
 												: 'hover:bg-secondary',
@@ -490,7 +491,7 @@ const GuestNavbar = ({
 								prefetch
 								className="flex items-center gap-2 pl-2"
 							>
-								<Avatar className="h-10 w-10 rounded-2xl ring-4 ring-primary/10 transition-all hover:ring-primary">
+								<Avatar className="h-8 w-8 rounded-full ring-2 ring-primary/10 transition-all hover:ring-primary/70">
 									<AvatarImage
 										src={auth.user.avatar}
 										className="object-cover"
