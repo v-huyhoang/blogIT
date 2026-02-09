@@ -1,16 +1,22 @@
-import { FooterMegaMenu } from '@/components/frontend/footer-mega-menu';
 import { PageHeader } from '@/components/frontend/page-header';
 import { PostCard } from '@/components/frontend/post-card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GuestLayout from '@/layouts/frontend/guest-layout';
+import { cn } from '@/lib/utils';
 import { Head } from '@inertiajs/react';
 import { Badge, Github, Heart, Twitter, UserPlus } from 'lucide-react';
 import { useState } from 'react';
 
 export default function AuthorShow() {
 	const [isFollowing, setIsFollowing] = useState(false);
+
+	const author = {
+		id: 9,
+		name: 'Alex Johnson',
+		avatar: 'https://i.pravatar.cc/300?u=9',
+	};
 
 	return (
 		<GuestLayout>
@@ -27,14 +33,14 @@ export default function AuthorShow() {
 				{/* Header Profile */}
 				<div className="mb-16 flex flex-col items-center gap-12 md:flex-row md:items-start">
 					<Avatar className="h-48 w-48 shadow-2xl ring-[12px] ring-primary/5">
-						<AvatarImage src="https://i.pravatar.cc/300?u=9" />
+						<AvatarImage src={author.avatar} />
 						<AvatarFallback>AJ</AvatarFallback>
 					</Avatar>
 					<div className="flex-1 text-center md:text-left">
 						<div className="mb-6 flex flex-col justify-between gap-6 md:flex-row md:items-center">
 							<div>
 								<h1 className="mb-2 text-5xl font-black tracking-tighter">
-									Alex Johnson
+									{author.name}
 								</h1>
 								<p className="text-sm font-bold tracking-widest text-primary uppercase">
 									Senior Software Architect & Writer
@@ -132,9 +138,10 @@ export default function AuthorShow() {
 								<PostCard
 									key={i}
 									title={`Advanced Architectural Patterns Vol. ${i}`}
+									slug={`advanced-architectural-patterns-vol-${i}`}
 									excerpt="Exploring the depths of software architecture in modern enterprise environments."
 									category="Architecture"
-									author="Alex Johnson"
+									user={author}
 									date="FEB 02, 2026"
 									readTime="15 MIN READ"
 									imageUrl={`https://images.unsplash.com/photo-1677442136019-21780ecad995?q=80&w=1932&auto=format&fit=crop`}
@@ -206,11 +213,6 @@ export default function AuthorShow() {
 					</TabsContent>
 				</Tabs>
 			</div>
-
-			<FooterMegaMenu />
 		</GuestLayout>
 	);
 }
-
-const cn = (p0: string, p1: string | boolean, ...classes: []) =>
-	classes.filter(Boolean).join(' ');

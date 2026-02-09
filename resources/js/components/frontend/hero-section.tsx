@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import articlesRoute from '@/routes/articles';
 import { Link } from '@inertiajs/react';
 import {
 	Activity,
@@ -94,7 +95,7 @@ export function HeroSection() {
 							</Button>
 
 							<Link
-								href="/f/blog"
+								href={articlesRoute.index.url()}
 								className="group flex items-center gap-2 text-[10px] font-black tracking-[0.2em] text-slate-500 uppercase transition-all hover:text-primary dark:text-slate-400"
 							>
 								Explore Articles

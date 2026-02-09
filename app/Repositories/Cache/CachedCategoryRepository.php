@@ -8,6 +8,7 @@ use App\DTOs\Category\CategoryFilterDTO;
 use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Exceptions\RepositoryException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -33,5 +34,14 @@ final class CachedCategoryRepository extends CachedRepository implements Categor
     public function getAll($onlyRoot, CategoryFilterDTO $dto): LengthAwarePaginator
     {
         return $this->inner->getAll($onlyRoot, $dto);
+    }
+
+    public function getActiveWithPosts(): Collection
+    {
+        return $this->remember(
+            'getActiveWithPosts',
+            [],
+            fn (): Collection => $this->inner->getActiveWithPosts()
+        );
     }
 }

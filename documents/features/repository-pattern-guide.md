@@ -10,7 +10,7 @@ This guide details our robust **Repository Pattern** implementation, enhanced wi
 
 ## 📑 Table of Contents
 
-<details close>
+<details open>
 <summary>Click to expand/collapse</summary>
 
 - [📘 Repository Pattern with Caching \& Events](#-repository-pattern-with-caching--events)
@@ -82,14 +82,14 @@ graph TD
     subgraph "Read Operation"
         Cached -->|3. Check| CacheStore[(Cache Store)]
         CacheStore -- Hit --> Cached
-        
+
         CacheStore -- Miss --> Cached
         Cached -->|4. Fetch| Real[EloquentRepository]
         Real -->|5. Query| DB[(Database)]
         Real -- Result --> Cached
         Cached -->|6. Store| CacheStore
     end
-    
+
     Cached -- Result --> Eventful
     Eventful -- Result --> App
 ```
@@ -137,12 +137,12 @@ graph TD
 
 ---
 
-
 ## 3. Base Repository API Reference
 
 Every repository extending `BaseRepository` inherits these methods.
 
 ### 3.1 Read Operations
+
 | Method | Description | Usage |
 | :--- | :--- | :--- |
 | `find` | Find record by ID or null. | `$repo->find($id, $cols, $relations)` |
@@ -152,6 +152,7 @@ Every repository extending `BaseRepository` inherits these methods.
 | `paginate` | Paginate with filters/sort. | `$repo->paginate(15, ['*'], ['status' => 'active'])` |
 
 ### 3.2 Write Operations
+
 | Method | Description | Usage |
 | :--- | :--- | :--- |
 | `create` | Store new record. | `$repo->create($data)` |
@@ -160,12 +161,14 @@ Every repository extending `BaseRepository` inherits these methods.
 | `deleteMany` | Bulk delete (Efficient). | `$repo->deleteMany([1, 2, 3])` |
 
 ### 3.3 Locking & Atomic Operations
+
 | Method | Description | Usage |
 | :--- | :--- | :--- |
 | `lockForUpdate` | SELECT ... FOR UPDATE | `$repo->lockForUpdate()->find($id)` |
 | `sharedLock` | LOCK IN SHARE MODE | `$repo->sharedLock()->find($id)` |
 
 ### 3.4 Soft Delete Operations
+
 | Method | Description | Usage |
 | :--- | :--- | :--- |
 | `restore` | Restore soft-deleted record. | `$repo->restore($id)` |

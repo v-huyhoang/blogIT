@@ -36,6 +36,9 @@ class Post extends Model
         'is_featured',
         'published_at',
         'publish_at',
+        'likes_count',
+        'views_count',
+        'comments_count',
     ];
 
     protected $appends = [
@@ -124,6 +127,26 @@ class Post extends Model
     }
 
     /**
+     * Filter posts by category slug.
+     */
+    public function filterCategory(Builder $query, string $value): void
+    {
+        $query->whereHas('category', function (Builder $q) use ($value) {
+            $q->where('slug', $value);
+        });
+    }
+
+    /**
+     * Filter posts by tag slug.
+     */
+    public function filterTag(Builder $query, string $value): void
+    {
+        $query->whereHas('tags', function (Builder $q) use ($value) {
+            $q->where('slug', $value);
+        });
+    }
+
+    /**
      * Scope a query to only include scheduled posts that are due for publishing.
      */
     public function scopeScheduledToPublish(Builder $query, ?Carbon $time = null): Builder
@@ -141,5 +164,54 @@ class Post extends Model
     {
         return $query->where('status', PostStatus::Published)
             ->whereNotNull('published_at');
+    }
+
+    /**
+     * Scope a query to only include featured posts.
+     */
+    public function scopeFeatured(Builder $query): Builder
+    {
+        return $query->where('is_featured', true);
+    }
+
+    /**
+     * Scope a query to only include trending posts within a certain timeframe.
+     */
+    public function scopeTrending(Builder $query, int $days = 14): Builder
+    {
+        return $query->where('published_at', '>=', now()->subDays($days))
+            ->selectRaw('
+                (
+                  views_count /
+                  POW(
+                    (TIMESTAMPDIFF(HOUR, published_at, NOW()) + 2),
+                    1.5
+                  )
+                ) as hot_score
+            ')
+            ->orderByDesc('hot_score');
+    }
+
+    /**
+     * Scope a query to include relations and columns needed for frontend lists.
+     */
+    public function scopeWithFrontendMetadata(Builder $query): Builder
+    {
+        return $query->with(['user:id,name', 'category:id,name'])
+            ->select([
+                'id',
+                'title',
+                'excerpt',
+                'slug',
+                'user_id',
+                'category_id',
+                'published_at',
+                'views_count',
+                'likes_count',
+                'comments_count',
+                'image',
+                'is_featured',
+                'created_at',
+            ]);
     }
 }

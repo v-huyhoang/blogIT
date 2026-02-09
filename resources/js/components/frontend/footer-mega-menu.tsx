@@ -1,3 +1,4 @@
+import articlesRoute from '@/routes/articles';
 import { Link } from '@inertiajs/react';
 import { Github, Instagram, Linkedin, Twitter } from 'lucide-react';
 import AppLogo from '../app-logo';
@@ -59,11 +60,13 @@ export function FooterMegaMenu() {
 								{[
 									{
 										name: 'Latest Articles',
-										href: '/f/blog',
+										href: articlesRoute.index.url(),
 									},
 									{
 										name: 'Featured Stories',
-										href: '/f/blog?featured=1',
+										href: articlesRoute.index.url({
+											query: { featured: '1' },
+										}),
 									},
 									{
 										name: 'Code Snippets',

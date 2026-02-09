@@ -7,27 +7,45 @@ interface TocItem {
 	level: number;
 }
 
-export function TableOfContents() {
+export function TableOfContents({ content }: { content?: string }) {
 	const [toc, setToc] = useState<TocItem[]>([]);
 	const [activeId, setActiveId] = useState('');
 
 	useEffect(() => {
-		// Only target headings inside the article content container
 		const contentArea = document.getElementById('article-content');
 		if (!contentArea) return;
 
-		const headings = Array.from(contentArea.querySelectorAll('h2, h3'))
-			.map((heading) => ({
-				id:
-					heading.id ||
-					heading.textContent?.toLowerCase().replace(/\s+/g, '-') ||
-					'',
-				text: heading.textContent || '',
-				level: parseInt(heading.tagName.replace('H', '')),
-			}))
-			.filter((item) => item.id);
+		const generateToc = () => {
+			const headings = Array.from(contentArea.querySelectorAll('h2, h3'))
+				.map((heading) => {
+					// Lexical headings might not have IDs by default
+					const id =
+						heading.id ||
+						heading.textContent
+							?.toLowerCase()
+							.replace(/\s+/g, '-') ||
+						'';
 
-		setToc(headings);
+					if (!heading.id && id) {
+						heading.id = id;
+					}
+
+					return {
+						id,
+						text: heading.textContent || '',
+						level: parseInt(heading.tagName.replace('H', '')),
+					};
+				})
+				.filter((item) => item.id);
+
+			setToc(headings);
+
+			// Re-observe after generation
+			headings.forEach((item) => {
+				const el = document.getElementById(item.id);
+				if (el) observer.observe(el);
+			});
+		};
 
 		const observer = new IntersectionObserver(
 			(entries) => {
@@ -40,12 +58,24 @@ export function TableOfContents() {
 			{ rootMargin: '-100px 0% -80% 0%' },
 		);
 
-		contentArea
-			.querySelectorAll('h2, h3')
-			.forEach((heading) => observer.observe(heading));
+		// Initial generation
+		generateToc();
 
-		return () => observer.disconnect();
-	}, []);
+		// Since Lexical renders dynamically, we might need a MutationObserver
+		const mutationObserver = new MutationObserver(() => {
+			generateToc();
+		});
+
+		mutationObserver.observe(contentArea, {
+			childList: true,
+			subtree: true,
+		});
+
+		return () => {
+			observer.disconnect();
+			mutationObserver.disconnect();
+		};
+	}, [content]);
 
 	if (toc.length === 0) return null;
 
@@ -76,9 +106,24 @@ export function TableOfContents() {
 							)}
 							onClick={(e) => {
 								e.preventDefault();
-								document
-									.getElementById(item.id)
-									?.scrollIntoView({ behavior: 'smooth' });
+								const el = document.getElementById(item.id);
+								if (el) {
+									const offset = 100; // Adjust for sticky header
+									const bodyRect =
+										document.body.getBoundingClientRect()
+											.top;
+									const elementRect =
+										el.getBoundingClientRect().top;
+									const elementPosition =
+										elementRect - bodyRect;
+									const offsetPosition =
+										elementPosition - offset;
+
+									window.scrollTo({
+										top: offsetPosition,
+										behavior: 'smooth',
+									});
+								}
 							}}
 						>
 							{item.text}

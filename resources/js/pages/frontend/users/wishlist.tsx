@@ -92,7 +92,7 @@ export default function UserWishlist() {
 										<span>{item.readTime}</span>
 									</div>
 									<h3 className="mb-4 text-xl leading-tight font-black tracking-tight group-hover:text-primary">
-										<Link href="/f/blog/show">
+										<Link href={route('articles.index')}>
 											{item.title}
 										</Link>
 									</h3>
@@ -101,7 +101,7 @@ export default function UserWishlist() {
 										variant="outline"
 										className="w-full rounded-xl font-bold tracking-widest uppercase"
 									>
-										<Link href="/f/blog/show">
+										<Link href={route('articles.index')}>
 											Read Now
 										</Link>
 									</Button>
@@ -123,7 +123,7 @@ export default function UserWishlist() {
 							asChild
 							className="mt-8 rounded-full bg-primary px-8 font-black tracking-widest uppercase shadow-xl shadow-primary/20"
 						>
-							<Link href="/f/blog">Browse Articles</Link>
+							<Link href="/f/articles">Browse Articles</Link>
 						</Button>
 					</div>
 				)}

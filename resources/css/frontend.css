@@ -132,6 +132,11 @@
 }
 
 @layer base {
+	html {
+		scrollbar-gutter: stable;
+		scroll-behavior: smooth;
+	}
+
 	* {
 		@apply border-border;
 	}
@@ -141,7 +146,6 @@
 		font-feature-settings:
 			'rlig' 1,
 			'calt' 1;
-		scroll-behavior: smooth;
 		-webkit-font-smoothing: antialiased;
 	}
 

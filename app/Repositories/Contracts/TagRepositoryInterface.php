@@ -4,4 +4,12 @@ declare(strict_types=1);
 
 namespace App\Repositories\Contracts;
 
-interface TagRepositoryInterface extends BaseRepositoryInterface {}
+use Illuminate\Database\Eloquent\Collection;
+
+interface TagRepositoryInterface extends BaseRepositoryInterface
+{
+    /**
+     * Get tags that have at least one published post.
+     */
+    public function getActiveWithPosts(): Collection;
+}

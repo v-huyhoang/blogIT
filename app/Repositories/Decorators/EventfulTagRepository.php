@@ -7,6 +7,7 @@ namespace App\Repositories\Decorators;
 use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Contracts\TagRepositoryInterface;
 use App\Repositories\Exceptions\RepositoryException;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * @property TagRepositoryInterface $inner
@@ -25,5 +26,10 @@ final class EventfulTagRepository extends EventfulRepository implements TagRepos
         }
 
         parent::__construct($inner, $namespace);
+    }
+
+    public function getActiveWithPosts(): Collection
+    {
+        return $this->inner->getActiveWithPosts();
     }
 }

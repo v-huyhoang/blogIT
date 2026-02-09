@@ -210,7 +210,10 @@ export default function UserDashboard() {
 								variant="outline"
 								className="mt-8 rounded-full border-2 px-8 font-bold"
 							>
-								<Link href="/f/blog" className="inline-flex">
+								<Link
+									href="/f/articles"
+									className="inline-flex"
+								>
 									Browse Articles
 								</Link>
 							</Button>

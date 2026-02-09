@@ -1,5 +1,6 @@
 import ConfirmDialog from '@/components/dialogs/confirm-dialog';
 import { BackToTop } from '@/components/frontend/back-to-top';
+import { FooterMegaMenu } from '@/components/frontend/footer-mega-menu';
 import { GuestNavbar } from '@/layouts/frontend/guest-navbar';
 import { UserSidebar } from '@/layouts/frontend/user-sidebar';
 import { type SharedData } from '@/types';
@@ -68,6 +69,7 @@ export default function UserLayout({ children }: UserLayoutProps) {
 					</div>
 				</div>
 			</main>
+			<FooterMegaMenu />
 			<BackToTop />
 			<ConfirmDialog />
 			<Toaster position="top-right" richColors closeButton />

@@ -18,14 +18,17 @@ export default function LexicalPreview({
 
 	// Check if content is a valid Lexical JSON string
 	let isLexicalJson = false;
-	try {
-		const parsed = JSON.parse(content);
-		if (parsed && typeof parsed === 'object' && 'root' in parsed) {
-			isLexicalJson = true;
+	if (content.trim().startsWith('{')) {
+		try {
+			const parsed = JSON.parse(content);
+			if (parsed && typeof parsed === 'object' && 'root' in parsed) {
+				isLexicalJson = true;
+			}
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		} catch (e) {
+			// Silently fail if not valid JSON
+			isLexicalJson = false;
 		}
-	} catch (e) {
-		isLexicalJson = false;
-		console.error(e);
 	}
 
 	if (!isLexicalJson) {

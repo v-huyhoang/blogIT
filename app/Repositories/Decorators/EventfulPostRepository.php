@@ -5,20 +5,34 @@ declare(strict_types=1);
 namespace App\Repositories\Decorators;
 
 use App\Models\Post;
+use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Repositories\Events\RepositoryChanged;
 use App\Repositories\Exceptions\RepositoryException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Event;
 
+/**
+ * @property PostRepositoryInterface $inner
+ */
 final class EventfulPostRepository extends SoftDeleteEventfulRepository implements PostRepositoryInterface
 {
-    public function duplicate(Post $model): Post
-    {
-        if (! $this->inner instanceof PostRepositoryInterface) {
-            throw new RepositoryException('Inner repository does not implement PostRepositoryInterface.');
+    /**
+     * @param  PostRepositoryInterface  $inner  The inner repository (enforced by type hint and check).
+     */
+    public function __construct(
+        BaseRepositoryInterface $inner,
+        string $namespace
+    ) {
+        if (! $inner instanceof PostRepositoryInterface) {
+            throw new RepositoryException('Inner repository must implement PostRepositoryInterface');
         }
 
+        parent::__construct($inner, $namespace);
+    }
+
+    public function duplicate(Post $model): Post
+    {
         $result = $this->inner->duplicate($model);
         Event::dispatch(new RepositoryChanged($this->namespace));
 
@@ -27,10 +41,6 @@ final class EventfulPostRepository extends SoftDeleteEventfulRepository implemen
 
     public function publish(Post $model): Post
     {
-        if (! $this->inner instanceof PostRepositoryInterface) {
-            throw new RepositoryException('Inner repository does not implement PostRepositoryInterface.');
-        }
-
         $result = $this->inner->publish($model);
         Event::dispatch(new RepositoryChanged($this->namespace));
 
@@ -39,10 +49,6 @@ final class EventfulPostRepository extends SoftDeleteEventfulRepository implemen
 
     public function unpublish(Post $model): Post
     {
-        if (! $this->inner instanceof PostRepositoryInterface) {
-            throw new RepositoryException('Inner repository does not implement PostRepositoryInterface.');
-        }
-
         $result = $this->inner->unpublish($model);
         Event::dispatch(new RepositoryChanged($this->namespace));
 
@@ -51,10 +57,26 @@ final class EventfulPostRepository extends SoftDeleteEventfulRepository implemen
 
     public function getByIdsIncludingTrashed(array $ids, array $columns = ['*']): Collection
     {
-        if (! $this->inner instanceof PostRepositoryInterface) {
-            throw new RepositoryException('Inner repository does not implement PostRepositoryInterface.');
-        }
-
         return $this->inner->getByIdsIncludingTrashed($ids, $columns);
+    }
+
+    public function getLatestPosts(int $limit = 6): Collection
+    {
+        return $this->inner->getLatestPosts($limit);
+    }
+
+    public function getFeaturedPosts(int $limit = 4): Collection
+    {
+        return $this->inner->getFeaturedPosts($limit);
+    }
+
+    public function getTrendingPosts(int $limit = 6, int $days = 14): Collection
+    {
+        return $this->inner->getTrendingPosts($limit, $days);
+    }
+
+    public function getPersonalizedFeed(?\App\Models\User $user = null, int $limit = 6): Collection
+    {
+        return $this->inner->getPersonalizedFeed($user, $limit);
     }
 }

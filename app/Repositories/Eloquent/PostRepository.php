@@ -6,6 +6,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Enums\PostStatus;
 use App\Models\Post;
+use App\Models\User;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Carbon;
@@ -115,5 +116,57 @@ final class PostRepository extends SoftDeleteRepository implements PostRepositor
         }
 
         return $this->model->newQuery()->withTrashed()->whereKey($ids)->select($columns)->get();
+    }
+
+    public function getLatestPosts(int $limit = 6): Collection
+    {
+        return $this->query()
+            ->published()
+            ->withFrontendMetadata()
+            ->latest()
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getFeaturedPosts(int $limit = 4): Collection
+    {
+        return $this->query()
+            ->published()
+            ->featured()
+            ->withFrontendMetadata()
+            ->latest()
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getTrendingPosts(int $limit = 6, int $days = 14): Collection
+    {
+        return $this->query()
+            ->published()
+            ->withFrontendMetadata()
+            ->trending($days)
+            ->limit($limit)
+            ->get();
+    }
+
+    public function getPersonalizedFeed(?User $user = null, int $limit = 6): Collection
+    {
+        $query = $this->query()->published();
+
+        if ($user && method_exists($user, 'following')) {
+            $followingIds = $user->following()->pluck('users.id');
+            if ($followingIds->isNotEmpty()) {
+                $query->whereIn('user_id', $followingIds);
+            } else {
+                $query->featured();
+            }
+        } else {
+            $query->orderByDesc('views_count');
+        }
+
+        return $query->latest()
+            ->withFrontendMetadata()
+            ->limit($limit)
+            ->get();
     }
 }

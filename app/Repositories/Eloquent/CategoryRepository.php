@@ -3,8 +3,10 @@
 namespace App\Repositories\Eloquent;
 
 use App\DTOs\Category\CategoryFilterDTO;
+use App\Enums\PostStatus;
 use App\Models\Category;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 final class CategoryRepository extends BaseRepository implements CategoryRepositoryInterface
@@ -35,5 +37,19 @@ final class CategoryRepository extends BaseRepository implements CategoryReposit
         }
 
         return $query->orderBy('id', 'desc')->paginate(10);
+    }
+
+    public function getActiveWithPosts(): Collection
+    {
+        return $this->query()
+            ->where('is_active', true)
+            ->whereHas('posts', function ($query) {
+                $query->where('status', PostStatus::Published->value);
+            })
+            ->withCount(['posts' => function ($query) {
+                $query->where('status', PostStatus::Published->value);
+            }])
+            ->orderBy('name')
+            ->get();
     }
 }

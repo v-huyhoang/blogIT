@@ -6,17 +6,25 @@ import { Pagination } from './pagination';
 export interface PostTag {
 	id: number;
 	name: string;
+	slug: string;
 }
 
 export interface PostUser {
 	id: number;
 	name: string;
+	avatar: string;
+}
+
+export interface PostCategory {
+	id: number;
+	name: string;
+	slug: string;
 }
 
 export interface Post {
 	id: number;
 	user: PostUser;
-	category: { id: number; name: string };
+	category: PostCategory;
 	title: string;
 	slug: string;
 	excerpt: string | null;
@@ -75,6 +83,7 @@ export interface SingleCategory {
 	is_active: boolean;
 	created_at: string;
 	updated_at: string;
+	posts_count?: number;
 	children_recursive?: SingleCategory[];
 }
 
@@ -121,9 +130,10 @@ export interface EditCategoryDialogProps {
 export interface SingleTag {
 	id: number;
 	name: string;
-	slug?: string;
+	slug: string;
 	created_at: string;
 	updated_at: string;
+	posts_count?: number;
 }
 export interface Tag extends Pagination {
 	data: SingleTag[];

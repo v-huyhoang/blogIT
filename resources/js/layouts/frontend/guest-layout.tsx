@@ -1,5 +1,6 @@
 import ConfirmDialog from '@/components/dialogs/confirm-dialog';
 import { BackToTop } from '@/components/frontend/back-to-top';
+import { FooterMegaMenu } from '@/components/frontend/footer-mega-menu';
 import { GuestNavbar } from '@/layouts/frontend/guest-navbar';
 import { type SharedData } from '@/types';
 import { usePage } from '@inertiajs/react';
@@ -32,6 +33,7 @@ export default function GuestLayout({ children }: GuestLayoutProps) {
 			<main className="page-enter mx-auto w-full flex-grow">
 				{children}
 			</main>
+			<FooterMegaMenu />
 			<BackToTop />
 			<ConfirmDialog />
 			<Toaster position="top-right" richColors closeButton />

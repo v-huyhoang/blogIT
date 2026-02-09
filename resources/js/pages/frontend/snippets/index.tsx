@@ -1,4 +1,3 @@
-import { FooterMegaMenu } from '@/components/frontend/footer-mega-menu';
 import { PageHeader } from '@/components/frontend/page-header';
 import { Button } from '@/components/ui/button';
 import GuestLayout from '@/layouts/frontend/guest-layout';
@@ -88,8 +87,6 @@ export default function SnippetsIndex() {
 					))}
 				</div>
 			</div>
-
-			<FooterMegaMenu />
 		</GuestLayout>
 	);
 }

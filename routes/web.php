@@ -1,6 +1,10 @@
 <?php
 
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Frontend\ArticleController;
+use App\Http\Controllers\Frontend\CategoryController as FrontendCategoryController;
+use App\Http\Controllers\Frontend\HomeController;
+use App\Http\Controllers\Frontend\TagController as FrontendTagController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TagController;
@@ -8,9 +12,7 @@ use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', HomeController::class)->name('home');
 
 // Frontend Routes
 Route::prefix('f')->group(function () {
@@ -20,21 +22,13 @@ Route::prefix('f')->group(function () {
     Route::get('/register', function () {
         return Inertia::render('frontend/auth/register');
     })->name('user.register');
-    Route::get('/blog', function () {
-        return Inertia::render('frontend/blogs/index');
-    })->name('blog.index');
 
-    Route::get('/blog/{slug}', function () {
-        return Inertia::render('frontend/blogs/show');
-    })->name('blog.show');
+    Route::get('/articles', [ArticleController::class, 'index'])->name('articles.index');
+    Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
-    Route::get('/tags', function () {
-        return Inertia::render('frontend/tags/index');
-    })->name('tags.index');
+    Route::get('/tags', FrontendTagController::class)->name('tags.index');
 
-    Route::get('/categories', function () {
-        return Inertia::render('frontend/categories/index');
-    })->name('categories.index');
+    Route::get('/categories', FrontendCategoryController::class)->name('categories.index');
 
     Route::get('/snippets', function () {
         return Inertia::render('frontend/snippets/index');

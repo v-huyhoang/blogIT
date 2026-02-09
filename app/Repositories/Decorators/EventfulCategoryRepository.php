@@ -8,6 +8,7 @@ use App\DTOs\Category\CategoryFilterDTO;
 use App\Repositories\Contracts\BaseRepositoryInterface;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Exceptions\RepositoryException;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 /**
@@ -32,5 +33,10 @@ final class EventfulCategoryRepository extends EventfulRepository implements Cat
     public function getAll($onlyRoot, CategoryFilterDTO $dto): LengthAwarePaginator
     {
         return $this->inner->getAll($onlyRoot, $dto);
+    }
+
+    public function getActiveWithPosts(): Collection
+    {
+        return $this->inner->getActiveWithPosts();
     }
 }

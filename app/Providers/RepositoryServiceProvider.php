@@ -10,11 +10,13 @@ use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\PostRepositoryInterface;
 use App\Repositories\Contracts\SoftDeletesRepository;
 use App\Repositories\Contracts\TagRepositoryInterface;
+use App\Repositories\Contracts\UserRepositoryInterface;
 use App\Repositories\Decorators\EventfulRepository;
 use App\Repositories\Decorators\SoftDeleteEventfulRepository;
 use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Eloquent\PostRepository;
 use App\Repositories\Eloquent\TagRepository;
+use App\Repositories\Eloquent\UserRepository;
 use App\Repositories\Events\RepositoryChanged;
 use App\Repositories\Listeners\InvalidateRepositoryCache;
 use Illuminate\Support\ServiceProvider;
@@ -30,6 +32,7 @@ final class RepositoryServiceProvider extends ServiceProvider
         $this->bindRepo(TagRepositoryInterface::class, TagRepository::class);
         $this->bindRepo(PostRepositoryInterface::class, PostRepository::class);
         $this->bindRepo(CategoryRepositoryInterface::class, CategoryRepository::class);
+        $this->bindRepo(UserRepositoryInterface::class, UserRepository::class);
         // REPO_BINDINGS:END
     }
 

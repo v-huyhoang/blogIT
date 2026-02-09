@@ -24,6 +24,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
     ];
 
+    protected $appends = [
+        'avatar',
+    ];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -93,6 +97,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function posts(): HasMany
     {
         return $this->hasMany(Post::class);
+    }
+
+    /**
+     * Get the user's avatar.
+     */
+    public function getAvatarAttribute(): string
+    {
+        return 'https://i.pravatar.cc/150?u='.$this->id;
     }
 
     /**

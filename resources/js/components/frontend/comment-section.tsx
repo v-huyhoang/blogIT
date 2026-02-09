@@ -61,7 +61,7 @@ export function CommentSection() {
 	const { auth } = usePage<SharedData>().props;
 
 	return (
-		<section className="mt-16 border-t border-border pt-16">
+		<section id="comments" className="mt-16 border-t border-border pt-16">
 			<div className="mb-8 flex items-center gap-2">
 				<MessageSquare className="h-6 w-6 text-primary" />
 				<h2 className="text-2xl font-bold">

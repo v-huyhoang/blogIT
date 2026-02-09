@@ -12,6 +12,18 @@ export interface SharedData {
 	quote: { message: string; author: string };
 	auth: Auth;
 	sidebarOpen: boolean;
+	seo: {
+		meta: {
+			title: string;
+			description: string;
+			keywords: string;
+			image: string;
+		};
+		open_graph: {
+			type: string;
+			site_name: string;
+		};
+	};
 	flash: {
 		message?: string;
 		error?: string;
