@@ -147,6 +147,18 @@ class Post extends Model
     }
 
     /**
+     * Scope for searching using Full Text Index.
+     */
+    public function scopeSearch(Builder $query, ?string $searchQuery): Builder
+    {
+        if (! $searchQuery) {
+            return $query;
+        }
+
+        return $query->whereFullText(['title', 'excerpt'], $searchQuery);
+    }
+
+    /**
      * Scope a query to only include scheduled posts that are due for publishing.
      */
     public function scopeScheduledToPublish(Builder $query, ?Carbon $time = null): Builder

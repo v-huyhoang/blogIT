@@ -18,13 +18,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import GuestLayout from '@/layouts/frontend/guest-layout';
 import { cn } from '@/lib/utils';
 import articlesRoute from '@/routes/articles';
-import {
-	PaginatedResponse,
-	Post,
-	ResourceCollection,
-	SingleCategory,
-	SingleTag,
-} from '@/types';
+import { ArticlesIndexProps, FilterContentProps } from '@/types';
 import { Deferred, router } from '@inertiajs/react';
 import {
 	ArrowDownWideNarrow,
@@ -37,30 +31,6 @@ import {
 	X,
 } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
-
-interface ArticlesIndexProps {
-	articles?: PaginatedResponse<Post>;
-	filters: {
-		search?: string;
-		category?: string;
-		tag?: string;
-		sort?: string;
-		direction?: string;
-	};
-	categories?: ResourceCollection<SingleCategory>;
-	tags?: ResourceCollection<SingleTag>;
-}
-
-interface FilterContentProps {
-	search: string;
-	setSearch: (value: string) => void;
-	categories?: ResourceCollection<SingleCategory>;
-	tags?: ResourceCollection<SingleTag>;
-	filters: ArticlesIndexProps['filters'];
-	handleCategoryChange: (value: string) => void;
-	handleTagChange: (value: string) => void;
-	isMobile?: boolean;
-}
 
 const FilterContent = ({
 	search,
@@ -232,44 +202,58 @@ export default function ArticlesIndex({
 		});
 	};
 
-	// Sync local search state with filters prop (for back button or clear actions)
+	// Sync search state with filters prop (e.g., on back button or direct URL change)
 	useEffect(() => {
 		setSearch(filters.search || '');
 	}, [filters.search]);
 
 	const updateFilters = useCallback(
 		(newFilters: Partial<typeof filters>) => {
-			router.get(
-				articlesRoute.index.url(),
-				{
-					...filters,
-					...newFilters,
-					page: 1, // Reset to first page on filter change
+			const data = {
+				...filters,
+				...newFilters,
+				page: 1, // Reset to first page on filter change
+			};
+
+			// Clean up empty values to keep URL clean
+			Object.keys(data).forEach((key) => {
+				const val = data[key as keyof typeof data];
+				if (val === '' || val === undefined || val === null) {
+					delete data[key as keyof typeof data];
+				}
+			});
+
+			router.get(articlesRoute.index.url(), data, {
+				preserveState: true,
+				preserveScroll: true,
+				only: ['articles', 'filters'],
+				onSuccess: () => {
+					setIsFilterSheetOpen(false);
+					scrollToTop();
 				},
-				{
-					preserveState: true,
-					preserveScroll: true,
-					only: ['articles', 'filters'],
-					onSuccess: () => {
-						setIsFilterSheetOpen(false);
-						scrollToTop();
-					},
-				},
-			);
+			});
 		},
 		[filters],
 	);
 
+	// Debounced search trigger
 	useEffect(() => {
-		const isSearchChanged = debouncedSearch !== (filters.search || '');
-		// Only trigger search if search is cleared OR minimum 2 characters are entered
+		const currentSearch = filters.search || '';
+
+		// 1. If debounced value is still catching up to the current search state, wait.
+		if (debouncedSearch !== search) return;
+
+		// 2. If debounced value matches what's already in the URL, do nothing.
+		if (debouncedSearch === currentSearch) return;
+
+		// 3. Only trigger search if search is cleared OR minimum 2 characters are entered
 		const isSearchValid =
 			debouncedSearch.length === 0 || debouncedSearch.length >= 2;
 
-		if (isSearchChanged && isSearchValid) {
-			updateFilters({ search: debouncedSearch });
+		if (isSearchValid) {
+			updateFilters({ search: debouncedSearch || undefined });
 		}
-	}, [debouncedSearch, filters.search, updateFilters]);
+	}, [debouncedSearch, search, filters.search, updateFilters]);
 
 	const handleCategoryChange = (value: string) => {
 		updateFilters({ category: value === 'all' ? undefined : value });
@@ -295,11 +279,10 @@ export default function ArticlesIndex({
 		setSearch('');
 		router.get(
 			articlesRoute.index.url(),
-			{},
+			{}, // Empty data means clear all filters
 			{
-				preserveState: true,
+				preserveState: false, // Full refresh to clean state
 				preserveScroll: true,
-				only: ['articles', 'filters'],
 				onSuccess: () => {
 					setIsFilterSheetOpen(false);
 					scrollToTop();

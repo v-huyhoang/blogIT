@@ -1,3 +1,6 @@
+import { Post, SingleCategory, SingleTag } from './blog';
+import { PaginatedResponse } from './pagination';
+
 export interface ResourceCollection<T> {
 	data: T[];
 }
@@ -33,4 +36,28 @@ export interface TopAuthorsSectionProps {
 	posts_count: number;
 	followers_count?: string;
 	avatar: string;
+}
+
+export interface ArticlesIndexProps {
+	articles?: PaginatedResponse<Post>;
+	filters: {
+		search?: string;
+		category?: string;
+		tag?: string;
+		sort?: string;
+		direction?: string;
+	};
+	categories?: ResourceCollection<SingleCategory>;
+	tags?: ResourceCollection<SingleTag>;
+}
+
+export interface FilterContentProps {
+	search: string;
+	setSearch: (value: string) => void;
+	categories?: ResourceCollection<SingleCategory>;
+	tags?: ResourceCollection<SingleTag>;
+	filters: ArticlesIndexProps['filters'];
+	handleCategoryChange: (value: string) => void;
+	handleTagChange: (value: string) => void;
+	isMobile?: boolean;
 }

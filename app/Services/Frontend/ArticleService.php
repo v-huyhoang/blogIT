@@ -32,7 +32,21 @@ class ArticleService
 
         $posts = $this->postRepository->paginate(
             perPage: 10,
-            columns: ['*'],
+            columns: [
+                'id',
+                'user_id',
+                'category_id',
+                'title',
+                'slug',
+                'excerpt',
+                'image',
+                'published_at',
+                'created_at',
+                'views_count',
+                'likes_count',
+                'comments_count',
+                'is_featured',
+            ],
             filters: $filters,
             relations: ['user:id,name', 'category:id,name']
         );

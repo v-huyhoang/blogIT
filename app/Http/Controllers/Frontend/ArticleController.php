@@ -24,7 +24,7 @@ class ArticleController extends Controller
         $queryDTO = PostQueryDTO::fromRequest($request->validated());
 
         return Inertia::render('frontend/articles/index', [
-            'articles' => $this->articleService->getArticles($queryDTO),
+            'articles' => fn () => $this->articleService->getArticles($queryDTO), // lazy load
 
             'filters' => $request->only(['search', 'category', 'tag', 'sort', 'direction']),
 
