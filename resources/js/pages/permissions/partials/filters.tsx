@@ -5,11 +5,10 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { router } from '@inertiajs/react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { FilterSection } from '@/components/filter-section';
-import  SearchBox  from '@/components/search-box';
-import  { SearchBoxRef }  from '@/components/search-box';
+import SearchBox, { SearchBoxRef } from '@/components/search-box';
 
 import { cleanFilters } from '@/lib/clean-filters';
 import { PermissionFilters } from '@/types';
@@ -18,9 +17,14 @@ import { SortOrderFilter } from '../../../components/filters/sort';
 
 import PermissionController from '@/actions/App/Http/Controllers/PermissionController';
 
-export function PermissionFilterAdvance({ filters }: { filters: PermissionFilters }) {
+export function PermissionFilterAdvance({
+	filters,
+}: {
+	filters: PermissionFilters;
+}) {
 	const [open, setOpen] = useState(false);
-	const [localFilters, setLocalFilters] = useState<PermissionFilters>(filters);
+	const [localFilters, setLocalFilters] =
+		useState<PermissionFilters>(filters);
 	const inputRef = useRef<SearchBoxRef>(null);
 	// Sync local filters with prop when opened
 	useEffect(() => {
@@ -57,7 +61,7 @@ export function PermissionFilterAdvance({ filters }: { filters: PermissionFilter
 
 	const handleReset = () => {
 		setLocalFilters({
-			'q': localFilters.q ?? ''
+			q: localFilters.q ?? '',
 		} as PermissionFilters);
 	};
 

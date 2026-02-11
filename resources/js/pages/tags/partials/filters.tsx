@@ -5,11 +5,10 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { router } from '@inertiajs/react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { FilterSection } from '@/components/filter-section';
-import  SearchBox  from '@/components/search-box';
-import  { SearchBoxRef }  from '@/components/search-box';
+import SearchBox, { SearchBoxRef } from '@/components/search-box';
 
 import { cleanFilters } from '@/lib/clean-filters';
 import { TagFilters } from '@/types';
@@ -57,7 +56,7 @@ export function TagFilterAdvance({ filters }: { filters: TagFilters }) {
 
 	const handleReset = () => {
 		setLocalFilters({
-			'q': localFilters.q ?? ''
+			q: localFilters.q ?? '',
 		} as TagFilters);
 	};
 

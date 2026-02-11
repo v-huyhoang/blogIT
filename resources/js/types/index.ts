@@ -4,6 +4,6 @@ export * from './filter';
 export * from './nav';
 export * from './page.d';
 export * from './pagination';
+export * from './permission';
 export * from './role-permission';
 export * from './ui';
-export * from './permission';

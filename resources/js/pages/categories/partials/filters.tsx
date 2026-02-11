@@ -5,11 +5,10 @@ import {
 	PopoverTrigger,
 } from '@/components/ui/popover';
 import { router } from '@inertiajs/react';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { FilterSection } from '@/components/filter-section';
-import SearchBox from '@/components/search-box';
-import  { SearchBoxRef }  from '@/components/search-box';
+import SearchBox, { SearchBoxRef } from '@/components/search-box';
 
 import CategoryController from '@/actions/App/Http/Controllers/CategoryController';
 import { StatusFilter } from '@/components/filters/status_v2';
@@ -62,7 +61,7 @@ export function CategoryFilterAdvance({
 
 	const handleReset = () => {
 		setLocalFilters({
-			'q': localFilters.q ?? ''
+			q: localFilters.q ?? '',
 		} as CategoryFilters);
 	};
 

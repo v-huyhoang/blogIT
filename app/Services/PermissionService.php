@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\DTOs\Permission\PermissionFilterDTO;
 use App\Repositories\Contracts\PermissionRepositoryInterface;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\DTOs\Permission\PermissionFilterDTO;
 
 class PermissionService
 {

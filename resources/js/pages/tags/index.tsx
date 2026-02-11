@@ -31,10 +31,10 @@ import AppLayout from '@/layouts/app-layout';
 import { type BreadcrumbItem } from '@/types';
 import { SingleTag, Tag, TagFilters } from '@/types/blog';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import { format } from 'date-fns';
 import { Loader2 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { TagFilterAdvance } from './partials/filters';
-import { format } from 'date-fns';
 
 const breadcrumbs: BreadcrumbItem[] = [
 	{
@@ -170,8 +170,18 @@ export default function Tags({
 										<TableCell>{tag.id}</TableCell>
 										<TableCell>{tag.name}</TableCell>
 										<TableCell>{tag.slug}</TableCell>
-										<TableCell>{format(tag.created_at,'dd-MM-yyyy',)}</TableCell>
-										<TableCell>{format(tag.updated_at,'dd-MM-yyyy',)}</TableCell>
+										<TableCell>
+											{format(
+												tag.created_at,
+												'dd-MM-yyyy',
+											)}
+										</TableCell>
+										<TableCell>
+											{format(
+												tag.updated_at,
+												'dd-MM-yyyy',
+											)}
+										</TableCell>
 										<TableCell>
 											{can('edit_tags') && (
 												<Button

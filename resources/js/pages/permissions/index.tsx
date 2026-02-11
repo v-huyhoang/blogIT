@@ -19,12 +19,12 @@ import { usePermissions } from '@/hooks/use-permissions';
 import AppLayout from '@/layouts/app-layout';
 import { useDialogStore } from '@/lib/dialog-store';
 import { Permission, SinglePermission, type BreadcrumbItem } from '@/types';
+import { PermissionFilters } from '@/types/permission';
 import { Head, useForm } from '@inertiajs/react';
+import { format } from 'date-fns';
 import { useState } from 'react';
 import CreatePermissionDialog from './partials/create-dialog';
 import EditPermissionDialog from './partials/edit-dialog';
-import { format } from 'date-fns';
-import { PermissionFilters } from '@/types/permission';
 import { PermissionFilterAdvance } from './partials/filters';
 
 const breadcrumbs: BreadcrumbItem[] = [
@@ -36,7 +36,7 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 export default function Permissions({
 	permissions,
-	filters
+	filters,
 }: {
 	permissions: Permission;
 	filters: PermissionFilters;
@@ -122,10 +122,16 @@ export default function Permissions({
 											{permission.description}
 										</TableCell>
 										<TableCell>
-											{format(permission.created_at,'dd-MM-yyyy',)}
+											{format(
+												permission.created_at,
+												'dd-MM-yyyy',
+											)}
 										</TableCell>
 										<TableCell>
-											{format(permission.updated_at,'dd-MM-yyyy',)}
+											{format(
+												permission.updated_at,
+												'dd-MM-yyyy',
+											)}
 										</TableCell>
 										<TableCell>
 											{can('edit_permissions') && (

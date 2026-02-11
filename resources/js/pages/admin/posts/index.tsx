@@ -60,7 +60,6 @@ import {
 	Edit,
 	EllipsisVertical,
 	FileSearch,
-	Plus,
 	RefreshCcw,
 	Star,
 	Trash2,
@@ -286,7 +285,7 @@ export default function PostIndex({
 			filters.tag_id ||
 			filters.trashed ||
 			filters.published_at_from ||
-			filters.published_at_to||
+			filters.published_at_to ||
 			filters.is_featured,
 	);
 

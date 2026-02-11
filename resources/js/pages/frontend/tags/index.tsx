@@ -1,12 +1,11 @@
 import { FooterMegaMenu } from '@/components/frontend/footer-mega-menu';
 import { PageHeader } from '@/components/frontend/page-header';
-import SearchBox from '@/components/search-box';
-import { SearchBoxRef } from '@/components/search-box';
+import SearchBox, { SearchBoxRef } from '@/components/search-box';
 import GuestLayout from '@/layouts/frontend/guest-layout';
 import { cn } from '@/lib/utils';
 import { Head, Link } from '@inertiajs/react';
 import { Hash, TrendingUp } from 'lucide-react';
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useRef, useState } from 'react';
 
 const tags = [
 	{ name: 'React', count: 124, color: 'from-blue-400 to-cyan-400' },
@@ -25,7 +24,7 @@ const tags = [
 
 export default function TagsIndex() {
 	const [searchQuery, setSearchQuery] = useState('');
-	const inputRef = useRef<SearchBoxRef>(null)
+	const inputRef = useRef<SearchBoxRef>(null);
 
 	const filteredTags = useMemo(() => {
 		return tags.filter((tag) =>

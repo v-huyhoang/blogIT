@@ -1,10 +1,6 @@
 import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
-import {
-	forwardRef,
-	useImperativeHandle,
-	useRef,
-} from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 
 type SearchBoxProps = {
 	defaultValue?: string;
@@ -29,7 +25,7 @@ const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(
 					}
 				},
 			}),
-			[]
+			[],
 		);
 
 		return (
@@ -49,7 +45,7 @@ const SearchBox = forwardRef<SearchBoxRef, SearchBoxProps>(
 				/>
 			</div>
 		);
-	}
+	},
 );
 
 export default SearchBox;
