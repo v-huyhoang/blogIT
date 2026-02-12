@@ -38,6 +38,10 @@ class HomeService
 
     public function getPersonalizedFeed(?User $user = null): AnonymousResourceCollection
     {
+        if (! $user) {
+            return $this->getTrendingPosts();
+        }
+
         return PostResource::collection($this->postRepository->getPersonalizedFeed($user));
     }
 }

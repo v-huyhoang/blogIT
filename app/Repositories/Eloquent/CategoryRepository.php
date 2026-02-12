@@ -42,6 +42,7 @@ final class CategoryRepository extends BaseRepository implements CategoryReposit
     public function getActiveWithPosts(): Collection
     {
         return $this->query()
+            ->select(['id', 'name', 'slug'])
             ->where('is_active', true)
             ->whereHas('posts', function ($query) {
                 $query->where('status', PostStatus::Published->value);

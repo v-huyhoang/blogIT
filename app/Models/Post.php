@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Contracts\HasSeo;
 use App\Enums\PostStatus;
 use App\Traits\Filterable;
 use App\Traits\HasSlug;
@@ -14,11 +15,47 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
-class Post extends Model
+class Post extends Model implements HasSeo
 {
     /** @use HasFactory<\Database\Factories\PostFactory> */
     use Filterable, HasFactory, HasSlug, SoftDeletes;
+
+    public function seo(): array
+    {
+        return $this->mergeSeo([
+            'title' => $this->title,
+            'description' => Str::limit($this->excerpt, 155),
+
+            // absolute OG image
+            'image' => $this->image_url
+                ? asset($this->image_url)
+                : null,
+
+            'type' => 'article',
+
+            // JSON-LD schema
+            'schema' => $this->schema(),
+        ]);
+    }
+
+    protected function schema(): array
+    {
+        return [
+            '@type' => 'BlogPosting',
+            'headline' => $this->title,
+            'datePublished' => $this->published_at?->toIso8601String(),
+            'dateModified' => $this->updated_at?->toIso8601String(),
+
+            'author' => [
+                '@type' => 'Person',
+                'name' => $this->author->name ?? 'BlogIT Team',
+            ],
+
+            'image' => [$this->image_url],
+        ];
+    }
 
     protected static string $slugFrom = 'title';
 

@@ -19,6 +19,7 @@ final class TagRepository extends BaseRepository implements TagRepositoryInterfa
     public function getActiveWithPosts(): Collection
     {
         return $this->query()
+            ->select(['id', 'name', 'slug'])
             ->whereHas('posts', function ($query) {
                 $query->where('status', PostStatus::Published->value);
             })

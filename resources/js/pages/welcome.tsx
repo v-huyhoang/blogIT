@@ -27,6 +27,89 @@ interface HomePageProps {
 	personalizedFeed?: ResourceCollection<PostLatestHomePage> | null;
 }
 
+interface PostSectionProps {
+	title: string;
+	headerContent: string;
+	headerKeyword: string;
+	data?: ResourceCollection<PostLatestHomePage> | null;
+	deferredKey: string;
+	readTime?: string;
+	bg?: boolean;
+	showAllLink?: boolean;
+}
+
+const PostSection = ({
+	title,
+	headerContent,
+	headerKeyword,
+	data,
+	deferredKey,
+	readTime = '5 min read',
+	bg = false,
+	showAllLink = false,
+}: PostSectionProps) => {
+	if (data === null && deferredKey === 'personalizedFeed') return null;
+
+	return (
+		<div
+			className={
+				bg ? 'bg-slate-50/50 py-24 dark:bg-slate-900/50' : 'py-24'
+			}
+		>
+			<div className="container mx-auto px-6 lg:px-8">
+				<div className="mb-16 flex flex-col gap-4">
+					<h2 className="text-sm font-black tracking-[0.3em] text-primary uppercase">
+						{title}
+					</h2>
+					<div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
+						<HeaderSection
+							content={headerContent}
+							keyword={headerKeyword}
+						/>
+						{showAllLink && (
+							<Link
+								href={articlesRoute.index.url()}
+								className="group flex items-center gap-2 text-xs font-black tracking-[0.3em] text-slate-500 uppercase transition-all hover:text-primary dark:text-slate-400"
+							>
+								VIEW ALL POSTS{' '}
+								<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
+							</Link>
+						)}
+					</div>
+				</div>
+
+				<Deferred
+					data={deferredKey}
+					fallback={
+						<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+							<PostCardSkeleton />
+							<PostCardSkeleton />
+							<PostCardSkeleton />
+						</div>
+					}
+				>
+					<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
+						{data?.data.map((post: PostLatestHomePage) => (
+							<PostCard
+								key={post.id}
+								title={post.title}
+								slug={post.slug}
+								excerpt={post.excerpt}
+								category={post.category.name}
+								user={post.user}
+								date={post.published_at}
+								readTime={readTime}
+								likes={post.likes_count}
+								comments={post.comments_count}
+							/>
+						))}
+					</div>
+				</Deferred>
+			</div>
+		</div>
+	);
+};
+
 export default function Welcome({
 	latestPosts,
 	featuredPosts,
@@ -46,99 +129,25 @@ export default function Welcome({
 			</Deferred>
 
 			{/* 2. Latest Insights */}
-			<div className="bg-slate-50/50 py-24 dark:bg-slate-900/50">
-				<div className="container mx-auto px-6 lg:px-8">
-					<div className="mb-16 flex flex-col gap-4">
-						<h2 className="text-sm font-black tracking-[0.3em] text-primary uppercase">
-							Latest Insights
-						</h2>
-						<div className="flex flex-col justify-between gap-8 md:flex-row md:items-center">
-							<HeaderSection content="Fresh" keyword="Thinking" />
-							<Link
-								href={articlesRoute.index.url()}
-								className="group flex items-center gap-2 text-xs font-black tracking-[0.3em] text-slate-500 uppercase transition-all hover:text-primary dark:text-slate-400"
-							>
-								VIEW ALL POSTS{' '}
-								<ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-2" />
-							</Link>
-						</div>
-					</div>
-
-					<Deferred
-						data="latestPosts"
-						fallback={
-							<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-								<PostCardSkeleton />
-								<PostCardSkeleton />
-								<PostCardSkeleton />
-							</div>
-						}
-					>
-						<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-							{latestPosts?.data.map(
-								(post: PostLatestHomePage) => (
-									<PostCard
-										key={`post-${post.id}`}
-										title={post.title}
-										slug={post.slug}
-										excerpt={post.excerpt}
-										category={post.category.name}
-										user={post.user}
-										date={post.published_at}
-										readTime="5 min read"
-										// imageUrl={post.image_url}
-										likes={post.likes_count}
-										comments={post.comments_count}
-									/>
-								),
-							)}
-						</div>
-					</Deferred>
-				</div>
-			</div>
+			<PostSection
+				title="Latest Insights"
+				headerContent="Fresh"
+				headerKeyword="Thinking"
+				data={latestPosts}
+				deferredKey="latestPosts"
+				bg={true}
+				showAllLink={true}
+			/>
 
 			{/* 3. Trending Posts */}
-			<div className="py-24">
-				<div className="container mx-auto px-6 lg:px-8">
-					<div className="mb-16 flex flex-col gap-4">
-						<h2 className="text-sm font-black tracking-[0.3em] text-primary uppercase">
-							Trending Now
-						</h2>
-						<HeaderSection content="Hot" keyword="Topics" />
-					</div>
-
-					<Deferred
-						data="trendingPosts"
-						fallback={
-							<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-								<PostCardSkeleton />
-								<PostCardSkeleton />
-								<PostCardSkeleton />
-							</div>
-						}
-					>
-						<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-							{trendingPosts?.data.map(
-								(post: PostLatestHomePage) => (
-									<PostCard
-										key={`post-${post.id}`}
-										title={post.title}
-										slug={post.slug}
-										excerpt={post.excerpt}
-										category={post.category.name}
-										user={post.user}
-										date={post.published_at}
-										readTime="7 min read"
-										featured={false}
-										likes={post.likes_count}
-										comments={post.comments_count}
-									/>
-								),
-							)}
-						</div>
-					</Deferred>
-				</div>
-			</div>
+			<PostSection
+				title="Trending Now"
+				headerContent="Hot"
+				headerKeyword="Topics"
+				data={trendingPosts}
+				deferredKey="trendingPosts"
+				readTime="7 min read"
+			/>
 
 			{/* 4. Top Authors */}
 			<Deferred data="topAuthors" fallback={<TopAuthorsSkeleton />}>
@@ -146,47 +155,16 @@ export default function Welcome({
 			</Deferred>
 
 			{/* 5. Personalized Feed */}
-			<div className="py-24">
-				<div className="container mx-auto px-6 lg:px-8">
-					<div className="mb-16 flex flex-col gap-4">
-						<h2 className="text-sm font-black tracking-[0.3em] text-primary uppercase">
-							Recommended for You
-						</h2>
-						<HeaderSection content="Personal" keyword="Feed" />
-					</div>
-
-					<Deferred
-						data="personalizedFeed"
-						fallback={
-							<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-								<PostCardSkeleton />
-								<PostCardSkeleton />
-								<PostCardSkeleton />
-							</div>
-						}
-					>
-						<div className="grid gap-12 md:grid-cols-2 lg:grid-cols-3">
-							{personalizedFeed?.data.map(
-								(post: PostLatestHomePage) => (
-									<PostCard
-										key={`post-${post.id}`}
-										title={post.title}
-										slug={post.slug}
-										excerpt={post.excerpt}
-										category={post.category.name}
-										user={post.user}
-										date={post.published_at}
-										readTime="6 min read"
-										featured={false}
-										likes={post.likes_count}
-										comments={post.comments_count}
-									/>
-								),
-							)}
-						</div>
-					</Deferred>
-				</div>
-			</div>
+			{personalizedFeed !== undefined && (
+				<PostSection
+					title="Recommended for You"
+					headerContent="Personal"
+					headerKeyword="Feed"
+					data={personalizedFeed}
+					deferredKey="personalizedFeed"
+					readTime="6 min read"
+				/>
+			)}
 
 			<PricingSection />
 

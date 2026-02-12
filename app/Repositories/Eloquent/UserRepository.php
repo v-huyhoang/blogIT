@@ -18,6 +18,7 @@ final class UserRepository extends BaseRepository implements UserRepositoryInter
     public function getTopAuthors(int $limit = 4): Collection
     {
         return $this->query()
+            ->select(['id', 'name'])
             ->with(['roles:id,name'])
             ->withCount('posts')
             ->orderByDesc('posts_count')

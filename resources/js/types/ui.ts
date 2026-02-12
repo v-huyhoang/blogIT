@@ -24,6 +24,20 @@ export interface SharedData {
 			site_name: string;
 		};
 	};
+	pageSeo?: {
+		title?: string;
+		description?: string;
+		keywords?: string;
+		image?: string;
+		type?: string;
+
+		pagination?: {
+			prev?: string;
+			next?: string;
+		};
+
+		schema?: Record<string, unknown>;
+	};
 	flash: {
 		message?: string;
 		error?: string;

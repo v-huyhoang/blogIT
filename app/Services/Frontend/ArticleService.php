@@ -56,7 +56,29 @@ class ArticleService
 
     public function getArticleBySlug(string $slug): PostDetailResource
     {
-        $post = $this->postRepository->findBy('slug', $slug, ['*'], ['user', 'category', 'tags']);
+        $post = $this->postRepository->findBy(
+            'slug',
+            $slug,
+            [
+                'id',
+                'user_id',
+                'category_id',
+                'title',
+                'slug',
+                'excerpt',
+                'content',
+                'image',
+                'meta_title',
+                'meta_description',
+                'is_featured',
+                'published_at',
+                'views_count',
+                'likes_count',
+                'comments_count',
+                'created_at',
+            ],
+            ['user:id,name', 'category:id,name,slug', 'tags:id,name,slug']
+        );
 
         if (! $post || ! $post->published_at) {
             abort(404);
@@ -74,7 +96,21 @@ class ArticleService
 
         $posts = $this->postRepository->paginate(
             perPage: $limit + 1,
-            columns: ['*'],
+            columns: [
+                'id',
+                'user_id',
+                'category_id',
+                'title',
+                'slug',
+                'excerpt',
+                'image',
+                'published_at',
+                'views_count',
+                'likes_count',
+                'comments_count',
+                'is_featured',
+                'created_at',
+            ],
             filters: $filters,
             relations: ['user:id,name', 'category:id,name']
         );

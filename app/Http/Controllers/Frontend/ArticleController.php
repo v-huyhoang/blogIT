@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\DTOs\Post\PostQueryDTO;
+use App\Factories\SeoFactory;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Frontend\ArticleIndexRequest;
 use App\Services\Frontend\ArticleService;
@@ -16,15 +17,19 @@ class ArticleController extends Controller
     public function __construct(
         protected ArticleService $articleService,
         protected CategoryService $categoryService,
-        protected TagService $tagService
+        protected TagService $tagService,
+        protected SeoFactory $seoFactory
     ) {}
 
     public function index(ArticleIndexRequest $request): Response
     {
         $queryDTO = PostQueryDTO::fromRequest($request->validated());
+        $articles = $this->articleService->getArticles($queryDTO);
 
         return Inertia::render('frontend/articles/index', [
-            'articles' => fn () => $this->articleService->getArticles($queryDTO), // lazy load
+            'pageSeo' => $this->seoFactory->articlesIndex($articles),
+
+            'articles' => fn () => $articles, // lazy load
 
             'filters' => $request->only(['search', 'category', 'tag', 'sort', 'direction']),
 
@@ -39,6 +44,7 @@ class ArticleController extends Controller
         $article = $this->articleService->getArticleBySlug($slug);
 
         return Inertia::render('frontend/articles/show', [
+            'pageSeo' => $article->seo(),
             'article' => $article,
             'relatedPosts' => Inertia::defer(fn () => $this->articleService->getRelatedPosts(
                 $article->id,

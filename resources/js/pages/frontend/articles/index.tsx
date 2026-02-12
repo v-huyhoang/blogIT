@@ -30,160 +30,158 @@ import {
 	Tags,
 	X,
 } from 'lucide-react';
-import { useCallback, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useMemo, useState } from 'react';
 
-const FilterContent = ({
-	search,
-	setSearch,
-	categories,
-	tags,
-	filters,
-	handleCategoryChange,
-	handleTagChange,
-	isMobile = false,
-}: FilterContentProps) => (
-	<div className={cn('space-y-8', isMobile && 'space-y-6')}>
-		{/* Search Section */}
-		<div className="space-y-3">
-			<h3 className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] text-muted-foreground uppercase opacity-60">
-				<Search className="h-3 w-3" />
-				Search
-			</h3>
-			<SearchBox
-				value={search}
-				onSearch={(val) => setSearch(val)}
-				onChange={(val) => setSearch(val)}
-				placeholder="Type to search..."
-			/>
-		</div>
-
-		<Deferred
-			data={['categories', 'tags']}
-			fallback={
-				<div className="space-y-8">
-					<div className="space-y-3">
-						<Skeleton className="h-3 w-20" />
-						<div className="space-y-1.5">
-							{Array.from({ length: 5 }).map((_, i) => (
-								<Skeleton
-									key={`cat-s-${i}`}
-									className="h-8 w-full rounded-lg"
-								/>
-							))}
-						</div>
-					</div>
-					<div className="space-y-3">
-						<Skeleton className="h-3 w-20" />
-						<div className="flex flex-wrap gap-1.5">
-							{Array.from({ length: 8 }).map((_, i) => (
-								<Skeleton
-									key={`tag-s-${i}`}
-									className="h-6 w-14 rounded-md"
-								/>
-							))}
-						</div>
-					</div>
-				</div>
-			}
-		>
-			{/* Categories Section */}
+const FilterContent = memo(
+	({
+		search,
+		setSearch,
+		categories,
+		tags,
+		filters,
+		handleCategoryChange,
+		handleTagChange,
+		isMobile = false,
+	}: FilterContentProps) => (
+		<div className={cn('space-y-8', isMobile && 'space-y-6')}>
+			{/* Search Section */}
 			<div className="space-y-3">
 				<h3 className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] text-muted-foreground uppercase opacity-60">
-					<LayoutGrid className="h-3 w-3" />
-					Categories
+					<Search className="h-3 w-3" />
+					Search
 				</h3>
-				<div className="flex flex-col gap-0.5">
-					<button
-						onClick={() => handleCategoryChange('all')}
-						className={cn(
-							'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all duration-200 hover:cursor-pointer',
-							!filters.category
-								? 'bg-primary/10 text-primary'
-								: 'text-muted-foreground hover:bg-muted hover:text-foreground',
-						)}
-					>
-						<span>All Topics</span>
-					</button>
-					{categories?.data?.map((cat) => (
+				<SearchBox
+					value={search}
+					onSearch={(val) => setSearch(val)}
+					onChange={(val) => setSearch(val)}
+					placeholder="Type to search..."
+				/>
+			</div>
+
+			<Deferred
+				data={['categories', 'tags']}
+				fallback={
+					<div className="space-y-8">
+						<div className="space-y-3">
+							<Skeleton className="h-3 w-20" />
+							<div className="space-y-1.5">
+								{Array.from({ length: 5 }).map((_, i) => (
+									<Skeleton
+										key={`cat-s-${i}`}
+										className="h-8 w-full rounded-lg"
+									/>
+								))}
+							</div>
+						</div>
+						<div className="space-y-3">
+							<Skeleton className="h-3 w-20" />
+							<div className="flex flex-wrap gap-1.5">
+								{Array.from({ length: 8 }).map((_, i) => (
+									<Skeleton
+										key={`tag-s-${i}`}
+										className="h-6 w-14 rounded-md"
+									/>
+								))}
+							</div>
+						</div>
+					</div>
+				}
+			>
+				{/* Categories Section */}
+				<div className="space-y-3">
+					<h3 className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] text-muted-foreground uppercase opacity-60">
+						<LayoutGrid className="h-3 w-3" />
+						Categories
+					</h3>
+					<div className="flex flex-col gap-0.5">
 						<button
-							key={cat.id}
-							onClick={() => handleCategoryChange(cat.slug)}
+							onClick={() => handleCategoryChange('all')}
 							className={cn(
 								'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all duration-200 hover:cursor-pointer',
-								filters.category === cat.slug
+								!filters.category
 									? 'bg-primary/10 text-primary'
 									: 'text-muted-foreground hover:bg-muted hover:text-foreground',
 							)}
 						>
-							<span className="truncate">{cat.name}</span>
-							<span
+							<span>All Topics</span>
+						</button>
+						{categories?.data?.map((cat) => (
+							<button
+								key={cat.id}
+								onClick={() => handleCategoryChange(cat.slug)}
 								className={cn(
-									'ml-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-md px-1 text-[8px] font-black tabular-nums',
+									'flex items-center justify-between rounded-lg px-2.5 py-1.5 text-xs font-bold transition-all duration-200 hover:cursor-pointer',
 									filters.category === cat.slug
-										? 'bg-primary text-white'
-										: 'bg-muted text-muted-foreground',
+										? 'bg-primary/10 text-primary'
+										: 'text-muted-foreground hover:bg-muted hover:text-foreground',
 								)}
 							>
-								{cat.posts_count || 0}
-							</span>
-						</button>
-					))}
+								<span className="truncate">{cat.name}</span>
+								<span
+									className={cn(
+										'ml-2 flex h-4.5 min-w-[18px] items-center justify-center rounded-md px-1 text-[8px] font-black tabular-nums',
+										filters.category === cat.slug
+											? 'bg-primary text-white'
+											: 'bg-muted text-muted-foreground',
+									)}
+								>
+									{cat.posts_count || 0}
+								</span>
+							</button>
+						))}
+					</div>
 				</div>
-			</div>
 
-			{/* Tags Section */}
-			<div className="space-y-3">
-				<h3 className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] text-muted-foreground uppercase opacity-60">
-					<Tags className="h-3 w-3" />
-					Popular Tags
-				</h3>
-				<div className="flex flex-wrap gap-1.5">
-					<button
-						onClick={() => handleTagChange('all')}
-						className={cn(
-							'rounded-md border px-2 py-1 text-[10px] font-bold transition-all duration-200 hover:cursor-pointer',
-							!filters.tag
-								? 'border-primary/20 bg-primary/10 text-primary'
-								: 'border-border/50 bg-card text-muted-foreground hover:border-primary/30 hover:text-primary',
-						)}
-					>
-						#all
-					</button>
-					{tags?.data?.map((tag) => (
+				{/* Tags Section */}
+				<div className="space-y-3">
+					<h3 className="flex items-center gap-2 text-[9px] font-black tracking-[0.2em] text-muted-foreground uppercase opacity-60">
+						<Tags className="h-3 w-3" />
+						Popular Tags
+					</h3>
+					<div className="flex flex-wrap gap-1.5">
 						<button
-							key={tag.id}
-							onClick={() => handleTagChange(tag.slug || '')}
+							onClick={() => handleTagChange('all')}
 							className={cn(
-								'flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-bold transition-all duration-200 hover:cursor-pointer',
-								filters.tag === tag.slug
+								'rounded-md border px-2 py-1 text-[10px] font-bold transition-all duration-200 hover:cursor-pointer',
+								!filters.tag
 									? 'border-primary/20 bg-primary/10 text-primary'
 									: 'border-border/50 bg-card text-muted-foreground hover:border-primary/30 hover:text-primary',
 							)}
 						>
-							<span>#{tag.name}</span>
-							<span
+							#all
+						</button>
+						{tags?.data?.map((tag) => (
+							<button
+								key={tag.id}
+								onClick={() => handleTagChange(tag.slug || '')}
 								className={cn(
-									'text-[8px] font-black tabular-nums opacity-60',
+									'flex items-center gap-1 rounded-md border px-2 py-1 text-[10px] font-bold transition-all duration-200 hover:cursor-pointer',
 									filters.tag === tag.slug
-										? 'text-primary'
-										: 'text-muted-foreground',
+										? 'border-primary/20 bg-primary/10 text-primary'
+										: 'border-border/50 bg-card text-muted-foreground hover:border-primary/30 hover:text-primary',
 								)}
 							>
-								{tag.posts_count || 0}
-							</span>
-						</button>
-					))}
+								<span>#{tag.name}</span>
+								<span
+									className={cn(
+										'text-[8px] font-black tabular-nums opacity-60',
+										filters.tag === tag.slug
+											? 'text-primary'
+											: 'text-muted-foreground',
+									)}
+								>
+									{tag.posts_count || 0}
+								</span>
+							</button>
+						))}
+					</div>
 				</div>
-			</div>
-		</Deferred>
-	</div>
+			</Deferred>
+		</div>
+	),
 );
 
-const sortOptions = [
-	{ label: 'Latest', sort: 'created_at' },
-	{ label: 'Views', sort: 'views_count' },
-	{ label: 'Likes', sort: 'likes_count' },
-];
+FilterContent.displayName = 'FilterContent';
 
 export default function ArticlesIndex({
 	articles,
@@ -195,12 +193,21 @@ export default function ArticlesIndex({
 	const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
 	const debouncedSearch = useDebounce(search, 600);
 
-	const scrollToTop = () => {
+	const sortOptions = useMemo(
+		() => [
+			{ label: 'Latest', sort: 'created_at' },
+			{ label: 'Views', sort: 'views_count' },
+			{ label: 'Likes', sort: 'likes_count' },
+		],
+		[],
+	);
+
+	const scrollToTop = useCallback(() => {
 		window.scrollTo({
 			top: 0,
 			behavior: 'smooth',
 		});
-	};
+	}, []);
 
 	// Sync search state with filters prop (e.g., on back button or direct URL change)
 	useEffect(() => {
@@ -233,7 +240,7 @@ export default function ArticlesIndex({
 				},
 			});
 		},
-		[filters],
+		[filters, scrollToTop],
 	);
 
 	// Debounced search trigger
@@ -255,27 +262,36 @@ export default function ArticlesIndex({
 		}
 	}, [debouncedSearch, search, filters.search, updateFilters]);
 
-	const handleCategoryChange = (value: string) => {
-		updateFilters({ category: value === 'all' ? undefined : value });
-	};
+	const handleCategoryChange = useCallback(
+		(value: string) => {
+			updateFilters({ category: value === 'all' ? undefined : value });
+		},
+		[updateFilters],
+	);
 
-	const handleTagChange = (value: string) => {
-		updateFilters({ tag: value === 'all' ? undefined : value });
-	};
+	const handleTagChange = useCallback(
+		(value: string) => {
+			updateFilters({ tag: value === 'all' ? undefined : value });
+		},
+		[updateFilters],
+	);
 
-	const handleSortChange = (sortField: string) => {
-		const currentSort = filters.sort || 'created_at';
-		const currentDirection = filters.direction || 'desc';
+	const handleSortChange = useCallback(
+		(sortField: string) => {
+			const currentSort = filters.sort || 'created_at';
+			const currentDirection = filters.direction || 'desc';
 
-		let newDirection = 'desc';
-		if (currentSort === sortField) {
-			newDirection = currentDirection === 'desc' ? 'asc' : 'desc';
-		}
+			let newDirection = 'desc';
+			if (currentSort === sortField) {
+				newDirection = currentDirection === 'desc' ? 'asc' : 'desc';
+			}
 
-		updateFilters({ sort: sortField, direction: newDirection });
-	};
+			updateFilters({ sort: sortField, direction: newDirection });
+		},
+		[filters.sort, filters.direction, updateFilters],
+	);
 
-	const clearFilters = () => {
+	const clearFilters = useCallback(() => {
 		setSearch('');
 		router.get(
 			articlesRoute.index.url(),
@@ -289,27 +305,31 @@ export default function ArticlesIndex({
 				},
 			},
 		);
-	};
+	}, [scrollToTop]);
 
-	const hasActiveFilters = !!(
-		filters.search ||
-		filters.category ||
-		filters.tag ||
-		(filters.sort && filters.sort !== 'created_at') ||
-		(filters.direction && filters.direction !== 'desc')
+	const hasActiveFilters = useMemo(
+		() =>
+			!!(
+				filters.search ||
+				filters.category ||
+				filters.tag ||
+				(filters.sort && filters.sort !== 'created_at') ||
+				(filters.direction && filters.direction !== 'desc')
+			),
+		[filters],
 	);
 
-	const showClearAll = !!(filters.search || filters.category || filters.tag);
+	const showClearAll = useMemo(
+		() => !!(filters.search || filters.category || filters.tag),
+		[filters.search, filters.category, filters.tag],
+	);
 
 	const currentSort = filters.sort || 'created_at';
 	const currentDirection = filters.direction || 'desc';
 
 	return (
 		<GuestLayout>
-			<SeoHead
-				title="Articles"
-				description="Explore our latest thoughts and insights"
-			/>
+			<SeoHead />
 
 			<div className="bg-muted/30 py-12 lg:py-24">
 				<div className="container mx-auto px-6 lg:px-8">
@@ -472,34 +492,27 @@ export default function ArticlesIndex({
 								{articles?.data && articles.data.length > 0 ? (
 									<>
 										<div className="grid gap-8 sm:grid-cols-2">
-											{articles.data.map(
-												(article, index) => (
-													<PostCard
-														key={`article-${article.id || index}`}
-														title={article.title}
-														slug={article.slug}
-														excerpt={
-															article.excerpt
-														}
-														category={
-															article.category
-																.name
-														}
-														user={article.user}
-														date={
-															article.published_at ||
-															article.created_at
-														}
-														readTime="5 min read"
-														likes={
-															article.likes_count
-														}
-														comments={
-															article.comments_count
-														}
-													/>
-												),
-											)}
+											{articles.data.map((article) => (
+												<PostCard
+													key={article.id}
+													title={article.title}
+													slug={article.slug}
+													excerpt={article.excerpt}
+													category={
+														article.category.name
+													}
+													user={article.user}
+													date={
+														article.published_at ||
+														article.created_at
+													}
+													readTime="5 min read"
+													likes={article.likes_count}
+													comments={
+														article.comments_count
+													}
+												/>
+											))}
 										</div>
 
 										<div className="mt-16 flex justify-center">
