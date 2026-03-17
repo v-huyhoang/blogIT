@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('handle_pdfs', function (Blueprint $table) {
+        Schema::create('category_pdfs', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('title');
+            $table->string('name');
+            $table->string('slug')->unique();
+            $table->string('image')->nullable();
             $table->text('description')->nullable();
-            $table->string('file_path');
             $table->timestamps();
 
-            $table->index('user_id');
+            $table->index('id');
         });
     }
 
@@ -28,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('handle_pdfs');
+        Schema::dropIfExists('category_pdfs');
     }
 };

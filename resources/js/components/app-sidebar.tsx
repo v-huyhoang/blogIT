@@ -78,10 +78,24 @@ const mainNavItems: NavItem[] = [
 	},
 
 	{
-		title: 'Handle PDFs',
-		href: '/handlepdfs',
+		title: 'Handle PDF',
+		href: '#',
 		icon: FileText,
 		permission: 'view_handlepdfs',
+		items: [
+			{
+				title: 'List PDF',
+				href: '/handlepdfs',
+				icon: FileText,
+				permission: 'view_handlepdfs',
+			},
+			{
+				title: 'Create PDF',
+				href: '/handlepdfs/create',
+				icon: FileText,
+				permission: 'create_handlepdfs',
+			},
+		],
 	},
 ];
 

@@ -5,6 +5,7 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\TagController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\HandlepdfController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
